@@ -109,6 +109,8 @@ function card(c) {
 /* ---------- filtrage ---------- */
 const inR = (v, [lo, hi]) => (lo == null && hi == null) || (v != null && (lo == null || v >= lo) && (hi == null || v <= hi));
 function apply() {
+  if (state.cat === 'live') { showLive(true); drawSimbadBox(); return; }
+  showLive(false);
   const toks = norm(state.q).split(/\s+/).filter(Boolean);
   VIEW = ALL.filter(c => {
     if (groupOf(c.k) !== state.cat) return false;
@@ -129,6 +131,7 @@ function apply() {
   $('#count').textContent = t().results(VIEW.length);
   drawSubs();
   $('#exoOnly').hidden = !(state.cat === 'planet' && (state.sub === 'exoplanet' || !state.sub));
+  drawSimbadBox();
 }
 function more() {
   const frag = document.createDocumentFragment();
@@ -140,9 +143,10 @@ new IntersectionObserver(es => { if (es[0].isIntersecting && shown < VIEW.length
 /* ---------- navigation catégories ---------- */
 function drawCats() {
   const counts = {}; for (const c of ALL) counts[groupOf(c.k)] = (counts[groupOf(c.k)] ?? 0) + 1;
+  counts.live = 1;
   $('#cats').replaceChildren(...TOP.map(k => el('button', { type: 'button', 'aria-pressed': String(state.cat === k), disabled: !counts[k],
     onclick: () => { state.cat = k; state.sub = ''; state.type = ''; apply(); drawCats(); } },
-    t().cat[k], el('em', { text: counts[k] ? counts[k].toLocaleString(lang) : t().soon }))));
+    t().cat[k], el('em', { text: k === 'live' ? '●' : counts[k] ? counts[k].toLocaleString(lang) : t().soon }))));
 }
 function drawSubs() {
   const counts = {};
@@ -305,14 +309,14 @@ async function openObj(id, push) {
 /* ---------- ISS en direct (position calculée côté serveur depuis l'éphéméride officielle de la NASA) ---------- */
 let issTimer = null, landPath = null;
 function stopIss() { clearInterval(issTimer); issTimer = null; }
-async function mountIss(host) {
+async function mountIss(host, { inFiche = true } = {}) {
   stopIss();
   const T_ = t();
   const box = el('div', { class: 'iss' });
   const info = el('div', { class: 'iss-info', 'aria-live': 'polite' });
   const map = el('div', { class: 'iss-map' });
   box.append(el('h3', { text: T_.issLive }), map, info, el('p', { class: 'credit', text: T_.issNote }));
-  host.querySelector('.dlg-head').after(box);
+  if (inFiche) host.querySelector('.dlg-head').after(box); else host.append(box);
   try { landPath ??= (await (await fetch('/data/land.json')).json()).d; } catch { landPath = ''; }
   const draw = d => {
     const segs = []; let cur = [];
@@ -339,7 +343,79 @@ async function mountIss(host) {
     catch { info.replaceChildren(el('p', { class: 'na', text: T_.issErr })); }
   };
   await tick();
-  issTimer = setInterval(() => { if ($('#dlg').open) tick(); else stopIss(); }, 5000);
+  issTimer = setInterval(() => { if ($('#dlg').open || state.cat === 'live') tick(); else stopIss(); }, 5000);
+}
+
+/* ---------- onglet « En direct » : ISS, APOD, EPIC, rovers (flux officiels NASA, via nos fonctions serveur) ---------- */
+const getJson = async url => { const r = await fetch(url); if (!r.ok) throw new Error(r.status); return r.json(); };
+const fmtDate = s => { const d = new Date(String(s).replace(' ', 'T') + (/Z|[+-]\d\d:?\d\d$/.test(s) ? '' : 'Z')); return isNaN(d) ? s : d.toLocaleString(lang, { dateStyle: 'medium', timeStyle: 'short' }); };
+async function mountLive() {
+  const T_ = t(), host = $('#live');
+  host.replaceChildren(el('h2', { text: T_.cat.live }), el('p', { class: 'credit', text: T_.liveIntro }));
+  const section = (title, ...kids) => { const s = el('section', { class: 'live-sec' }, el('h3', { text: title }), ...kids); host.append(s); return s; };
+  // ISS
+  const issHost = section(T_.issLive); issHost.querySelector('h3').remove();
+  mountIss(issHost, { inFiche: false });
+  issHost.append(el('p', {}, el('a', { href: '?o=mission-international-space-station', onclick: e => { e.preventDefault(); openObj('mission-international-space-station', true); }, text: T_.issFiche })));
+  // APOD
+  const ap = section(T_.apodTitle, el('p', { class: 'na', text: T_.loading }));
+  getJson('/api/apod').then(a => {
+    const media = a.media_type === 'video_file' ? el('video', { src: a.url, controls: true, preload: 'metadata', class: 'apod-img', 'aria-label': a.title })
+      : a.media_type === 'image' ? el('a', { href: a.hdurl ?? a.url, target: '_blank', rel: 'noopener' }, el('img', { src: a.url, alt: a.title, loading: 'lazy', class: 'apod-img' }))
+      : el('p', {}, el('a', { href: a.url, target: '_blank', rel: 'noopener', text: T_.apodVideo }));
+    ap.replaceChildren(el('h3', { text: T_.apodTitle }), media, el('h4', { text: `${a.title} — ${a.date}` }),
+      el('p', { class: 'summary', lang: 'en' }, a.explanation, el('small', { text: T_.apodNote })),
+      el('p', { class: 'credit' }, `${T_.imgCredit} : ${a.credit ?? (a.copyright ? `© ${a.copyright}` : 'NASA')} · `, el('a', { href: a.page, target: '_blank', rel: 'noopener', text: T_.source + ' : NASA APOD' }),
+        a.fallback_days ? ` · ${T_.apodOld}` : ''));
+  }).catch(() => ap.append(el('p', { class: 'na', text: T_.liveErr })));
+  // EPIC
+  const ep = section(T_.epicTitle, el('p', { class: 'na', text: T_.loading }));
+  getJson('/api/epic').then(d => {
+    ep.replaceChildren(el('h3', { text: T_.epicTitle }), el('p', { class: 'credit', text: T_.epicNote }),
+      el('div', { class: 'gal' }, d.images.map(i => el('a', { href: i.url, target: '_blank', rel: 'noopener', title: `${fmtDate(i.date)} (UTC) · ${i.lat?.toFixed(1)}°, ${i.lon?.toFixed(1)}°` },
+        el('img', { src: i.thumb, alt: `${T_.epicAlt} — ${i.date}`, loading: 'lazy' }), el('small', { text: fmtDate(i.date) })))),
+      el('p', { class: 'credit' }, `${T_.imgCredit} : NASA/NOAA DSCOVR EPIC · `, el('a', { href: d.page, target: '_blank', rel: 'noopener', text: T_.source + ' : EPIC' })));
+  }).catch(() => ep.append(el('p', { class: 'na', text: T_.liveErr })));
+  // Rovers
+  const rv = section(T_.roverTitle, el('p', { class: 'na', text: T_.loading }));
+  getJson('/api/rovers').then(d => {
+    rv.replaceChildren(el('h3', { text: T_.roverTitle }), el('p', { class: 'credit', text: T_.roverNote }),
+      ...Object.values(d.rovers).flatMap(r => [el('h4', { text: `${r.name} — sol ${r.sol}` }),
+        el('div', { class: 'gal' }, r.images.map(i => el('a', { href: i.full ?? i.medium, target: '_blank', rel: 'noopener', title: `${i.camera} · ${fmtDate(i.taken)}` },
+          el('img', { src: i.small ?? i.medium, alt: `${r.name} — ${i.camera}`, loading: 'lazy' }), el('small', { text: `${i.camera.replace(/_/g, ' ')}` })))),
+        el('p', { class: 'credit' }, `${T_.imgCredit} : NASA/JPL-Caltech · `, el('a', { href: r.page, target: '_blank', rel: 'noopener', text: T_.source + ' : ' + r.name }))]));
+  }).catch(() => rv.append(el('p', { class: 'na', text: T_.liveErr })));
+}
+function showLive(on) {
+  $('#live').hidden = !on; ['#filters', '#grid', '#count', '#subs', '#sentinel'].forEach(s => { const n = $(s); if (n) n.hidden = on; });
+  $('.layout').classList.toggle('live-mode', on);
+  if (on) mountLive(); else if (!$('#dlg').open) stopIss();
+}
+
+/* ---------- recherche SIMBAD en direct (pour les objets absents du catalogue local) ---------- */
+function drawSimbadBox() {
+  const box = $('#simbadBox'), q = state.q.trim();
+  if (q.length < 2 || state.cat === 'live') { box.hidden = true; return; }
+  box.hidden = false;
+  box.replaceChildren(el('button', { class: 'btn', type: 'button', onclick: () => runSimbad(q) }, t().simbadBtn(q)), el('span', { class: 'credit', text: ' ' + t().simbadHint }));
+}
+async function runSimbad(q) {
+  const box = $('#simbadBox'), T_ = t();
+  box.replaceChildren(el('p', { class: 'na', text: T_.loading }));
+  try {
+    const r = await getJson(`/api/simbad?q=${encodeURIComponent(q)}`);
+    if (!r.found) { box.replaceChildren(el('p', {}, T_.simbadNone(q)), el('a', { href: `https://simbad.cds.unistra.fr/simbad/sim-basic?Ident=${encodeURIComponent(q)}`, target: '_blank', rel: 'noopener', text: 'SIMBAD' })); return; }
+    const local = ALL.find(c => norm(c.c) === norm(r.main_id) || norm(c.n) === norm(r.main_id));
+    const f = v => v.toLocaleString(lang, { maximumSignificantDigits: 5 });
+    const img = r.ra != null ? `https://skyview.gsfc.nasa.gov/cgi-bin/images?Position=${r.ra},${r.dec}&Survey=DSS2+Red&Size=0.12&Pixels=240&Return=JPEG&Scaling=Log` : null;
+    box.replaceChildren(el('div', { class: 'sb-card' },
+      img ? el('div', { class: 'sb-pic' }, el('img', { src: img, alt: `${T_.skyBadge} ${r.main_id}`, loading: 'lazy' }), el('span', { class: 'crosshair', 'aria-hidden': 'true' })) : '',
+      el('div', {}, el('h3', { text: r.main_id }), el('p', { class: 'credit', text: [r.otype_label ?? r.otype, r.sp_type && `${T_.p.sptype} ${r.sp_type}`, r.vmag && `V = ${r.vmag}`, r.distance_pc && `${f(r.distance_pc * 3.26156)} ${T_.ly}`].filter(Boolean).join(' · ') }),
+        el('p', { class: 'credit', text: `RA ${r.ra}°, Dec ${r.dec}° (ICRS)` }), el('p', { class: 'credit', text: r.ids.slice(0, 8).join(' · ') }),
+        el('p', {}, local ? el('a', { href: `?o=${local.i}`, onclick: e => { e.preventDefault(); openObj(local.i, true); }, text: T_.simbadLocal }) : '', local ? ' · ' : '',
+          el('a', { href: r.url, target: '_blank', rel: 'noopener', text: T_.simbadOpen })),
+        el('p', { class: 'credit', text: T_.simbadSrc }))));
+  } catch { box.replaceChildren(el('p', { class: 'na', text: T_.liveErr })); }
 }
 
 $('#dlg').addEventListener('close', () => {
