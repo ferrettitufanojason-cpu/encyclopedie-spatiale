@@ -81,7 +81,7 @@ for (const r of rows) {
   objects.push({
     id, cat: 'exoplanet', sub, name: r.pl_name, code: r.pl_name, aliases, tags,
     host: r.hostname, nPlanets: num(r.sy_pnum), nStars: num(r.sy_snum),
-    disc: { year: num(r.disc_year), method: r.discoverymethod || null, facility: r.disc_facility || null, ref: parseRef(r.disc_refname) },
+    disc: { year: num(r.disc_year), pubdate: r.disc_pubdate || null, method: r.discoverymethod || null, facility: r.disc_facility || null, ref: parseRef(r.disc_refname) },
     spectype: r.st_spectype || null, ra: num(r.ra), dec: num(r.dec),
     controversial: r.pl_controv_flag === '1',
     props, src: 'nea', updated: r.pl_pubdate || today,

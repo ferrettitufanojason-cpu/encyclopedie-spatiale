@@ -1,0 +1,23 @@
+name: CI
+
+# À chaque push / pull request : contrôles rapides (syntaxe des scripts, tests ISS et accessibilité du HTML construit à partir d'un jeu de données minimal).
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Syntaxe des scripts et du client
+        run: |
+          for f in scripts/*.mjs scripts/lib/*.mjs lib/*.mjs api/*.js tests/*.mjs src/scripts/*.js; do node --check "$f"; done
+      - name: Tests de la position de l'ISS (éphéméride NASA)
+        run: node --test tests/iss.test.mjs

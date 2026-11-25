@@ -4,7 +4,7 @@ Encyclopédie spatiale interactive façon « fiche + collection », pour la vulg
 Une grille de cartes (image, nom, code de catalogue, tags), une fiche détaillée par objet (URL partageable `?o=<id>`),
 recherche, filtres, comparateur de 2 à 3 objets à l'échelle, interface français / anglais, et une section « En direct » (ISS, image du jour NASA, Terre vue de DSCOVR, rovers martiens, recherche SIMBAD).
 
-Le site compte **16 888 objets** (données du 25 novembre 2026). Chaque valeur affichée porte sa **source, son lien et sa date de mise à jour** ; une donnée absente de la source est affichée « non disponible » (rien n'est deviné).
+Le site compte **17 608 objets** (données du 25 novembre 2026), mis à jour automatiquement chaque semaine (voir « Mises à jour automatiques »). Chaque valeur affichée porte sa **source, son lien et sa date de mise à jour** ; une donnée absente de la source est affichée « non disponible » (rien n'est deviné).
 
 ## Pourquoi Astro
 
@@ -72,6 +72,8 @@ L'action `.github/workflows/weekly-update.yml` s'exécute chaque lundi (et à la
 | **NASA SkyView / DSS2** — <https://skyview.gsfc.nasa.gov> | une vue du ciel centrée sur chaque étoile et région sans photo | Digitized Sky Surveys (STScI/Palomar) : usage éducatif et non commercial |
 | **NASA Image and Video Library** — <https://images.nasa.gov> | photos et illustrations vérifiées une à une (planètes, lunes, nébuleuses, galaxies…) | domaine public NASA (hors mention contraire) |
 | **Wikimedia Commons** — <https://commons.wikimedia.org> | cartes UAI des constellations (CC BY 3.0/4.0 : « IAU and Sky & Telescope »), images NASA/ESA/ESO/EHT d'étoiles, trous noirs, pulsars, missions, petits corps | licence libre **vérifiée par fichier** (domaine public, CC0, CC BY, CC BY-SA) ; crédit et lien conservés |
+| **GWOSC** (LIGO/Virgo/KAGRA) — <https://gwosc.org> | 268 événements d'ondes gravitationnelles confirmés (masses, distance, rapport signal/bruit) | CC BY 4.0 |
+| **NASA GSFC Eclipse Web Site** (F. Espenak) — <https://eclipse.gsfc.nasa.gov> | 224 éclipses de Soleil et 228 de Lune, 2001-2100 | citation demandée |
 | **Natural Earth** (contour des terres) | fond de carte de l'ISS | domaine public |
 | **YouTube** (flux officiels NASA et Sen) | lecteur « ISS TV », chargé seulement après un clic | conditions YouTube |
 
@@ -82,7 +84,7 @@ L'action `.github/workflows/weekly-update.yml` s'exécute chaque lundi (et à la
 - *Étoiles* : 4 641 (types spectraux O–M, naines brunes et blanches, étoiles à neutrons, pulsars, magnétars, trous noirs).
 - *Régions* : 159 (galaxies, amas de galaxies, nébuleuses, amas ouverts et globulaires).
 - *Petits corps* : 4 994 (astéroïdes, comètes, objets de Kuiper, interstellaires).
-- *Autres* : 88 constellations, 39 missions et sondes dont l'ISS.
+- *Autres* : 88 constellations, 39 missions et sondes dont l'ISS, 720 événements (268 ondes gravitationnelles, 224 éclipses solaires, 228 éclipses lunaires).
 - *En direct* : ISS (position + vidéo), APOD, EPIC, rovers, recherche SIMBAD.
 
 **Non couvert ou partiel (à dire clairement)**
@@ -90,7 +92,7 @@ L'action `.github/workflows/weekly-update.yml` s'exécute chaque lundi (et à la
 - **Bras spiraux** : non importés (aucune source officielle structurée trouvée).
 - Astéroïdes : seulement ceux ≥ 50 km, dangereux ou visités (≈ 1,4 million existent) ; comètes : seulement numérotées + célèbres ; Kuiper : seulement les objets numérotés.
 - Missions : 39 sur la centaine de grandes missions. Manquent notamment Gaia, Rosetta, Mars Express, Herschel, Planck, Hayabusa2 (sites ESA/JAXA injoignables), Sputnik 1, Vostok 1 ; le catalogue NSSDCA renvoie une erreur pour une partie des missions NASA (le script les réessaie à chaque import).
-- Événements (éclipses, ondes gravitationnelles) : **non faits**.
+- Événements : seulement les ondes gravitationnelles confirmées (probabilité astrophysique ≥ 0,9) et les éclipses 2001-2100 ; pas de météores, comètes à venir ni conjonctions.
 - Magnétars SGR 1806-20, SGR 1900+14, SGR 1935+2154, SGR 0526-66, TON 618 et Abell 2744 : introuvables dans SIMBAD sous ces identifiants.
 - 548 étoiles hôtes d'exoplanètes sur 4 865 n'ont pas été retrouvées dans SIMBAD (leurs fiches de planètes existent, mais pas celle de l'étoile).
 - **Images** : seules **19 exoplanètes** sur 6 473 ont une illustration d'artiste (pas de photo possible) ; les autres affichent « Pas d'image disponible ». Aucune image générique ou générée n'est utilisée.
@@ -113,6 +115,25 @@ L'action `.github/workflows/weekly-update.yml` s'exécute chaque lundi (et à la
 ## Accessibilité et responsive
 
 Navigation clavier (cartes = liens, fiches dans `<dialog>`, focus visible), lien d'évitement, étiquettes ARIA, annonces `aria-live` (résultats, ISS), respect de `prefers-reduced-motion`, contrastes élevés sur fond sombre, mise en page adaptée mobile (filtres repliables, lecteur vidéo empilé).
+Un test automatique **axe-core** (WCAG 2.1 A/AA, hors contraste) passe sur le HTML statique des pages (`npm test`). **Non audités automatiquement** : le contraste, et les vues construites dynamiquement (fiches, comparateur, direct). Un audit manuel avec lecteur d'écran reste à faire.
+
+## Données ouvertes, citation, qualité (pour l'enseignement et la recherche)
+
+- **Page « Méthodologie et données »** (`/methodologie/`, FR/EN) : sources et dates d'import, valeurs calculées et hypothèses, politique éditoriale, licences, confidentialité, limites.
+- **Exports** : CSV global et par catégorie (`/export/*.csv`), JSON public (`/data/index.json`, `/data/o/<id>.json`, `/data/meta.json`), bouton « Exporter ces résultats (CSV) » sur la grille filtrée.
+- **Citation** : bouton « Citer » sur chaque fiche (texte + BibTeX, lien permanent `?o=<id>`, **version des données** `AAAA.MM.JJ`, date de consultation) ; `CITATION.cff` pour le projet.
+- **Provenance** : chaque donnée est rattachée à sa source ; les valeurs calculées sont signalées ; les textes de vulgarisation sont distingués des données.
+- **Relecture scientifique** : *aucun relecteur à ce jour*. Les **données** viennent de sources officielles (NASA, JPL, CDS…), mais les **textes de vulgarisation** et les **méthodes de calcul** sont de la rédaction de ce projet et n'ont pas été validés par un expert ; la fiche l'affiche. Pour nommer un relecteur : `scripts/review.json` (son nom et la date apparaissent alors sur les fiches).
+- **Tests automatiques** (`npm test`, 12 tests) : unicité des identifiants, valeurs finies et sourcées, plausibilité physique (excentricité < 1, masses et rayons réalistes…), crédits et licences des images, cohérence des descriptions, couverture minimale, exports CSV, position et jour/nuit de l'ISS, accessibilité statique. Ils tournent dans l'action hebdomadaire **avant** tout redéploiement.
+- **Licences** : code sous MIT (`LICENSE`) ; données et images sous la licence de leur source (`DATA-LICENSES.md`).
+
+## Mises à jour automatiques
+
+| Se met à jour tout seul (chaque lundi) | Reste manuel (à ajouter dans le code) |
+|---|---|
+| nouvelles exoplanètes confirmées et paramètres révisés (badge « nouveau » pendant 6 mois) ; nouvelles ondes gravitationnelles ; astéroïdes ≥ 50 km / dangereux, comètes numérotées, objets de Kuiper numérotés ; paramètres SIMBAD des objets déjà listés ; ISS, flux vidéo, APOD, EPIC, rovers (en direct) | **nouvelles missions** (`scripts/import-missions.mjs`), **images** (`scripts/images-*.json`), **textes** (`scripts/descriptions.json`), objets « emblématiques » (`scripts/simbad-curated.mjs`) |
+
+Une nouvelle exoplanète apparaît donc sans intervention (sans image ni description rédigée : texte généré à partir des données). Une nouvelle mission, elle, doit être ajoutée à la liste d'identifiants.
 
 ## Limites connues
 

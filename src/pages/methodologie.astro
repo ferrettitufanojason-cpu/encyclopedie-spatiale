@@ -1,0 +1,145 @@
+---
+import '../styles/global.css';
+---
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Méthodologie et données — Encyclopédie spatiale</title>
+    <meta name="description" content="Sources, méthodes de calcul, politique éditoriale, licences, exports ouverts et citation de l'Encyclopédie spatiale." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body class="doc">
+    <a class="skip" href="#main">Aller au contenu</a>
+    <header class="top">
+      <a class="btn" href="/" id="back">← Encyclopédie</a>
+      <h1 style="font-size:18px;margin:0;flex:1" id="h1">Méthodologie et données</h1>
+      <button id="lang" class="btn" type="button" aria-label="Language">EN</button>
+    </header>
+    <main id="main" class="docmain">
+      <section lang="fr" data-l="fr">
+        <p class="lead">Cette page décrit d'où viennent les données, comment elles sont traitées, ce qui est calculé plutôt que mesuré, qui a relu quoi, et comment réutiliser et citer le site.</p>
+        <h2>1. Sources officielles et mises à jour</h2>
+        <p>Chaque valeur d'une fiche porte sa source, un lien et la date de dernière mise à jour. Les imports sont relancés <b>chaque semaine</b> : les nouvelles exoplanètes confirmées, nouvelles ondes gravitationnelles, nouvelles comètes numérotées, etc. apparaissent donc automatiquement. Les listes <i>choisies à la main</i> (missions, images, descriptions, objets Messier/NGC célèbres, comètes célèbres) ne s'enrichissent pas toutes seules : voir <a href="#maj">« Ce qui se met à jour tout seul »</a>.</p>
+        <div id="src-fr"></div>
+        <h2 id="maj">2. Ce qui se met à jour tout seul</h2>
+        <table class="props"><thead><tr><th scope="col">Automatique (chaque lundi)</th><th scope="col">Manuel (à ajouter dans le code)</th></tr></thead><tbody><tr>
+          <td><ul><li>Toutes les exoplanètes confirmées (NASA Exoplanet Archive) et leurs paramètres</li><li>Ondes gravitationnelles confirmées (GWOSC)</li><li>Astéroïdes ≥ 50 km, « potentiellement dangereux », comètes numérotées, objets de Kuiper numérotés (JPL)</li><li>Paramètres des étoiles, galaxies, nébuleuses déjà listées (SIMBAD)</li><li>Faits de l'ISS, position de l'ISS, flux vidéo, APOD, EPIC, rovers (en direct)</li><li>Éclipses 2001-2100 (catalogue NASA)</li><li>Badge « Nouveau » des exoplanètes publiées depuis moins de 6 mois</li></ul></td>
+          <td><ul><li>Nouvelles <b>missions</b> (liste d'identifiants dans <code>scripts/import-missions.mjs</code>)</li><li>Nouvelles <b>images</b> associées à un objet (<code>scripts/images-curated.json</code>, <code>scripts/images-commons.json</code>)</li><li>Textes de <b>vulgarisation</b> (<code>scripts/descriptions.json</code>)</li><li>Nouveaux objets « emblématiques » (<code>scripts/simbad-curated.mjs</code>)</li></ul></td></tr></tbody></table>
+        <p>Les exoplanètes sans image affichent « Pas d'image disponible » et les petits corps sans photo un schéma d'orbite calculé : aucune image n'est inventée.</p>
+        <h2>3. Données ouvertes et exports</h2>
+        <p>Tout le site repose sur des fichiers JSON publics, réutilisables sans clé :</p>
+        <ul>
+          <li><a href="/data/index.json"><code>/data/index.json</code></a> : index léger de tous les objets (clés courtes : <code>i</code> identifiant, <code>n</code> nom, <code>c</code> code de catalogue, <code>k</code> catégorie, <code>s</code> sous-catégorie, <code>m</code> masse en M⊕, <code>r</code> rayon en R⊕, <code>d</code> distance en années-lumière, <code>q</code> température en K).</li>
+          <li><code>/data/o/&lt;id&gt;.json</code> : fiche complète d'un objet, avec <code>props</code> (valeur <code>v</code>, unité <code>u</code>, incertitudes <code>ep</code>/<code>em</code>, source <code>s</code>, référence <code>ref</code>) et les objets liés.</li>
+          <li><a href="/data/meta.json"><code>/data/meta.json</code></a> : version, sources, comptes, rapport d'import.</li>
+          <li>CSV (UTF-8, ouvrables dans Excel/LibreOffice) : <span id="csv-links">…</span></li>
+        </ul>
+        <p>Les fichiers CSV regroupent : identifiant, nom (EN/FR), catégorie, sous-catégorie, code de catalogue, masse (M⊕), rayon (R⊕), distance (années-lumière), température (K), année et méthode de découverte, coordonnées, source, date de mise à jour et lien. Les incertitudes et références complètes sont dans le JSON de chaque fiche.</p>
+        <h2>4. Citer</h2>
+        <p>Le bouton « Citer » de chaque fiche fournit une référence (texte et BibTeX) avec le lien permanent <code>?o=&lt;identifiant&gt;</code>, la <b>version des données</b> (<span class="ver">…</span>) et la date de consultation. <b>Citez aussi la source primaire</b> indiquée sur la fiche (NASA Exoplanet Archive, SIMBAD, JPL…) : ce site est un agrégateur, pas une source primaire. Pour citer le projet entier, voir le fichier <code>CITATION.cff</code> à la racine du dépôt.</p>
+        <h2>5. Valeurs calculées (et non mesurées)</h2>
+        <ul>
+          <li><b>Zone habitable des exoplanètes</b> : modèle conservateur de Kopparapu et al. (2013, ApJ 765, 131), à partir de la température effective et de la luminosité de l'étoile (valide pour 2 600 K ≤ T<sub>eff</sub> ≤ 7 200 K). « Dans la zone habitable » signifie seulement que le demi-grand axe est entre les bornes calculées ; ce n'est pas une affirmation d'habitabilité.</li>
+          <li><b>Type d'exoplanète</b> (tellurique, super-Terre, type Neptune, géante gazeuse) : seuils de rayon 1,25 / 2 / 6 R⊕ (convention NASA), repli sur la masse (2 / 10 / 50 M⊕) si le rayon manque.</li>
+          <li><b>Distance d'une étoile</b> sans valeur publiée : 1000 / parallaxe (mas), avec incertitude seulement si la parallaxe est mesurée à mieux de 50 %. Cette inversion simple est biaisée pour les parallaxes peu précises.</li>
+          <li><b>Position de l'ISS</b> : interpolation d'Hermite de l'éphéméride officielle (fichier OEM de la NASA/JSC), puis passage J2000 → date (précession IAU 1976), rotation terrestre (GMST) et coordonnées géodésiques WGS84 ; nutation négligée ; précision de l'ordre de quelques kilomètres. Jour/nuit à bord : ombre cylindrique de la Terre et position solaire de Meeus.</li>
+          <li><b>Schémas d'orbite</b> : calculés à partir des éléments orbitaux du JPL, vue du dessus de l'écliptique, échelle racine carrée ; les périhélies sont marqués.</li>
+          <li><b>Nature des événements d'ondes gravitationnelles</b> : déduite des masses publiées (seuil ≈ 3 M☉) ; seuls les candidats avec une probabilité d'origine astrophysique ≥ 0,9 et appartenant à un catalogue « confident » ou à un article de découverte sont retenus ; la version la plus récente est utilisée.</li>
+          <li><b>Éclipses</b> : heure en temps universel = temps dynamique du catalogue − ΔT fourni par la source.</li>
+        </ul>
+        <h2>6. Politique éditoriale et relecture scientifique</h2>
+        <p><b>Données</b> : reprises telles quelles des sources officielles, sans correction ; une valeur absente reste « non disponible ». <b>Textes de vulgarisation</b> (descriptions des planètes, lunes, missions…) : rédigés pour ce projet à partir de faits bien établis, <b>non relus par un expert</b> à ce jour ; les chiffres, eux, viennent exclusivement des données sourcées. Ce statut est affiché sur chaque fiche concernée.</p>
+        <div id="review-fr"></div>
+        <p>Pour proposer une relecture ou signaler une erreur, ouvrir une <i>issue</i> sur le dépôt du projet. Une fois un relecteur nommé dans <code>scripts/review.json</code>, son nom, son affiliation et la date apparaissent sur les fiches.</p>
+        <h2>7. Images et licences</h2>
+        <p>Chaque image affiche son crédit, sa licence et un lien vers la source. Photos NASA/ESA/ESO/EHT : domaine public ou CC BY. Cartes UAI des constellations : CC BY (« IAU and Sky &amp; Telescope magazine »). Vues du ciel : relevés DSS2 (STScI/Palomar) via NASA SkyView, <b>usage éducatif et non commercial</b>. Les illustrations d'artiste et schémas calculés sont étiquetés comme tels.</p>
+        <h2>8. Confidentialité</h2>
+        <p>Le site n'utilise ni cookie, ni traceur, ni police externe. Le choix de langue est mémorisé dans le navigateur (<code>localStorage</code>). Les vidéos de l'ISS (YouTube) ne sont chargées <b>qu'après un clic</b> (mode <code>youtube-nocookie</code>). Les images de la section « En direct », les vues du ciel et les pages SIMBAD sont servies par la NASA, le CDS ou Wikimedia : leur affichage transmet votre adresse IP à ces services. Les clés d'API restent côté serveur.</p>
+        <h2>9. Accessibilité</h2>
+        <p>Navigation clavier complète, lien d'évitement, fiches en <code>&lt;dialog&gt;</code> modal, étiquettes ARIA, annonces vocales des résultats, <code>prefers-reduced-motion</code> respecté. Un test automatique axe-core (règles WCAG 2.1 A/AA, hors contraste) passe sur le HTML statique des pages (<code>npm test</code>). <b>Non audités automatiquement</b> : le contraste des couleurs et les vues construites dynamiquement (fiches, comparateur, direct) ; un audit manuel avec lecteur d'écran reste à faire. Pour signaler un obstacle : <i>issue</i> sur le dépôt.</p>
+        <h2>10. Limites connues</h2>
+        <ul><li>Le catalogue local contient environ 4 800 étoiles/galaxies ; la recherche SIMBAD en direct donne accès au reste.</li><li>Bras spiraux : non couverts. Astéroïdes : partie seulement. Missions : sélection.</li><li>Les flux vidéo de l'ISS sont noirs quand la station est dans l'ombre de la Terre.</li></ul>
+        <p class="credit">Version des données : <span class="ver">…</span> · construit le <span class="built">…</span> · commit <span class="commit">…</span></p>
+      </section>
+
+      <section lang="en" data-l="en" hidden>
+        <p class="lead">This page explains where the data comes from, how it is processed, what is computed rather than measured, who reviewed what, and how to reuse and cite the site.</p>
+        <h2>1. Official sources and updates</h2>
+        <p>Every value on a page carries its source, a link and the last update date. Imports are re-run <b>every week</b>: new confirmed exoplanets, new gravitational-wave events, new numbered comets, etc. appear automatically. <i>Hand-picked</i> lists (missions, images, descriptions, famous Messier/NGC objects, famous comets) do not grow by themselves: see <a href="#maj-en">“What updates by itself”</a>.</p>
+        <div id="src-en"></div>
+        <h2 id="maj-en">2. What updates by itself</h2>
+        <table class="props"><thead><tr><th scope="col">Automatic (every Monday)</th><th scope="col">Manual (add in the code)</th></tr></thead><tbody><tr>
+          <td><ul><li>All confirmed exoplanets (NASA Exoplanet Archive) and their parameters</li><li>Confirmed gravitational-wave events (GWOSC)</li><li>Asteroids ≥ 50 km, “potentially hazardous” ones, numbered comets, numbered Kuiper belt objects (JPL)</li><li>Parameters of already-listed stars, galaxies and nebulae (SIMBAD)</li><li>ISS facts and position, video feeds, APOD, EPIC, rovers (live)</li><li>Eclipses 2001-2100 (NASA catalogue)</li><li>“New” badge for exoplanets published less than 6 months ago</li></ul></td>
+          <td><ul><li>New <b>missions</b> (ID list in <code>scripts/import-missions.mjs</code>)</li><li>New <b>images</b> attached to an object (<code>scripts/images-curated.json</code>, <code>scripts/images-commons.json</code>)</li><li><b>Popular-science texts</b> (<code>scripts/descriptions.json</code>)</li><li>New “emblematic” objects (<code>scripts/simbad-curated.mjs</code>)</li></ul></td></tr></tbody></table>
+        <p>Exoplanets without an image show “No image available” and small bodies without a photo show a computed orbit diagram: no image is invented.</p>
+        <h2>3. Open data and exports</h2>
+        <p>The whole site relies on public JSON files that can be reused without a key:</p>
+        <ul>
+          <li><a href="/data/index.json"><code>/data/index.json</code></a>: light index of all objects (short keys: <code>i</code> id, <code>n</code> name, <code>c</code> catalogue code, <code>k</code> category, <code>s</code> subcategory, <code>m</code> mass in M⊕, <code>r</code> radius in R⊕, <code>d</code> distance in light-years, <code>q</code> temperature in K).</li>
+          <li><code>/data/o/&lt;id&gt;.json</code>: full page of an object, with <code>props</code> (value <code>v</code>, unit <code>u</code>, uncertainties <code>ep</code>/<code>em</code>, source <code>s</code>, reference <code>ref</code>) and linked objects.</li>
+          <li><a href="/data/meta.json"><code>/data/meta.json</code></a>: version, sources, counts, import report.</li>
+          <li>CSV (UTF-8, opens in Excel/LibreOffice): <span id="csv-links-en">…</span></li>
+        </ul>
+        <h2>4. Citing</h2>
+        <p>Each page’s “Cite” button provides a reference (text and BibTeX) with the permalink <code>?o=&lt;id&gt;</code>, the <b>data version</b> (<span class="ver">…</span>) and the access date. <b>Please also cite the primary source</b> shown on the page (NASA Exoplanet Archive, SIMBAD, JPL…): this site is an aggregator, not a primary source.</p>
+        <h2>5. Computed (not measured) values</h2>
+        <ul>
+          <li><b>Exoplanet habitable zone</b>: conservative model of Kopparapu et al. (2013, ApJ 765, 131) from the star’s effective temperature and luminosity (valid for 2,600–7,200 K). “In the habitable zone” only means the semi-major axis lies between the computed bounds; it is not a claim of habitability.</li>
+          <li><b>Exoplanet type</b> (terrestrial, super-Earth, Neptune-like, gas giant): radius thresholds 1.25 / 2 / 6 R⊕ (NASA convention), mass fallback (2 / 10 / 50 M⊕).</li>
+          <li><b>Star distance</b> without a published value: 1000 / parallax (mas), with uncertainty only when parallax is measured to better than 50%. This simple inversion is biased for imprecise parallaxes.</li>
+          <li><b>ISS position</b>: Hermite interpolation of NASA/JSC’s official ephemeris (OEM file), then J2000 → date (IAU 1976 precession), Earth rotation (GMST) and WGS84 geodetic coordinates; nutation neglected; accuracy of a few kilometres. Day/night on board: cylindrical Earth shadow and Meeus solar position.</li>
+          <li><b>Orbit diagrams</b>: computed from JPL orbital elements, top view of the ecliptic, square-root scale.</li>
+          <li><b>Nature of gravitational-wave events</b>: inferred from published masses (threshold ≈ 3 M☉); only candidates with astrophysical probability ≥ 0.9 from a “confident” catalogue or discovery paper are kept; the latest version is used.</li>
+          <li><b>Eclipses</b>: universal time = catalogue dynamical time − the source’s ΔT.</li>
+        </ul>
+        <h2>6. Editorial policy and scientific review</h2>
+        <p><b>Data</b> is taken as is from official sources, without correction; a missing value stays “not available”. <b>Popular-science texts</b> (descriptions of planets, moons, missions…) were written for this project from well-established facts and have <b>not been reviewed by an expert</b> so far; the figures come exclusively from the sourced data. This status is displayed on each page concerned.</p>
+        <div id="review-en"></div>
+        <h2>7. Images and licences</h2>
+        <p>Every image shows its credit, licence and a link to its source. NASA/ESA/ESO/EHT photos: public domain or CC BY. IAU constellation charts: CC BY (“IAU and Sky &amp; Telescope magazine”). Sky views: DSS2 surveys (STScI/Palomar) via NASA SkyView, <b>educational and non-commercial use</b>. Artist’s illustrations and computed diagrams are labelled as such.</p>
+        <h2>8. Privacy</h2>
+        <p>The site uses no cookie, tracker or external font. The language choice is stored in your browser (<code>localStorage</code>). ISS videos (YouTube) are loaded <b>only after a click</b> (<code>youtube-nocookie</code> mode). Live-section images, sky views and SIMBAD pages are served by NASA, CDS or Wikimedia: displaying them sends your IP address to those services. API keys stay on the server.</p>
+        <h2>9. Accessibility</h2>
+        <p>Full keyboard navigation, skip link, modal <code>&lt;dialog&gt;</code> pages, ARIA labels, spoken result announcements, <code>prefers-reduced-motion</code> respected. An automated axe-core test (WCAG 2.1 A/AA rules, excluding contrast) passes on the pages’ static HTML (<code>npm test</code>). <b>Not audited automatically</b>: colour contrast and dynamically built views (pages, comparator, live); a manual screen-reader audit is still to be done.</p>
+        <h2>10. Known limits</h2>
+        <ul><li>The local catalogue holds about 4,800 stars/galaxies; live SIMBAD search gives access to the rest.</li><li>Spiral arms: not covered. Asteroids: partial. Missions: a selection.</li><li>ISS video feeds are black while the station is in Earth’s shadow.</li></ul>
+        <p class="credit">Data version: <span class="ver">…</span> · built on <span class="built">…</span> · commit <span class="commit">…</span></p>
+      </section>
+    </main>
+    <script>
+      let lang = 'fr'; try { lang = localStorage.getItem('lang') || 'fr'; } catch {}
+      if (!['fr', 'en'].includes(lang)) lang = 'fr';
+      const fr = () => lang === 'fr';
+      const apply = () => {
+        document.documentElement.lang = lang;
+        document.querySelectorAll('section[data-l]').forEach(s => { s.hidden = s.dataset.l !== lang; });
+        document.getElementById('lang').textContent = fr() ? 'EN' : 'FR';
+        document.getElementById('h1').textContent = fr() ? 'Méthodologie et données' : 'Methodology and data';
+        document.getElementById('back').textContent = fr() ? '← Encyclopédie' : '← Encyclopedia';
+        document.title = (fr() ? 'Méthodologie et données' : 'Methodology and data') + ' — ' + (fr() ? 'Encyclopédie spatiale' : 'Space Encyclopedia');
+      };
+      document.getElementById('lang').addEventListener('click', () => { lang = fr() ? 'en' : 'fr'; try { localStorage.setItem('lang', lang); } catch {} apply(); });
+      apply();
+      fetch('/data/meta.json').then(r => r.json()).then(m => {
+        document.querySelectorAll('.ver').forEach(n => n.textContent = m.version);
+        document.querySelectorAll('.built').forEach(n => n.textContent = m.built);
+        document.querySelectorAll('.commit').forEach(n => n.textContent = m.commit ?? '—');
+        const rep = Object.fromEntries((m.importReport?.steps ?? []).map(s => [s.file, s]));
+        for (const L of ['fr', 'en']) {
+          const t = document.getElementById('src-' + L);
+          const head = L === 'fr' ? ['Source', 'Objets', 'Dernier import', 'Licence'] : ['Source', 'Objects', 'Last import', 'Licence'];
+          t.innerHTML = '<table class="props"><thead><tr>' + head.map(h => `<th scope="col">${h}</th>`).join('') + '</tr></thead><tbody>' +
+            m.sources.map(s => `<tr><td>${s.url ? `<a href="${s.url}" rel="noopener">${s.name}</a>` : s.name}</td><td>${s.count.toLocaleString(L)}</td><td>${s.fetched ?? '—'}</td><td>${s.license ?? ''}</td></tr>`).join('') + '</tbody></table>' +
+            (m.importReport ? `<p class="credit">${L === 'fr' ? 'Rapport du dernier import' : 'Last import report'} (${m.importReport.date.slice(0, 10)}): ` + m.importReport.steps.map(s => `${s.ok ? '✔' : '✖'} ${s.step}`).join(' · ') + '</p>' : '');
+          const rv = document.getElementById('review-' + L);
+          rv.innerHTML = (m.review?.reviewers?.length ? '<ul>' + m.review.reviewers.map(r => `<li>${r.name}, ${r.affiliation} (${r.date}) — ${r.scope}</li>`).join('') + '</ul>'
+            : `<p><b>${L === 'fr' ? 'Relecteurs : aucun pour le moment.' : 'Reviewers: none yet.'}</b></p>`);
+          const csv = document.getElementById(L === 'fr' ? 'csv-links' : 'csv-links-en');
+          csv.innerHTML = ['encyclopedie-spatiale', ...m.exports].map(n => `<a href="/export/${n}.csv">${n}.csv</a>`).join(' · ');
+        }
+      }).catch(() => {});
+    </script>
+  </body>
+</html>

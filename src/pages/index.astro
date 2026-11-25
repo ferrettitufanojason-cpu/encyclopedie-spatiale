@@ -17,6 +17,7 @@ import '../styles/global.css';
         <h1 data-i18n="title">Encyclopédie spatiale</h1></div>
       <div class="search"><label class="sr" for="q" data-i18n="search">Rechercher</label>
         <input id="q" type="search" autocomplete="off" data-i18n-ph="searchPh" placeholder="Rechercher un objet, un code (HD 209458, Kepler-452…)" /></div>
+      <a class="btn doc-link" href="/methodologie/" data-i18n="methodo">Méthodologie</a>
       <button id="lang" class="btn" type="button" aria-label="Language">EN</button>
     </header>
 
@@ -45,7 +46,7 @@ import '../styles/global.css';
       <section aria-label="Résultats">
         <div id="simbadBox" class="simbad" hidden></div>
         <div id="live" class="live" hidden></div>
-        <p id="count" class="count" role="status" aria-live="polite"></p>
+        <div class="exp-bar"><p id="count" class="count" role="status" aria-live="polite"></p><button id="exportCsv" class="btn" type="button" data-i18n="exportCsv">Exporter ces résultats (CSV)</button></div>
         <ul id="grid" class="grid"></ul>
         <div id="sentinel" aria-hidden="true"></div>
       </section>
@@ -60,7 +61,7 @@ import '../styles/global.css';
     </dialog>
     <div id="cmpTray" class="cmp-tray" hidden role="region" aria-label="Comparateur"></div>
 
-    <footer class="foot"><span id="foot"></span></footer>
+    <footer class="foot"><span id="foot"></span> · <a href="/methodologie/" data-i18n="methodo">Méthodologie</a> · <a href="/export/encyclopedie-spatiale.csv" data-i18n="exportAll">Données ouvertes (CSV)</a></footer>
     <script>import '../scripts/app.js';</script>
   </body>
 </html>

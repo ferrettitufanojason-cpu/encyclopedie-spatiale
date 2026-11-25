@@ -16,7 +16,9 @@
     "build": "npm run build:data && astro build",
     "build:all": "npm run import:all && npm run build",
     "preview": "node scripts/serve-local.mjs",
-    "preview:static": "astro preview"
+    "preview:static": "astro preview",
+    "test": "node --test tests/",
+    "import:events": "node scripts/import-events.mjs"
   },
   "dependencies": {
     "astro": "^5.0.0"
@@ -24,5 +26,9 @@
   "engines": {
     "node": ">=20"
   },
-  "description": "Encyclopédie spatiale interactive (Astro, site statique + fonctions serverless pour le direct)"
+  "description": "Encyclopédie spatiale interactive (Astro, site statique + fonctions serverless pour le direct)",
+  "devDependencies": {
+    "axe-core": "^4.14.1",
+    "jsdom": "^31.0.1"
+  }
 }

@@ -29,6 +29,8 @@ jobs:
         run: npm run import:all
       - name: Construction du site (contrôle)
         run: npm run build
+      - name: Tests (cohérence des données, plausibilité physique, images, ISS, accessibilité)
+        run: npm test
       - name: Rapport d'import
         if: always()
         run: |

@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "Si vous utilisez ce site ou ses données, merci de le citer ET de citer la source primaire de chaque donnée (voir DATA-LICENSES.md)."
+title: "Encyclopédie spatiale"
+type: software
+abstract: "Encyclopédie spatiale interactive agrégeant des données officielles (NASA, JPL, CDS, UAI, GWOSC) pour la vulgarisation et l'enseignement de l'astrophysique."
+license: MIT
+repository-code: "https://github.com/OWNER/encyclopedie-spatiale"
+authors:
+  - name: "Encyclopédie spatiale contributors"
+keywords: [astronomie, exoplanètes, astrophysique, vulgarisation, données ouvertes]
+version: "0.1.0"
+date-released: "2026-11-25"

@@ -58,6 +58,8 @@ const srcOf = (o, p) => {
   if (s === 'simbad') return { name: 'SIMBAD (CDS)', url: `https://simbad.cds.unistra.fr/simbad/sim-id?Ident=${encodeURIComponent(o.simbadId ?? o.name)}` };
   if (s === 'sbdb') return { name: 'JPL Small-Body Database', url: `https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=${encodeURIComponent(o.sbdbId ?? o.name)}` };
   if (s === 'nasaiss') return { name: 'NASA — ISS Facts and Figures', url: 'https://www.nasa.gov/international-space-station/space-station-facts-and-figures/' };
+  if (s === 'gwosc') return { name: 'GWOSC (LIGO/Virgo/KAGRA)', url: o.gwUrl ?? 'https://gwosc.org/eventapi/' };
+  if (s === 'nasaecl') return { name: 'NASA GSFC Eclipse Web Site (F. Espenak)', url: o.lunar ? 'https://eclipse.gsfc.nasa.gov/lunar.html' : 'https://eclipse.gsfc.nasa.gov/solar.html' };
   if (s === 'nasasci') return { name: 'NASA Science', url: `https://science.nasa.gov/mission/${o.mslug}/` };
   if (s === 'nssdca') return { name: 'NASA NSSDCA', url: `https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=${encodeURIComponent(o.code)}` };
   if (s === 'iau') return { name: 'Union astronomique internationale', url: 'https://www.iau.org/public/themes/constellations/' };
@@ -98,6 +100,7 @@ function cardTags(c) {
 function card(c) {
   const pic = el('div', { class: 'pic' }, c.im ? el('img', { src: c.im, alt: '', loading: 'lazy', decoding: 'async' }) : c.ob ? svgEl(orbitSvg(c.ob), 'orbit') : orb(c.s),
     c.il ? el('span', { class: 'badge', text: c.il === 3 ? t().orbitBadge : c.il === 2 ? t().skyBadge : t().illus }) : null,
+    c.nw ? el('span', { class: 'badge-new', text: t().newBadge.toUpperCase() }) : null,
     c.il === 2 ? el('span', { class: 'crosshair', 'aria-hidden': 'true' }) : null);
   const name = lang === 'fr' && c.nf ? c.nf : c.n;
   const a = el('a', { class: 'card', href: `?o=${c.i}`, 'data-id': c.i }, pic,
@@ -122,7 +125,8 @@ function apply() {
     if (toks.length) { const h = c._h ?? (c._h = norm(`${c.n} ${c.nf ?? ''} ${c.c} ${c.h ?? ''} ${c.x ?? ''}`)); for (const k of toks) if (!h.includes(k)) return false; }
     return true;
   });
-  const S = { rel: (a, b) => (b.ss ?? 0) - (a.ss ?? 0) || (a.ss ? (b.m ?? 0) - (a.m ?? 0) : a.n.localeCompare(b.n, 'en', { numeric: true })),
+  const nowIso = new Date().toISOString().slice(0, 10);
+  const S = { rel: (a, b) => (b.ss ?? 0) - (a.ss ?? 0) || (a.dt && b.dt ? ((a.dt >= nowIso) !== (b.dt >= nowIso) ? (a.dt >= nowIso ? -1 : 1) : a.dt >= nowIso ? a.dt.localeCompare(b.dt) : b.dt.localeCompare(a.dt)) : 0) || (a.ss ? (b.m ?? 0) - (a.m ?? 0) : a.n.localeCompare(b.n, 'en', { numeric: true })),
     name: (a, b) => a.n.localeCompare(b.n, 'en', { numeric: true }),
     dist: (a, b) => (a.d ?? 1e18) - (b.d ?? 1e18), mass: (a, b) => (b.m ?? -1) - (a.m ?? -1),
     radius: (a, b) => (b.r ?? -1) - (a.r ?? -1), year: (a, b) => (b.y ?? -1) - (a.y ?? -1) };
@@ -152,7 +156,7 @@ function drawSubs() {
   const counts = {};
   for (const c of ALL) if (groupOf(c.k) === state.cat) counts[subOf(c)] = (counts[subOf(c)] ?? 0) + 1;
   const SUBORDER = ['sun', 'spectral-O', 'spectral-B', 'spectral-A', 'spectral-F', 'spectral-G', 'spectral-K', 'spectral-M', 'other-star', 'brown-dwarf', 'white-dwarf', 'neutron-star', 'pulsar', 'magnetar', 'black-hole',
-    'galaxy', 'galaxy-cluster', 'nebula', 'open-cluster', 'globular-cluster', 'main-belt', 'near-earth', 'trojan', 'other-asteroid', 'kuiper', 'comet', 'interstellar', 'mission'];
+    'galaxy', 'galaxy-cluster', 'nebula', 'open-cluster', 'globular-cluster', 'main-belt', 'near-earth', 'trojan', 'other-asteroid', 'kuiper', 'comet', 'interstellar', 'mission', 'gravitational-wave', 'solar-eclipse', 'lunar-eclipse'];
   const keys = Object.keys(counts).sort((a, b) => (SUBORDER.indexOf(a) + 1 || 99) - (SUBORDER.indexOf(b) + 1 || 99));
   const mk = (k, label, n) => el('button', { type: 'button', 'aria-pressed': String(state.sub === k),
     onclick: () => { state.sub = k; if (k !== 'exoplanet') state.type = ''; apply(); } }, label, el('em', { text: n.toLocaleString(lang) }));
@@ -170,8 +174,8 @@ function drawFilterOptions() {
 
 /* ---------- fiche détaillée ---------- */
 const ORDER = ['mass', 'radius', 'radius_eq', 'radius_pol', 'density', 'gravity', 'escape', 'teq', 'insol', 'axial_tilt', 'rotation',
-  'period', 'sma', 'perihelion', 'aphelion', 'ecc', 'incl', 'diameter', 'abs_mag', 'albedo', 'spec', 'orbit_class', 'first_obs', 'moid', 'launch', 'occupied', 'crew', 'mtype', 'target', 'length_m', 'module_length_m', 'truss_length_m', 'array_span_m', 'hab_volume', 'press_volume', 'power', 'orbit_min', 'orbits_day', 'speed_text', 'agencies', 'vehicle', 'site', 'mass_kg', 'agency', 'disciplines', 'sptype', 'morph', 'teff', 'lum', 'met', 'age', 'ang_major', 'ang_minor', 'redshift', 'st_teff', 'st_rad', 'st_mass', 'st_lum', 'st_met', 'st_age', 'dist', 'vmag', 'hz_inner', 'hz_outer', 'in_hz'];
-const GORDER = ['mission', 'physical', 'planet', 'orbit', 'star', 'sys', 'calc'];
+  'period', 'sma', 'perihelion', 'aphelion', 'ecc', 'incl', 'date', 'etype', 'gw_m1', 'gw_m2', 'gw_mf', 'gw_dist', 'gw_snr', 'p_astro', 'gamma', 'ecl_mag', 'saros', 'ecl_loc', 'ecl_width', 'ecl_dur', 'diameter', 'abs_mag', 'albedo', 'spec', 'orbit_class', 'first_obs', 'moid', 'launch', 'occupied', 'crew', 'mtype', 'target', 'length_m', 'module_length_m', 'truss_length_m', 'array_span_m', 'hab_volume', 'press_volume', 'power', 'orbit_min', 'orbits_day', 'speed_text', 'agencies', 'vehicle', 'site', 'mass_kg', 'agency', 'disciplines', 'sptype', 'morph', 'teff', 'lum', 'met', 'age', 'ang_major', 'ang_minor', 'redshift', 'st_teff', 'st_rad', 'st_mass', 'st_lum', 'st_met', 'st_age', 'dist', 'vmag', 'hz_inner', 'hz_outer', 'in_hz'];
+const GORDER = ['event', 'mission', 'physical', 'planet', 'orbit', 'star', 'sys', 'calc'];
 
 function summary(o) {
   const T_ = t(), fr = lang === 'fr';
@@ -198,6 +202,24 @@ function summary(o) {
     if (per) { const y = per / 365.25; s += fr ? ` Il fait le tour du Soleil en ${y < 2 ? `${fmt(per)} jours` : `${fmt(y)} ans`}.` : ` It orbits the Sun in ${y < 2 ? `${fmt(per)} days` : `${fmt(y)} years`}.`; }
     if (o.tags.includes('hazardous')) s += fr ? ' Le JPL le classe parmi les astéroïdes potentiellement dangereux : il passe à moins de 0,05 UA de l’orbite terrestre et sa taille est notable.' : ' JPL classifies it as potentially hazardous: it can pass within 0.05 AU of Earth’s orbit and is of significant size.';
     if (o.tags.includes('visited')) s += fr ? ' Il a été visité ou survolé par au moins une sonde spatiale.' : ' It has been visited or flown past by at least one spacecraft.';
+    return s;
+  }
+  if (o.src === 'gwosc' || o.src === 'nasaecl') {
+    const p = o.props, today = new Date().toISOString().slice(0, 10), future = o.eventDate > today;
+    const dFmt = new Date(o.eventDate + 'T12:00:00Z').toLocaleDateString(lang, { dateStyle: 'long', timeZone: 'UTC' });
+    if (o.src === 'gwosc') {
+      const d = p.gw_dist?.v, ly = d ? d * 3.26156e6 : null, big = ly ? (ly >= 1e9 ? `${(ly / 1e9).toLocaleString(lang, { maximumFractionDigits: 1 })} ${fr ? 'milliards' : 'billion'}` : `${(ly / 1e6).toLocaleString(lang, { maximumFractionDigits: 0 })} ${fr ? 'millions' : 'million'}`) : null;
+      const kind = fr ? p.etype.t : { bbh: 'a binary black hole merger', bns: 'a binary neutron star merger', nsbh: 'a neutron star–black hole merger', gw: 'a gravitational-wave event' }[o.eventKind];
+      let s = fr ? `${o.name} est ${/^fusion/.test(kind) ? 'une ' : 'un '}${kind}, détecté${/^fusion/.test(kind) ? 'e' : ''} le ${dFmt} par le réseau LIGO-Virgo-KAGRA.` : `${o.name} is ${kind}, detected on ${dFmt} by the LIGO-Virgo-KAGRA network.`;
+      if (p.gw_m1 && p.gw_m2) s += fr ? ` Les deux astres avaient environ ${fmt(p.gw_m1.v)} et ${fmt(p.gw_m2.v)} masses solaires.` : ` The two bodies weighed about ${fmt(p.gw_m1.v)} and ${fmt(p.gw_m2.v)} solar masses.`;
+      if (big) s += fr ? ` La source se trouve à environ ${big} d’années-lumière.` : ` The source lies about ${big} light-years away.`;
+      return s;
+    }
+    const verb = future ? (fr ? 'aura lieu' : 'will take place') : (fr ? 'a eu lieu' : 'took place');
+    const lc = x => x[0].toLowerCase() + x.slice(1);
+    let s = fr ? `L’${lc(o.nameFr.split(' — ')[0])} ${verb} le ${dFmt} (heure universelle approximative : ${p.date.t.split(' ').slice(1).join(' ')}).` : `The ${lc(o.name.split(' — ')[0])} ${verb} on ${dFmt} (approximate universal time: ${p.date.t.split(' ').slice(1).join(' ')}).`;
+    if (p.ecl_dur) s += fr ? ` Durée maximale de la totalité ou de l’annularité : ${p.ecl_dur.t}.` : ` Maximum duration of totality or annularity: ${p.ecl_dur.t}.`;
+    s += fr ? ' L’éclipse n’est pas visible partout : seule une partie de la Terre est concernée.' : ' The eclipse is not visible everywhere: only part of the Earth is concerned.';
     return s;
   }
   if (o.src === 'nssdca' || o.src === 'nasasci') {
@@ -251,9 +273,9 @@ function propsTable(o) {
     const rows = groups[g].map(k => {
       const p = o.props[k];
       const ps = srcOf(o, p);
-      const srcLine = p.calc && p.calcNote !== 'plx'
+      const srcLine = p.calc && p.calcNote !== 'plx' && p.calcNote !== 'masses'
         ? el('span', { class: 'src calc', text: T_.hzNote })
-        : el('span', { class: 'src' }, p.calc ? el('span', { class: 'calc', text: `${T_.plxNote} ` }) : '', `${T_.source} : `, el('a', { href: ps.url, target: '_blank', rel: 'noopener', text: ps.name }),
+        : el('span', { class: 'src' }, p.calc ? el('span', { class: 'calc', text: `${p.calcNote === 'masses' ? T_.massNote : T_.plxNote} ` }) : '', `${T_.source} : `, el('a', { href: ps.url, target: '_blank', rel: 'noopener', text: ps.name }),
           p.ref ? [` · ${T_.ref} `, p.ref.url ? el('a', { href: p.ref.url, target: '_blank', rel: 'noopener', text: p.ref.t }) : p.ref.t] : '',
           ` · ${T_.updated} ${o.updated}`, p.note ? ` · ${typeof p.note === 'object' ? p.note[lang] : p.note}` : '');
       return el('tr', {}, el('th', { scope: 'row', text: T_.p[k] ?? k }), el('td', {}, el('span', { class: 'val', text: fmtProp(k, p) }), srcLine));
@@ -294,11 +316,12 @@ async function openObj(id, push) {
   const disc = o.disc?.year ? [`${o.disc.year}`, o.disc.method && ` · ${T_.method[o.disc.method] ?? o.disc.method}`, o.disc.facility && ` · ${o.disc.facility}`].filter(Boolean).join('') : null;
   body.replaceChildren(
     el('button', { class: 'btn close', type: 'button', onclick: () => dlg.close(), 'aria-label': T_.close, text: '✕' }),
-    el('div', { class: 'cmp-fiche' }, (() => { const b = cmpToggle(o.id, title); b.classList.add('btn'); b.append(' ' + T_.cmpAdd); return b; })()),
+    el('div', { class: 'cmp-fiche' }, (() => { const b = cmpToggle(o.id, title); b.classList.add('btn'); b.append(' ' + T_.cmpAdd); return b; })(),
+      (() => { const box = citeBox(o, title); const b = el('button', { class: 'btn', type: 'button', 'aria-expanded': 'false', onclick: () => { box.hidden = !box.hidden; b.setAttribute('aria-expanded', String(!box.hidden)); }, text: `❝ ${T_.citeBtn}` }); b._box = box; return [b, ' ', el('a', { class: 'btn', href: `/data/o/${encodeURIComponent(o.id)}.json`, target: '_blank', rel: 'noopener', text: `{ } ${T_.jsonLink}` }), box]; })()),
     el('div', { class: 'dlg-head' }, el('div', {}, pic, credit),
       el('div', { class: 'dlg-title' }, el('span', { class: 'kicker', text: o.code }), el('h2', { id: 'dlgTitle', text: title }),
         el('div', { class: 'tags' }, tags),
-        el('p', { class: 'summary' }, summary(o), el('small', { text: o.desc ? T_.sumEdito : T_.sumAuto })),
+        el('p', { class: 'summary' }, summary(o), el('small', { text: o.desc ? `${T_.sumEdito} ${META?.review?.reviewers?.length ? `${T_.reviewBy} ${META.review.reviewers.map(r => `${r.name} (${r.date})`).join(', ')}.` : `${T_.reviewNone}.`}` : T_.sumAuto })),
         disc ? el('p', { class: 'credit' }, `${T_.sec.disc} : ${disc}`, o.disc.ref ? [' · ', el('a', { href: o.disc.ref.url, target: '_blank', rel: 'noopener', text: o.disc.ref.t })] : '') : null)),
     el('div', { class: 'sect' }, el('h3', { text: T_.sec.props }), propsTable(o)),
     o.nssdcaDesc ? el('div', { class: 'sect' }, el('h3', { text: T_.nasaDesc }), el('p', { class: 'summary', lang: 'en' }, o.nssdcaDesc.length > 900 ? o.nssdcaDesc.slice(0, o.nssdcaDesc.lastIndexOf(' ', 900)) + '…' : o.nssdcaDesc, el('small', { text: `${T_.source} : ${srcOf(o).name}` }))) : '',
@@ -320,7 +343,7 @@ async function mountIssTv(host, { inFiche = false } = {}) {
   const T_ = t();
   const box = el('section', { class: 'tv' });
   const stage = el('div', { class: 'tv-stage' });
-  const side = el('div', { class: 'tv-side', role: 'tablist', 'aria-label': T_.tvPov });
+  const side = el('div', { class: 'tv-side', role: 'group', 'aria-label': T_.tvPov });
   const meta = el('div', { class: 'tv-meta' });
   const status = el('div', { class: 'tv-status', role: 'status', 'aria-live': 'polite' });
   const controls = el('div', { class: 'tv-controls' });
@@ -362,14 +385,14 @@ async function mountIssTv(host, { inFiche = false } = {}) {
     btn('⛶ ' + T_.tvFull, fullscreen), btn(T_.tvTheater, e => { const on = box.classList.toggle('theater'); e.currentTarget.setAttribute('aria-pressed', String(on)); }));
   const show = (s, start) => {
     cur = s; syncDvr();
-    side.querySelectorAll('button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.id === s.id)));
+    side.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === s.id)));
     if (start) { if (player?.loadVideoById) player.loadVideoById(s.video); else play(); }
     else stage.replaceChildren(el('button', { class: 'tv-poster', type: 'button', onclick: () => show(cur, true), 'aria-label': `${T_.tvPlay} — ${s.label[lang]}` },
       el('span', { class: 'live-badge', text: T_.tvLive }), el('span', { class: 'tv-play', 'aria-hidden': 'true', text: '▶' }), el('strong', { text: T_.tvPlay }), el('small', { text: s.label[lang] }), el('small', { class: 'tv-priv', text: T_.tvPrivacy })));
     meta.replaceChildren(el('div', { class: 'tv-title' }, el('span', { class: 'live-badge', text: T_.tvLive }), el('b', { text: s.label[lang] })), el('p', { text: s.desc[lang] }),
       el('p', { class: 'credit' }, `${T_.source} : ${s.owner} (YouTube) · `, el('a', { href: s.watch, target: '_blank', rel: 'noopener', text: T_.tvYoutube })));
   };
-  streams.forEach(s => side.append(el('button', { type: 'button', role: 'tab', 'data-id': s.id, 'aria-selected': 'false', onclick: () => show(s, !!player || stage.querySelector('#ytp')) },
+  streams.forEach(s => side.append(el('button', { type: 'button', 'data-id': s.id, 'aria-pressed': 'false', onclick: () => show(s, !!player || stage.querySelector('#ytp')) },
     el('span', { class: 'tv-dot', 'aria-hidden': 'true' }), el('span', {}, el('b', { text: s.label[lang] }), el('small', { text: s.owner })))));
   show(streams[0], false);
 
@@ -471,7 +494,7 @@ async function mountLive() {
   }).catch(() => rv.append(el('p', { class: 'na', text: T_.liveErr })));
 }
 function showLive(on) {
-  $('#live').hidden = !on; ['#filters', '#grid', '#count', '#subs', '#sentinel'].forEach(s => { const n = $(s); if (n) n.hidden = on; });
+  $('#live').hidden = !on; ['#filters', '#grid', '.exp-bar', '#subs', '#sentinel'].forEach(s => { const n = $(s); if (n) n.hidden = on; });
   $('.layout').classList.toggle('live-mode', on);
   if (on) mountLive(); else { $('#live').replaceChildren(); if (!$('#dlg').open) stopIss(); } // vide aussi les lecteurs vidéo
 }
@@ -515,6 +538,28 @@ addEventListener('popstate', () => {
   if ($('#cmpDlg').open) $('#cmpDlg').close();
   if (id) openObj(id, false); else if ($('#dlg').open) { $('#dlg').close(); }
 });
+
+/* ---------- export CSV des résultats filtrés + citation d'une fiche ---------- */
+function downloadCsv() {
+  const cell = v => { const s = String(v ?? ''); return /[",\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const head = ['id', 'name', 'name_fr', 'category', 'subcategory', 'catalog_code', 'mass_earth_masses', 'radius_earth_radii', 'distance_light_years', 'temperature_K', 'discovery_year', 'discovery_method', 'url'];
+  const rows = VIEW.map(c => [c.i, c.n, c.nf ?? '', c.k, c.s, c.c, c.m ?? '', c.r ?? '', c.d ?? '', c.q ?? '', c.y ?? '', c.md ?? '', `${location.origin}/?o=${c.i}`]);
+  const csv = String.fromCharCode(0xfeff) + [head, ...rows].map(r => r.map(cell).join(',')).join('\n') + '\n';
+  const a = el('a', { href: URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })), download: `encyclopedie-spatiale-${state.cat}-${new Date().toISOString().slice(0, 10)}.csv` });
+  document.body.append(a); a.click(); a.remove();
+}
+function citeBox(o, title) {
+  const T_ = t(), ver = META?.version ?? '', today = new Date().toISOString().slice(0, 10);
+  const url = `${location.origin}/?o=${o.id}`, year = today.slice(0, 4), src = srcOf(o).name;
+  const text = `${T_.siteName} (${year}). ${title}${o.code ? ` [${o.code}]` : ''}. ${T_.siteName}, version ${ver}. ${url} (${T_.accessed} ${today}). ${lang === 'fr' ? 'Données : ' : 'Data: '}${src}.`;
+  const key = `encyclopedie_spatiale_${o.id}`.replace(/[^A-Za-z0-9_]/g, '_');
+  const bib = `@misc{${key},\n  title = {${title}${o.code ? ` [${o.code}]` : ''}},\n  author = {{${T_.siteName}}},\n  year = {${year}},\n  howpublished = {\\url{${url}}},\n  note = {Version ${ver}; ${T_.accessed} ${today}; data: ${src}}\n}`;
+  const copy = (txt, btn) => async () => { try { await navigator.clipboard.writeText(txt); btn.textContent = T_.citeCopied; } catch { /* presse-papiers indisponible */ } };
+  const b1 = el('button', { class: 'btn', type: 'button', text: T_.citeCopy }), b2 = el('button', { class: 'btn', type: 'button', text: `${T_.citeCopy} BibTeX` });
+  b1.onclick = copy(text, b1); b2.onclick = copy(bib, b2);
+  return el('div', { class: 'cite-box', hidden: true }, el('p', { class: 'credit', text: T_.citeHint }),
+    el('textarea', { readonly: true, 'aria-label': T_.citeTitle }, text), b1, el('textarea', { readonly: true, 'aria-label': T_.citeBib }, bib), b2);
+}
 
 /* ---------- comparateur : 2 à 3 objets côte à côte, tailles à l'échelle, URL partageable (?cmp=a,b,c) ---------- */
 const CMP_MAX = 3;
@@ -618,6 +663,7 @@ $('#f-type').addEventListener('change', e => { state.type = e.target.value; appl
 $('#f-method').addEventListener('change', e => { state.method = e.target.value; apply(); });
 $('#f-hz').addEventListener('change', e => { state.hz = e.target.checked; apply(); });
 $('#sort').addEventListener('change', e => { state.sort = e.target.value; apply(); });
+$('#exportCsv').addEventListener('click', downloadCsv);
 $('#reset').addEventListener('click', () => {
   Object.assign(state, { q: '', sub: '', type: '', method: '', hz: false, m: [null, null], r: [null, null], d: [null, null], q2: [null, null], y: [null, null] });
   document.querySelectorAll('#filters input[type=number], #q').forEach(i => { i.value = ''; }); $('#f-hz').checked = false;

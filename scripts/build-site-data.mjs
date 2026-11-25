@@ -81,6 +81,8 @@ const radiusOf = o => (o.props.radius ? toEarthRadius(o.props.radius) : o.props.
 const round = (x, d = 4) => x == null ? null : Number(x.toPrecision(d));
 
 const index = [];
+const csvRows = [];
+const SITE = process.env.SITE_URL ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'https://encyclopedie-spatiale.example');
 for (const o of objects) {
   const rel = [];
   if (o.cat === 'exoplanet') {
@@ -112,7 +114,8 @@ for (const o of objects) {
     i: o.id, n: o.name, c: o.code, k: o.cat, s: o.sub, t: o.tags,
     m: round(toEarthMass(o.props.mass)), r: round(radiusOf(o)), d: round(dist),
     q: o.props.teq?.v ?? o.props.teff?.v ?? null, y: o.disc?.year ?? null, md: o.disc?.method ?? null,
-    ss: o.src === 'ssod' || o.live ? 1 : undefined,
+    ss: o.src === 'ssod' || o.live ? 1 : undefined, dt: o.eventDate,
+    nw: o.cat === 'exoplanet' && o.disc?.pubdate && Date.now() - Date.parse(`${o.disc.pubdate}-15`) < 183 * 86400000 ? 1 : undefined, // découverte publiée depuis moins de ~6 mois
     hz: o.props.in_hz ? o.props.in_hz.v : null, h: o.host ?? null,
     x: (o.aliases ?? []).filter(a => /^(HD|HIP|NGC|IC|M|GJ) /.test(a)).join(' ') || undefined,
     im: img?.thumb ?? img?.url ?? null, il: img?.kind === 'illustration' ? 1 : img?.kind === 'sky' ? 2 : undefined,
@@ -125,11 +128,31 @@ for (const o of objects) {
   }
   if (o.nameFr && o.nameFr !== o.name) card.nf = o.nameFr;
   index.push(card);
+  csvRows.push([o.id, o.name, o.nameFr ?? '', o.cat === 'exoplanet' ? 'exoplanet' : o.cat, o.sub, o.code, card.m ?? '', card.r ?? '', card.d ?? '', card.q ?? '', o.disc?.year ?? '', o.disc?.method ?? '', o.ra ?? '', o.dec ?? '',
+    o.src, o.updated ?? '', `${SITE}/?o=${encodeURIComponent(o.id)}`, o.cat]);
   const { parent, moons, ...detail } = o;
   await writeFile(join(OUT, 'o', `${o.id}.json`), JSON.stringify({ ...detail, image: img }));
 }
 const today = new Date().toISOString().slice(0, 10);
 if (existsSync(join(DATA_DIR, 'land-path.json'))) await writeFile(join(OUT, 'land.json'), await readFile(join(DATA_DIR, 'land-path.json')));
 await writeFile(join(OUT, 'index.json'), JSON.stringify(index));
-await writeFile(join(OUT, 'meta.json'), JSON.stringify({ built: today, total: index.length, sources }));
-console.log(`✔ public/data : ${index.length} objets, ${sources.length} source(s)`);
+
+// ---- exports ouverts (CSV UTF-8 avec BOM pour Excel) : un fichier global + un par catégorie ----
+const EXP = join(ROOT, 'public', 'export');
+await rm(EXP, { recursive: true, force: true }); await mkdir(EXP, { recursive: true });
+const HEAD = ['id', 'name', 'name_fr', 'category', 'subcategory', 'catalog_code', 'mass_earth_masses', 'radius_earth_radii', 'distance_light_years', 'temperature_K', 'discovery_year', 'discovery_method', 'ra_deg', 'dec_deg', 'source', 'last_update', 'url'];
+const cell = v => { const s = String(v ?? ''); return /[",\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const BOM = String.fromCharCode(0xfeff);
+const toCsv = rows => BOM + [HEAD, ...rows.map(r => r.slice(0, HEAD.length))].map(r => r.map(cell).join(',')).join('\n') + '\n';
+await writeFile(join(EXP, 'encyclopedie-spatiale.csv'), toCsv(csvRows));
+const byCat = {}; for (const r of csvRows) (byCat[r[17]] ??= []).push(r);
+for (const [cat, rows] of Object.entries(byCat)) await writeFile(join(EXP, `${cat}.csv`), toCsv(rows));
+
+// ---- version des données, rapport d'import, relecture ----
+let commit = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? process.env.GITHUB_SHA?.slice(0, 7) ?? null;
+try { commit ??= (await import('node:child_process')).execSync('git rev-parse --short HEAD', { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); } catch {}
+const report = existsSync(join(DATA_DIR, 'import-report.json')) ? JSON.parse(await readFile(join(DATA_DIR, 'import-report.json'), 'utf8')) : null;
+const review = existsSync(join(ROOT, 'scripts', 'review.json')) ? JSON.parse(await readFile(join(ROOT, 'scripts', 'review.json'), 'utf8')) : { reviewers: [] };
+const counts = {}; for (const c of index) counts[c.k] = (counts[c.k] ?? 0) + 1;
+await writeFile(join(OUT, 'meta.json'), JSON.stringify({ built: today, version: today.replace(/-/g, '.'), commit, total: index.length, counts, newExoplanets: index.filter(c => c.nw).length, sources, importReport: report, review, exports: Object.keys(byCat) }));
+console.log(`✔ public/data : ${index.length} objets, ${sources.length} source(s) ; exports CSV : ${Object.keys(byCat).length + 1}`);
