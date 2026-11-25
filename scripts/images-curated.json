@@ -52,11 +52,6 @@
   "kind": "illustration",
   "scope": "planet"
  },
- "kepler-22-b": {
-  "nasa": "PIA14882",
-  "kind": "illustration",
-  "scope": "planet"
- },
  "kepler-62-f": {
   "nasa": "PIA17001",
   "kind": "illustration",
@@ -77,18 +72,8 @@
   "kind": "illustration",
   "scope": "planet"
  },
- "kepler-452-b": {
-  "nasa": "PIA19825",
-  "kind": "illustration",
-  "scope": "planet"
- },
  "55-cnc-e": {
   "nasa": "PIA22069",
-  "kind": "illustration",
-  "scope": "planet"
- },
- "wasp-121-b": {
-  "nasa": "PIA22565",
   "kind": "illustration",
   "scope": "planet"
  },
@@ -112,89 +97,44 @@
   "kind": "illustration",
   "scope": "planet"
  },
- "trappist-1-b": {
-  "nasa": "PIA21422",
+ "kepler-1649-c": {
+  "nasa": "PIA23690",
   "kind": "illustration",
-  "scope": "system"
+  "scope": "planet"
  },
- "trappist-1-c": {
-  "nasa": "PIA21422",
+ "kepler-62-e": {
+  "nasa": "PIA17004",
   "kind": "illustration",
-  "scope": "system"
- },
- "trappist-1-d": {
-  "nasa": "PIA21422",
-  "kind": "illustration",
-  "scope": "system"
- },
- "trappist-1-e": {
-  "nasa": "PIA21422",
-  "kind": "illustration",
-  "scope": "system"
- },
- "trappist-1-g": {
-  "nasa": "PIA21422",
-  "kind": "illustration",
-  "scope": "system"
- },
- "trappist-1-h": {
-  "nasa": "PIA21422",
-  "kind": "illustration",
-  "scope": "system"
- },
- "kepler-90-b": {
-  "nasa": "PIA22192",
-  "kind": "illustration",
-  "scope": "system"
- },
- "kepler-90-c": {
-  "nasa": "PIA22192",
-  "kind": "illustration",
-  "scope": "system"
- },
- "kepler-90-d": {
-  "nasa": "PIA22192",
-  "kind": "illustration",
-  "scope": "system"
- },
- "kepler-90-e": {
-  "nasa": "PIA22192",
-  "kind": "illustration",
-  "scope": "system"
- },
- "kepler-90-f": {
-  "nasa": "PIA22192",
-  "kind": "illustration",
-  "scope": "system"
- },
- "kepler-90-g": {
-  "nasa": "PIA22192",
-  "kind": "illustration",
-  "scope": "system"
- },
- "kepler-90-h": {
-  "nasa": "PIA22192",
-  "kind": "illustration",
-  "scope": "system"
+  "scope": "planet"
  },
  "hr-8799-b": {
-  "nasa": "PIA17010",
+  "nasa": "GSFC_20171208_Archive_e002172",
   "kind": "illustration",
-  "scope": "system"
+  "scope": "planet"
  },
- "hr-8799-c": {
-  "nasa": "PIA17010",
+ "wasp-18-b": {
+  "nasa": "PIA22087",
   "kind": "illustration",
-  "scope": "system"
+  "scope": "planet"
  },
- "hr-8799-d": {
-  "nasa": "PIA17010",
+ "kepler-20-e": {
+  "nasa": "PIA14888",
   "kind": "illustration",
-  "scope": "system"
+  "scope": "planet"
  },
- "hr-8799-e": {
-  "nasa": "PIA17010",
+ "kepler-20-f": {
+  "nasa": "PIA14889",
   "kind": "illustration",
-  "scope": "system"
+  "scope": "planet"
+ },
+ "gj-436-b": {
+  "nasa": "PIA13054",
+  "kind": "illustration",
+  "scope": "planet"
+ },
+ "2mass-j12073346-3932539-b": {
+  "nasa": "PIA16033",
+  "kind": "illustration",
+  "scope": "planet"
  }
 }
