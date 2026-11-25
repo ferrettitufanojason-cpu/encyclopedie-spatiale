@@ -103,7 +103,7 @@ function card(c) {
   const a = el('a', { class: 'card', href: `?o=${c.i}`, 'data-id': c.i }, pic,
     el('div', { class: 'body' }, el('h2', { text: name }), el('span', { class: 'code', text: c.c }), el('div', { class: 'tags' }, cardTags(c))));
   a.addEventListener('click', e => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button) return; e.preventDefault(); openObj(c.i, true); });
-  return el('li', {}, a);
+  return el('li', { class: 'has-cmp' }, a, cmpToggle(c.i, lang === 'fr' && c.nf ? c.nf : c.n));
 }
 
 /* ---------- filtrage ---------- */
@@ -294,6 +294,7 @@ async function openObj(id, push) {
   const disc = o.disc?.year ? [`${o.disc.year}`, o.disc.method && ` · ${T_.method[o.disc.method] ?? o.disc.method}`, o.disc.facility && ` · ${o.disc.facility}`].filter(Boolean).join('') : null;
   body.replaceChildren(
     el('button', { class: 'btn close', type: 'button', onclick: () => dlg.close(), 'aria-label': T_.close, text: '✕' }),
+    el('div', { class: 'cmp-fiche' }, (() => { const b = cmpToggle(o.id, title); b.classList.add('btn'); b.append(' ' + T_.cmpAdd); return b; })()),
     el('div', { class: 'dlg-head' }, el('div', {}, pic, credit),
       el('div', { class: 'dlg-title' }, el('span', { class: 'kicker', text: o.code }), el('h2', { id: 'dlgTitle', text: title }),
         el('div', { class: 'tags' }, tags),
@@ -509,9 +510,87 @@ $('#dlg').addEventListener('close', () => {
 });
 $('#dlg').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.close(); });
 addEventListener('popstate', () => {
-  const id = new URLSearchParams(location.search).get('o');
-  if (id) openObj(id, false); else if ($('#dlg').open) { $('#dlg').removeEventListener; $('#dlg').close(); }
+  const sp = new URLSearchParams(location.search), id = sp.get('o'), c = sp.get('cmp');
+  if (c) { cmpSet(c.split(',').filter(Boolean)); openCompare(false); return; }
+  if ($('#cmpDlg').open) $('#cmpDlg').close();
+  if (id) openObj(id, false); else if ($('#dlg').open) { $('#dlg').close(); }
 });
+
+/* ---------- comparateur : 2 à 3 objets côte à côte, tailles à l'échelle, URL partageable (?cmp=a,b,c) ---------- */
+const CMP_MAX = 3;
+let cmp = [];
+const cmpNames = new Map(); // id -> nom (pour le bandeau)
+function cmpSet(next) { cmp = next.slice(0, CMP_MAX); drawTray(); document.querySelectorAll('.cmp-add').forEach(b => b.setAttribute('aria-pressed', String(cmp.includes(b.dataset.id)))); }
+function cmpToggle(id, name) {
+  cmpNames.set(id, name);
+  return el('button', { class: 'cmp-add', type: 'button', 'data-id': id, 'aria-pressed': String(cmp.includes(id)), title: t().cmpAdd, 'aria-label': `${t().cmpAdd} : ${name}`,
+    onclick: e => { e.stopPropagation(); cmpSet(cmp.includes(id) ? cmp.filter(x => x !== id) : cmp.length >= CMP_MAX ? cmp : [...cmp, id]); if (!cmp.includes(id) && cmp.length >= CMP_MAX) flashTray(); } }, '⚖');
+}
+function flashTray() { const tr = $('#cmpTray'); tr.classList.add('full'); setTimeout(() => tr.classList.remove('full'), 900); }
+function drawTray() {
+  const tr = $('#cmpTray'), T_ = t();
+  tr.hidden = cmp.length === 0;
+  tr.replaceChildren(el('b', { text: `${T_.cmpTitle} (${cmp.length}/${CMP_MAX})` }),
+    ...cmp.map(id => el('span', { class: 'chip' }, cmpNames.get(id) ?? id, el('button', { type: 'button', 'aria-label': `${T_.cmpRemove} ${cmpNames.get(id) ?? id}`, onclick: () => cmpSet(cmp.filter(x => x !== id)), text: '✕' }))),
+    el('button', { class: 'btn', type: 'button', disabled: cmp.length < 2, onclick: () => openCompare(true), text: cmp.length < 2 ? T_.cmpNeed : T_.cmpGo }),
+    el('button', { class: 'btn', type: 'button', onclick: () => cmpSet([]), text: T_.cmpClear }));
+}
+const R_KM = { 'km': 1, 'R⊕': 6371, 'R☉': 695700 };
+const radiusKm = o => (o.props.radius ? o.props.radius.v * (R_KM[o.props.radius.u] ?? NaN) : o.props.diameter ? o.props.diameter.v / 2 : null);
+const CMP_ROWS = ['mass', 'mass_kg', 'radius', 'diameter', 'density', 'gravity', 'teq', 'teff', 'period', 'sma', 'ecc', 'dist', 'vmag', 'sptype', 'abs_mag', 'launch'];
+function sizeSvg(items, log) {
+  const W = 600, H = 230, base = 190;
+  const vals = items.map(i => i.r).filter(Boolean); if (!vals.length) return '';
+  const rmax = Math.max(...vals), maxPx = 90, colors = ['#6ea8ff', '#ffd36e', '#5ed6a4'];
+  const px = r => (log ? Math.max(2, 14 + (Math.log10(r / Math.min(...vals) || 1) / (Math.log10(rmax / Math.min(...vals)) || 1)) * (maxPx - 14)) : Math.max(1.5, r / rmax * maxPx));
+  const slot = W / items.length;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${t().cmpScale}">` + items.map((it, k) => {
+    const cx = slot * k + slot / 2, c = colors[k];
+    if (!it.r) return `<text x="${cx}" y="${base - 20}" text-anchor="middle" fill="#9aa8c7" font-size="12">${t().na}</text><text x="${cx}" y="${H - 6}" text-anchor="middle" fill="#e8eefc" font-size="13">${it.name}</text>`;
+    const r = px(it.r);
+    return `<circle cx="${cx}" cy="${base - r}" r="${r.toFixed(1)}" fill="${c}22" stroke="${c}" stroke-width="1.6"/>`
+      + `<text x="${cx}" y="${H - 6}" text-anchor="middle" fill="#e8eefc" font-size="13">${it.name}</text>`
+      + `<text x="${cx}" y="${base + 12}" text-anchor="middle" fill="#9aa8c7" font-size="11">R = ${fmt(it.r)} km</text>`;
+  }).join('') + '</svg>';
+}
+async function openCompare(push) {
+  const dlg = $('#cmpDlg'), body = $('#cmpBody'), T_ = t();
+  if (cmp.length < 2) return;
+  if (push) history.pushState({ cmp }, '', `?cmp=${cmp.join(',')}`);
+  body.replaceChildren(el('p', { text: T_.loading }));
+  if (!dlg.open) dlg.showModal();
+  let objs;
+  try { objs = await Promise.all(cmp.map(id => fetch(`/data/o/${encodeURIComponent(id)}.json`).then(r => r.json()))); }
+  catch { body.replaceChildren(el('p', { text: T_.err })); return; }
+  objs.forEach(o => cmpNames.set(o.id, lang === 'fr' && o.nameFr ? o.nameFr : o.name)); drawTray();
+  const items = objs.map(o => ({ name: cmpNames.get(o.id), r: radiusKm(o) }));
+  let log = false;
+  const sizes = el('div', { class: 'cmp-sizes' });
+  const drawSizes = () => {
+    sizes.innerHTML = sizeSvg(items, log);
+    const ref = items[0]; const lines = [];
+    const f3 = q => q.toLocaleString(lang, { maximumSignificantDigits: 3 });
+    for (let i = 1; i < items.length; i++) if (ref.r && items[i].r) { const q = items[i].r / ref.r; lines.push(q >= 1 ? T_.cmpBigger(items[i].name, ref.name, f3(q)) : T_.cmpSmaller(items[i].name, ref.name, f3(1 / q))); }
+    sizes.append(el('p', { class: 'credit', text: log ? T_.cmpLog : T_.cmpLinear }), ...lines.map(l => el('p', { class: 'cmp-ratio', text: l })));
+  };
+  drawSizes();
+  const rows = CMP_ROWS.filter(k => objs.some(o => o.props[k]));
+  const table = el('table', { class: 'props cmp-table' },
+    el('thead', {}, el('tr', {}, el('th', { scope: 'col', text: '' }), ...objs.map(o => el('th', { scope: 'col' }, el('a', { href: `?o=${o.id}`, onclick: e => { e.preventDefault(); dlg.close(); openObj(o.id, true); }, text: cmpNames.get(o.id) }), el('div', { class: 'credit', text: o.code }))))),
+    el('tbody', {}, rows.map(k => el('tr', {}, el('th', { scope: 'row', text: T_.p[k] ?? k }),
+      ...objs.map(o => el('td', { class: o.props[k] ? '' : 'na', text: o.props[k] ? fmtProp(k, o.props[k]) : T_.na }))))));
+  const pics = el('div', { class: 'cmp-pics' }, objs.map(o => el('div', { class: 'cmp-pic' }, o.image ? el('img', { src: o.image.thumb ?? o.image.url, alt: o.name, loading: 'lazy' }) : orb(o.sub))));
+  body.replaceChildren(
+    el('button', { class: 'btn close', type: 'button', onclick: () => dlg.close(), 'aria-label': T_.close, text: '✕' }),
+    el('h2', { id: 'cmpTitle', text: `${T_.cmpTitle} : ${objs.map(o => cmpNames.get(o.id)).join(' · ')}` }),
+    pics, el('h3', { class: 'cmp-h', text: T_.cmpSizes }),
+    el('label', { class: 'chk' }, el('input', { type: 'checkbox', onchange: e => { log = e.target.checked; drawSizes(); } }), el('span', { text: ' ' + T_.cmpLogLabel })),
+    sizes, el('h3', { class: 'cmp-h', text: T_.sec.props }), el('div', { class: 'cmp-scroll' }, table),
+    el('p', { class: 'credit', text: T_.cmpSrc }),
+    el('p', {}, el('a', { href: `?cmp=${cmp.join(',')}`, onclick: async e => { e.preventDefault(); try { await navigator.clipboard.writeText(location.href); e.target.textContent = T_.cmpCopied; } catch { /* presse-papiers indisponible */ } }, text: T_.cmpShare })));
+}
+$('#cmpDlg').addEventListener('close', () => { if (new URLSearchParams(location.search).get('cmp')) { history.state?.cmp ? history.back() : history.replaceState(null, '', location.pathname); } });
+$('#cmpDlg').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.close(); });
 
 /* ---------- langue & init ---------- */
 function applyLang() {
@@ -524,8 +603,9 @@ function applyLang() {
 }
 $('#lang').addEventListener('click', () => {
   lang = lang === 'fr' ? 'en' : 'fr'; try { localStorage.setItem('lang', lang); } catch {}
-  applyLang(); apply();
+  applyLang(); apply(); drawTray();
   const id = new URLSearchParams(location.search).get('o'); if ($('#dlg').open && id) openObj(id, false);
+  if ($('#cmpDlg').open) openCompare(false);
 });
 
 let timer;
@@ -552,5 +632,6 @@ try {
   ALL = idx; META = meta;
 } catch { $('#count').textContent = t().err; }
 applyLang(); apply();
-const first = new URLSearchParams(location.search).get('o');
-if (first) openObj(first, false);
+const first = new URLSearchParams(location.search).get('o'), firstCmp = new URLSearchParams(location.search).get('cmp');
+if (firstCmp) { cmpSet(firstCmp.split(',').filter(Boolean)); openCompare(false); }
+else if (first) openObj(first, false);

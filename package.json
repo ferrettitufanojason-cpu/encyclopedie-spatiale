@@ -4,15 +4,25 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "import:exoplanets": "node scripts/import-exoplanets.mjs",
+    "import": "node scripts/import-all.mjs",
+    "import:all": "node scripts/import-all.mjs",
     "import:solar": "node scripts/import-solar-system.mjs",
-    "import": "npm run import:solar && npm run import:exoplanets",
+    "import:exoplanets": "node scripts/import-exoplanets.mjs",
+    "import:simbad": "node scripts/import-simbad.mjs",
+    "import:sbdb": "node scripts/import-sbdb.mjs",
+    "import:missions": "node scripts/import-missions.mjs",
     "build:data": "node scripts/build-site-data.mjs",
     "dev": "npm run build:data && astro dev",
     "build": "npm run build:data && astro build",
-    "preview": "astro preview"
+    "build:all": "npm run import:all && npm run build",
+    "preview": "node scripts/serve-local.mjs",
+    "preview:static": "astro preview"
   },
   "dependencies": {
     "astro": "^5.0.0"
-  }
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "description": "Encyclopédie spatiale interactive (Astro, site statique + fonctions serverless pour le direct)"
 }

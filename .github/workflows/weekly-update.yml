@@ -1,0 +1,44 @@
+name: Mise à jour hebdomadaire des données
+
+# Chaque lundi : relance TOUS les imports (NASA, JPL, SIMBAD…), construit le site pour vérifier que tout est cohérent,
+# puis déclenche un nouveau déploiement Vercel (qui refait lui-même l'import avec ses propres variables d'environnement).
+on:
+  schedule:
+    - cron: '17 4 * * 1'   # lundi 04:17 UTC
+  workflow_dispatch: {}    # lancement manuel possible depuis l'onglet « Actions »
+
+concurrency:
+  group: weekly-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SSOD_TOKEN: ${{ secrets.SSOD_TOKEN }}        # jeton Système solaire OpenData (gratuit)
+      NASA_API_KEY: ${{ secrets.NASA_API_KEY }}    # clé NASA (utile aux fonctions /api, pas aux imports)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Import des données (échoue si une source requise est indisponible)
+        run: npm run import:all
+      - name: Construction du site (contrôle)
+        run: npm run build
+      - name: Rapport d'import
+        if: always()
+        run: |
+          echo '### Rapport d import' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f data/import-report.json ]; then node -e "const r=require('./data/import-report.json');console.log(r.steps.map(s=>(s.ok?'- ✅ ':'- ❌ ')+s.step+' ('+s.seconds+' s)').join('\n'))" >> "$GITHUB_STEP_SUMMARY"; fi
+          if [ -f public/data/meta.json ]; then node -e "const m=require('./public/data/meta.json');console.log('\n**'+m.total+' objets**')" >> "$GITHUB_STEP_SUMMARY"; fi
+      - name: Redéploiement Vercel (Deploy Hook)
+        if: success()
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then echo "VERCEL_DEPLOY_HOOK absent : pas de redéploiement."; exit 0; fi
+          curl -fsS -X POST "$HOOK"

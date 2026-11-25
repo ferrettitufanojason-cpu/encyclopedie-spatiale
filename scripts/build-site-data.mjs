@@ -19,6 +19,7 @@ const imageFiles = (await readdir(DATA_DIR)).filter(f => /^images.*\.json$/.test
 const dataFiles = (await readdir(DATA_DIR)).filter(f => f.endsWith('.json') && !imageFiles.includes(f) && f !== 'land-path.json').sort((a, b) => (b === 'solar-system.json') - (a === 'solar-system.json') || a.localeCompare(b));
 for (const f of dataFiles) {
   const d = JSON.parse(await readFile(join(DATA_DIR, f), 'utf8'));
+  if (!Array.isArray(d.objects)) continue; // fichiers annexes (rapport d'import, contour des terres…)
   sources.push({ ...d.source, file: f, count: d.objects.length });
   objects.push(...d.objects);
 }
