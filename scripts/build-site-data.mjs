@@ -41,6 +41,23 @@ const toEarthMass = p => !p ? null : p.u === 'kg' ? p.v / M_EARTH : p.v;
 const toEarthRadius = p => !p ? null : p.u === 'km' ? p.v / R_EARTH : p.v;
 const round = (x, d = 4) => x == null ? null : Number(x.toPrecision(d));
 
+// Illustrations d'artiste NASA génériques par type de planète (jamais présentées comme la planète elle-même).
+const POOLS = {
+  rockyHot: ['PIA20068', 'PIA19833'], rockyCold: ['PIA17004'], rockyTemperate: ['PIA14883', 'PIA19824', 'PIA17003'],
+  neptune: ['PIA15622', 'PIA20687'], neptuneHot: ['PIA13351', 'PIA09378'],
+  giantHot: ['PIA09200', 'PIA09378', 'PIA13351'], giant: ['PIA20687', 'PIA09200', 'PIA13351'],
+};
+const hash = s => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
+function genericFor(o) {
+  const t = o.props.teq?.v, hot = t != null && t > 1000, cold = t != null && t < 273;
+  let pool;
+  if (o.sub === 'terrestrial' || o.sub === 'super-earth') pool = hot ? POOLS.rockyHot : cold ? POOLS.rockyCold : POOLS.rockyTemperate;
+  else if (o.sub === 'neptune-like') pool = hot ? POOLS.neptuneHot : POOLS.neptune;
+  else if (o.sub === 'gas-giant') pool = hot ? POOLS.giantHot : POOLS.giant;
+  else return null;
+  return images['_g_' + pool[hash(o.id) % pool.length]] ?? null;
+}
+
 const index = [];
 for (const o of objects) {
   const rel = [];
@@ -55,7 +72,7 @@ for (const o of objects) {
   o.related = rel;
   if (descs[o.id]) o.desc = descs[o.id];
 
-  const img = images[o.id] ?? null;
+  const img = images[o.id] ?? (o.cat === 'exoplanet' ? genericFor(o) : null);
   const dist = o.props.dist ? o.props.dist.v * PC_LY : null;
   const card = {
     i: o.id, n: o.name, c: o.code, k: o.cat, s: o.sub, t: o.tags,

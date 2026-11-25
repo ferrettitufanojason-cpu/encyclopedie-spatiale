@@ -202,7 +202,7 @@ async function openObj(id, push) {
   document.title = `${o.name} — ${T_.title}`;
   const img = o.image;
   const pic = el('div', { class: 'dlg-pic' }, img ? el('img', { src: img.url, alt: img.alt ?? o.name }) : orb(o.sub));
-  const credit = img ? el('div', { class: 'credit' }, `${img.kind === 'illustration' ? T_.illusLong + (img.scope === 'system' ? ' ' + T_.illusSys : '') + ' — ' : ''}${T_.imgCredit} : ${img.credit} · ${img.license} · `,
+  const credit = img ? el('div', { class: 'credit' }, `${img.kind === 'illustration' ? T_.illusLong + (img.scope === 'system' ? ' ' + T_.illusSys : img.scope === 'generic' ? ' ' + T_.illusGen : '') + ' — ' : ''}${T_.imgCredit} : ${img.credit} · ${img.license} · `,
       el('a', { href: img.source, target: '_blank', rel: 'noopener', text: 'source' }), img.note ? ` — ${img.note[lang]}` : '')
     : el('div', { class: 'credit', text: T_.noImg });
   const title = lang === 'fr' && o.nameFr ? o.nameFr : o.name;
