@@ -74,7 +74,8 @@ function cardTags(c) {
 }
 function card(c) {
   const pic = el('div', { class: 'pic' }, c.im ? el('img', { src: c.im, alt: '', loading: 'lazy', decoding: 'async' }) : orb(c.s),
-    c.il ? el('span', { class: 'badge', text: t().illus }) : null);
+    c.il ? el('span', { class: 'badge', text: c.il === 2 ? t().skyBadge : t().illus }) : null,
+    c.il === 2 ? el('span', { class: 'crosshair', 'aria-hidden': 'true' }) : null);
   const name = lang === 'fr' && c.nf ? c.nf : c.n;
   const a = el('a', { class: 'card', href: `?o=${c.i}`, 'data-id': c.i }, pic,
     el('div', { class: 'body' }, el('h2', { text: name }), el('span', { class: 'code', text: c.c }), el('div', { class: 'tags' }, cardTags(c))));
@@ -235,8 +236,8 @@ async function openObj(id, push) {
   const T_ = t(), s = srcOf(o);
   document.title = `${o.name} — ${T_.title}`;
   const img = o.image;
-  const pic = el('div', { class: 'dlg-pic' }, img ? el('img', { src: img.url, alt: img.alt ?? o.name }) : orb(o.sub));
-  const credit = img ? el('div', { class: 'credit' }, `${img.kind === 'illustration' ? T_.illusLong + (img.scope === 'system' ? ' ' + T_.illusSys : img.scope === 'generic' ? ' ' + T_.illusGen : '') + ' — ' : ''}${T_.imgCredit} : ${img.credit} · ${img.license} · `,
+  const pic = el('div', { class: 'dlg-pic' + (img?.kind === 'sky' ? ' sky' : '') }, img ? el('img', { src: img.url, alt: img.alt ?? o.name }) : orb(o.sub), img?.kind === 'sky' ? el('span', { class: 'crosshair', 'aria-hidden': 'true' }) : null);
+  const credit = img ? el('div', { class: 'credit' }, `${img.kind === 'sky' ? T_.skyLong + ' — ' : ''}${img.kind === 'illustration' ? T_.illusLong + (img.scope === 'system' ? ' ' + T_.illusSys : img.scope === 'generic' ? ' ' + T_.illusGen : '') + ' — ' : ''}${T_.imgCredit} : ${img.credit} · ${img.license} · `,
       el('a', { href: img.source, target: '_blank', rel: 'noopener', text: 'source' }), img.note ? ` — ${img.note[lang]}` : '')
     : el('div', { class: 'credit', text: T_.noImg });
   const title = lang === 'fr' && o.nameFr ? o.nameFr : o.name;

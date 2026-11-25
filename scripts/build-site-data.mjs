@@ -98,7 +98,11 @@ for (const o of objects) {
   o.related = rel;
   if (descs[o.id]) o.desc = descs[o.id];
 
-  const img = images[o.id] ?? null; // pas d'image générique : « pas d'image » vaut mieux qu'une fausse image
+  // pas d'image générique : « pas d'image » vaut mieux qu'une fausse image. Repli : vue réelle du ciel (relevé DSS2) à la position de l'objet.
+  const img = images[o.id] ?? (existsSync(join(ROOT, 'public', 'sky', `${o.id}.jpg`))
+    ? { url: `/sky/${encodeURIComponent(o.id)}.jpg`, thumb: `/sky/${encodeURIComponent(o.id)}.jpg`, kind: 'sky', title: `${o.name} — vue du ciel (DSS2)`, alt: `Vue du ciel (DSS2) centrée sur ${o.name}`,
+      credit: 'Digitized Sky Survey 2 (STScI / Palomar Observatory) via NASA SkyView (HEASARC)', license: 'Usage éducatif et non commercial (STScI)', source: 'https://skyview.gsfc.nasa.gov/' }
+    : null);
   const dist = o.props.dist ? o.props.dist.v * PC_LY : null;
   const card = {
     i: o.id, n: o.name, c: o.code, k: o.cat, s: o.sub, t: o.tags,
@@ -107,7 +111,7 @@ for (const o of objects) {
     ss: o.src === 'ssod' ? 1 : undefined,
     hz: o.props.in_hz ? o.props.in_hz.v : null, h: o.host ?? null,
     x: (o.aliases ?? []).filter(a => /^(HD|HIP|NGC|IC|M|GJ) /.test(a)).join(' ') || undefined,
-    im: img?.thumb ?? img?.url ?? null, il: img?.kind === 'illustration' ? 1 : undefined,
+    im: img?.thumb ?? img?.url ?? null, il: img?.kind === 'illustration' ? 1 : img?.kind === 'sky' ? 2 : undefined,
   };
   if (o.nameFr && o.nameFr !== o.name) card.nf = o.nameFr;
   index.push(card);
