@@ -1,4 +1,5 @@
 import { T } from './i18n.js';
+import { scatter, bars, PALETTE } from './charts.js';
 
 const $ = s => document.querySelector(s);
 const el = (tag, attrs = {}, ...kids) => {
@@ -19,7 +20,7 @@ if (!['fr', 'en'].includes(lang)) lang = 'fr';
 const t = () => T[lang];
 const norm = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
-const TOP = ['planet', 'star', 'region', 'smallbody', 'other', 'live'];
+const TOP = ['planet', 'star', 'region', 'smallbody', 'other', 'charts', 'live'];
 const groupOf = k => (k === 'exoplanet' ? 'planet' : k === 'planet' ? 'planet' : k === 'star' ? 'star' : k);
 const subOf = c => (c.k === 'exoplanet' ? 'exoplanet' : c.s);
 
@@ -58,6 +59,8 @@ const srcOf = (o, p) => {
   if (s === 'simbad') return { name: 'SIMBAD (CDS)', url: `https://simbad.cds.unistra.fr/simbad/sim-id?Ident=${encodeURIComponent(o.simbadId ?? o.name)}` };
   if (s === 'sbdb') return { name: 'JPL Small-Body Database', url: `https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=${encodeURIComponent(o.sbdbId ?? o.name)}` };
   if (s === 'nasaiss') return { name: 'NASA — ISS Facts and Figures', url: 'https://www.nasa.gov/international-space-station/space-station-facts-and-figures/' };
+  if (s === 'imo') return { name: 'International Meteor Organization (calendrier officiel)', url: `https://www.imo.net/files/meteor-shower/cal${o.imoYear ?? ''}.pdf` };
+  if (s === 'horizons') return { name: 'JPL Horizons (NASA/JPL)', url: 'https://ssd.jpl.nasa.gov/horizons/' };
   if (s === 'gwosc') return { name: 'GWOSC (LIGO/Virgo/KAGRA)', url: o.gwUrl ?? 'https://gwosc.org/eventapi/' };
   if (s === 'nasaecl') return { name: 'NASA GSFC Eclipse Web Site (F. Espenak)', url: o.lunar ? 'https://eclipse.gsfc.nasa.gov/lunar.html' : 'https://eclipse.gsfc.nasa.gov/solar.html' };
   if (s === 'nasasci') return { name: 'NASA Science', url: `https://science.nasa.gov/mission/${o.mslug}/` };
@@ -112,8 +115,9 @@ function card(c) {
 /* ---------- filtrage ---------- */
 const inR = (v, [lo, hi]) => (lo == null && hi == null) || (v != null && (lo == null || v >= lo) && (hi == null || v <= hi));
 function apply() {
-  if (state.cat === 'live') { showLive(true); drawSimbadBox(); return; }
-  showLive(false);
+  if (state.cat === 'live') { showCharts(false); showLive(true); drawSimbadBox(); return; }
+  if (state.cat === 'charts') { showLive(false); showCharts(true); drawSimbadBox(); return; }
+  showLive(false); showCharts(false);
   const toks = norm(state.q).split(/\s+/).filter(Boolean);
   VIEW = ALL.filter(c => {
     if (groupOf(c.k) !== state.cat) return false;
@@ -147,16 +151,16 @@ new IntersectionObserver(es => { if (es[0].isIntersecting && shown < VIEW.length
 /* ---------- navigation catégories ---------- */
 function drawCats() {
   const counts = {}; for (const c of ALL) counts[groupOf(c.k)] = (counts[groupOf(c.k)] ?? 0) + 1;
-  counts.live = 1;
+  counts.live = 1; counts.charts = 1;
   $('#cats').replaceChildren(...TOP.map(k => el('button', { type: 'button', 'aria-pressed': String(state.cat === k), disabled: !counts[k],
     onclick: () => { state.cat = k; state.sub = ''; state.type = ''; apply(); drawCats(); } },
-    t().cat[k], el('em', { text: k === 'live' ? '●' : counts[k] ? counts[k].toLocaleString(lang) : t().soon }))));
+    t().cat[k], el('em', { text: k === 'live' ? '●' : k === 'charts' ? '3' : counts[k] ? counts[k].toLocaleString(lang) : t().soon }))));
 }
 function drawSubs() {
   const counts = {};
   for (const c of ALL) if (groupOf(c.k) === state.cat) counts[subOf(c)] = (counts[subOf(c)] ?? 0) + 1;
   const SUBORDER = ['sun', 'spectral-O', 'spectral-B', 'spectral-A', 'spectral-F', 'spectral-G', 'spectral-K', 'spectral-M', 'other-star', 'brown-dwarf', 'white-dwarf', 'neutron-star', 'pulsar', 'magnetar', 'black-hole',
-    'galaxy', 'galaxy-cluster', 'nebula', 'open-cluster', 'globular-cluster', 'main-belt', 'near-earth', 'trojan', 'other-asteroid', 'kuiper', 'comet', 'interstellar', 'mission', 'gravitational-wave', 'solar-eclipse', 'lunar-eclipse'];
+    'galaxy', 'galaxy-cluster', 'nebula', 'open-cluster', 'globular-cluster', 'main-belt', 'near-earth', 'trojan', 'other-asteroid', 'kuiper', 'comet', 'interstellar', 'mission', 'meteor-shower', 'opposition', 'elongation', 'conjunction', 'solar-eclipse', 'lunar-eclipse', 'gravitational-wave'];
   const keys = Object.keys(counts).sort((a, b) => (SUBORDER.indexOf(a) + 1 || 99) - (SUBORDER.indexOf(b) + 1 || 99));
   const mk = (k, label, n) => el('button', { type: 'button', 'aria-pressed': String(state.sub === k),
     onclick: () => { state.sub = k; if (k !== 'exoplanet') state.type = ''; apply(); } }, label, el('em', { text: n.toLocaleString(lang) }));
@@ -174,7 +178,7 @@ function drawFilterOptions() {
 
 /* ---------- fiche détaillée ---------- */
 const ORDER = ['mass', 'radius', 'radius_eq', 'radius_pol', 'density', 'gravity', 'escape', 'teq', 'insol', 'axial_tilt', 'rotation',
-  'period', 'sma', 'perihelion', 'aphelion', 'ecc', 'incl', 'date', 'etype', 'gw_m1', 'gw_m2', 'gw_mf', 'gw_dist', 'gw_snr', 'p_astro', 'gamma', 'ecl_mag', 'saros', 'ecl_loc', 'ecl_width', 'ecl_dur', 'diameter', 'abs_mag', 'albedo', 'spec', 'orbit_class', 'first_obs', 'moid', 'launch', 'occupied', 'crew', 'mtype', 'target', 'length_m', 'module_length_m', 'truss_length_m', 'array_span_m', 'hab_volume', 'press_volume', 'power', 'orbit_min', 'orbits_day', 'speed_text', 'agencies', 'vehicle', 'site', 'mass_kg', 'agency', 'disciplines', 'sptype', 'morph', 'teff', 'lum', 'met', 'age', 'ang_major', 'ang_minor', 'redshift', 'st_teff', 'st_rad', 'st_mass', 'st_lum', 'st_met', 'st_age', 'dist', 'vmag', 'hz_inner', 'hz_outer', 'in_hz'];
+  'period', 'sma', 'perihelion', 'aphelion', 'ecc', 'incl', 'date', 'etype', 'zhr', 'met_v', 'met_rad', 'met_lambda', 'met_r', 'iau', 'app_mag', 'elong', 'sep_deg', 'gw_m1', 'gw_m2', 'gw_mf', 'gw_dist', 'gw_snr', 'p_astro', 'gamma', 'ecl_mag', 'saros', 'ecl_loc', 'ecl_width', 'ecl_dur', 'diameter', 'abs_mag', 'albedo', 'spec', 'orbit_class', 'first_obs', 'moid', 'launch', 'occupied', 'crew', 'mtype', 'target', 'length_m', 'module_length_m', 'truss_length_m', 'array_span_m', 'hab_volume', 'press_volume', 'power', 'orbit_min', 'orbits_day', 'speed_text', 'agencies', 'vehicle', 'site', 'mass_kg', 'agency', 'disciplines', 'sptype', 'morph', 'teff', 'lum', 'met', 'age', 'ang_major', 'ang_minor', 'redshift', 'st_teff', 'st_rad', 'st_mass', 'st_lum', 'st_met', 'st_age', 'dist', 'vmag', 'hz_inner', 'hz_outer', 'in_hz'];
 const GORDER = ['event', 'mission', 'physical', 'planet', 'orbit', 'star', 'sys', 'calc'];
 
 function summary(o) {
@@ -203,6 +207,21 @@ function summary(o) {
     if (o.tags.includes('hazardous')) s += fr ? ' Le JPL le classe parmi les astéroïdes potentiellement dangereux : il passe à moins de 0,05 UA de l’orbite terrestre et sa taille est notable.' : ' JPL classifies it as potentially hazardous: it can pass within 0.05 AU of Earth’s orbit and is of significant size.';
     if (o.tags.includes('visited')) s += fr ? ' Il a été visité ou survolé par au moins une sonde spatiale.' : ' It has been visited or flown past by at least one spacecraft.';
     return s;
+  }
+  if (o.src === 'imo' || o.src === 'horizons') {
+    const p = o.props, dFmt = new Date(o.eventDate + 'T12:00:00Z').toLocaleDateString(lang, { dateStyle: 'long', timeZone: 'UTC' });
+    const nm = (fr ? o.nameFr : o.name).split(' — ')[0];
+    if (o.sub === 'meteor-shower') {
+      const base = nm.replace(/ \d{4}$/, ''), act = p.date.t.match(/\((.+)\)/)?.[1];
+      return fr ? `Les ${base} atteignent leur maximum vers le ${dFmt}${act ? ` (activité : ${act})` : ''}. ${p.zhr?.v != null ? `Taux horaire zénithal : environ ${p.zhr.v} météores par heure dans des conditions idéales (ciel parfaitement noir, radiant au zénith) ; on en voit en pratique moins.` : 'Activité variable d’une année à l’autre.'} Vitesse d’entrée : ${p.met_v.v} km/s.`
+        : `The ${base} peak around ${dFmt}${act ? ` (active ${act})` : ''}. ${p.zhr?.v != null ? `Zenithal hourly rate: about ${p.zhr.v} meteors per hour under ideal conditions (perfectly dark sky, radiant overhead); fewer are seen in practice.` : 'Activity varies from year to year.'} Entry speed: ${p.met_v.v} km/s.`;
+    }
+    if (o.sub === 'opposition') return fr ? `${nm} : le ${dFmt}, la planète se trouve à l’opposé du Soleil vue de la Terre. Elle se lève au coucher du Soleil, reste visible toute la nuit et brille à son maximum (magnitude ${fmt(p.app_mag.v)}).`
+      : `${nm}: on ${dFmt} the planet lies opposite the Sun as seen from Earth. It rises at sunset, stays visible all night and is at its brightest (magnitude ${fmt(p.app_mag.v)}).`;
+    if (o.sub === 'elongation') return fr ? `${nm} : le ${dFmt}, la planète atteint son plus grand écart apparent au Soleil (${fmt(p.elong.v)}°). C’est la meilleure période pour l’observer ${/soir/.test(p.etype.t) ? 'au crépuscule, à l’ouest' : 'à l’aube, à l’est'}.`
+      : `${nm}: on ${dFmt} the planet reaches its greatest apparent distance from the Sun (${fmt(p.elong.v)}°), the best time to observe it ${/soir/.test(p.etype.t) ? 'at dusk, in the west' : 'at dawn, in the east'}.`;
+    if (o.sub === 'conjunction') return fr ? `${nm} : le ${dFmt}, les deux planètes ne sont séparées que de ${fmt(p.sep_deg.v)}° dans le ciel (la pleine Lune mesure environ 0,5°). Elles restent en réalité à des centaines de millions de kilomètres l’une de l’autre.`
+      : `${nm}: on ${dFmt} the two planets are only ${fmt(p.sep_deg.v)}° apart in the sky (the full Moon is about 0.5° wide). In reality they remain hundreds of millions of kilometres apart.`;
   }
   if (o.src === 'gwosc' || o.src === 'nasaecl') {
     const p = o.props, today = new Date().toISOString().slice(0, 10), future = o.eventDate > today;
@@ -273,9 +292,9 @@ function propsTable(o) {
     const rows = groups[g].map(k => {
       const p = o.props[k];
       const ps = srcOf(o, p);
-      const srcLine = p.calc && p.calcNote !== 'plx' && p.calcNote !== 'masses'
+      const srcLine = p.calc && !['plx', 'masses', 'horizons'].includes(p.calcNote)
         ? el('span', { class: 'src calc', text: T_.hzNote })
-        : el('span', { class: 'src' }, p.calc ? el('span', { class: 'calc', text: `${p.calcNote === 'masses' ? T_.massNote : T_.plxNote} ` }) : '', `${T_.source} : `, el('a', { href: ps.url, target: '_blank', rel: 'noopener', text: ps.name }),
+        : el('span', { class: 'src' }, p.calc ? el('span', { class: 'calc', text: `${p.calcNote === 'masses' ? T_.massNote : p.calcNote === 'horizons' ? T_.hzCalcNote : T_.plxNote} ` }) : '', `${T_.source} : `, el('a', { href: ps.url, target: '_blank', rel: 'noopener', text: ps.name }),
           p.ref ? [` · ${T_.ref} `, p.ref.url ? el('a', { href: p.ref.url, target: '_blank', rel: 'noopener', text: p.ref.t }) : p.ref.t] : '',
           ` · ${T_.updated} ${o.updated}`, p.note ? ` · ${typeof p.note === 'object' ? p.note[lang] : p.note}` : '');
       return el('tr', {}, el('th', { scope: 'row', text: T_.p[k] ?? k }), el('td', {}, el('span', { class: 'val', text: fmtProp(k, p) }), srcLine));
@@ -464,6 +483,19 @@ async function mountLive() {
   const issHost = section(T_.issLive); issHost.querySelector('h3').remove();
   mountIss(issHost, { inFiche: false });
   issHost.append(el('p', {}, el('a', { href: '?o=mission-international-space-station', onclick: e => { e.preventDefault(); openObj('mission-international-space-station', true); }, text: T_.issFiche })));
+  // Agenda du ciel (12 prochains mois)
+  const ICON = { 'solar-eclipse': '🌑', 'lunar-eclipse': '🌕', 'meteor-shower': '☄', opposition: '🪐', elongation: '✦', conjunction: '⚭' };
+  const t0 = new Date().toISOString().slice(0, 10), t1 = new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10);
+  const items = ALL.filter(c => c.dt && c.dt >= t0 && c.dt <= t1 && ICON[c.s] && (c.s !== 'meteor-shower' || (c.zh >= 10 && !/^Dayt/.test(c.n)))).sort((a, b) => a.dt.localeCompare(b.dt));
+  const byMonth = new Map();
+  for (const c of items) { const k = c.dt.slice(0, 7); (byMonth.get(k) ?? byMonth.set(k, []).get(k)).push(c); }
+  section(T_.agendaTitle, el('p', { class: 'credit', text: T_.agendaNote }),
+    items.length ? el('div', { class: 'agenda' }, [...byMonth].map(([m, list]) => el('div', { class: 'ag-month' },
+      el('h4', { text: new Date(m + '-15T12:00:00Z').toLocaleDateString(lang, { month: 'long', year: 'numeric', timeZone: 'UTC' }) }),
+      el('ul', {}, list.map(c => el('li', {}, el('span', { class: 'ag-day', text: new Date(c.dt + 'T12:00:00Z').toLocaleDateString(lang, { day: 'numeric', month: 'short', timeZone: 'UTC' }) }),
+        el('span', { class: 'ag-ico', 'aria-hidden': 'true', text: ICON[c.s] }),
+        el('a', { href: `?o=${c.i}`, onclick: e => { e.preventDefault(); openObj(c.i, true); }, text: (lang === 'fr' && c.nf ? c.nf : c.n).split(' — ')[0] }),
+        el('small', { text: t().subOne[c.s] ?? '' }))))))) : el('p', { class: 'na', text: T_.agendaEmpty }));
   // APOD
   const ap = section(T_.apodTitle, el('p', { class: 'na', text: T_.loading }));
   getJson('/api/apod').then(a => {
@@ -495,8 +527,73 @@ async function mountLive() {
 }
 function showLive(on) {
   $('#live').hidden = !on; ['#filters', '#grid', '.exp-bar', '#subs', '#sentinel'].forEach(s => { const n = $(s); if (n) n.hidden = on; });
-  $('.layout').classList.toggle('live-mode', on);
+  $('.layout').classList.toggle('live-mode', on || state.cat === 'charts');
   if (on) mountLive(); else { $('#live').replaceChildren(); if (!$('#dlg').open) stopIss(); } // vide aussi les lecteurs vidéo
+}
+
+/* ---------- onglet « Graphiques » : diagrammes interactifs construits à partir des données du site ---------- */
+let chartsBuilt = null;
+function showCharts(on) {
+  $('#charts').hidden = !on;
+  if (on) { ['#filters', '#grid', '.exp-bar', '#subs', '#sentinel'].forEach(s => { const n = $(s); if (n) n.hidden = true; }); $('.layout').classList.add('live-mode'); if (chartsBuilt !== lang) mountCharts(); }
+  else if (state.cat !== 'live') { ['#filters', '#grid', '.exp-bar', '#subs', '#sentinel'].forEach(s => { const n = $(s); if (n) n.hidden = false; }); $('.layout').classList.remove('live-mode'); }
+}
+function mountCharts() {
+  chartsBuilt = lang;
+  const T_ = t(), host = $('#charts'); host.replaceChildren(el('h2', { text: T_.cat.charts }), el('p', { class: 'credit', text: T_.chIntro }));
+  const pick = id => openObj(id, true);
+  const nm = c => (lang === 'fr' && c.nf ? c.nf : c.n);
+  const f = v => (v == null ? T_.na : v.toLocaleString(lang, { maximumSignificantDigits: 4 }));
+  const csvDl = (name, head, rows) => {
+    const cell = v => { const s = String(v ?? ''); return /[",\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+    const a = el('a', { href: URL.createObjectURL(new Blob([String.fromCharCode(0xfeff) + [head, ...rows].map(r => r.map(cell).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' })), download: `${name}.csv` });
+    document.body.append(a); a.click(); a.remove();
+  };
+  const card = (title, text, src) => { const s = el('section', { class: 'chart-card' }, el('h3', { text: title }), el('p', { class: 'chart-text', text }));
+    const tools = el('div', { class: 'chart-tools' }); const body = el('div'); s.append(tools, body, el('p', { class: 'credit', text: src })); host.append(s); return { tools, body }; };
+  const btn = (label, onclick, pressed) => el('button', { class: 'btn tv-btn', type: 'button', onclick, ...(pressed != null ? { 'aria-pressed': String(pressed) } : {}), text: label });
+
+  // 1. Masse - rayon des exoplanètes
+  {
+    const ex = ALL.filter(c => c.k === 'exoplanet' && c.m > 0 && c.r > 0);
+    const cnt = {}; ex.forEach(c => { cnt[c.md] = (cnt[c.md] ?? 0) + 1; });
+    const top = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a]).slice(0, 5);
+    const ser = c => (c.ec ? 'calc' : top.includes(c.md) ? c.md : 'other');
+    const series = [...top.map((k, i) => ({ key: k, label: T_.method[k] ?? k, color: PALETTE[i] })), { key: 'other', label: T_.chOther, color: PALETTE[9] }, { key: 'calc', label: T_.chCalc, color: '#5b6b8c' }];
+    const solar = ALL.filter(c => c.k === 'planet' && ['terrestrial', 'gas-giant', 'ice-giant'].includes(c.s) && c.m > 0 && c.r > 0).map(c => ({ x: c.m, y: c.r, label: nm(c) }));
+    const { tools, body } = card(T_.chMR, T_.chMRText, T_.chMRSrc);
+    const ch = scatter(body, { points: ex.map(c => ({ x: c.m, y: c.r, s: ser(c), id: c.i, c })), series, overlay: solar, file: 'masse-rayon-exoplanetes', hidden: ['calc'],
+      x: { label: T_.chMass, log: true }, y: { label: T_.chRadius, log: true }, ariaLabel: T_.chMR, onPick: pick,
+      tip: p => `<b>${nm(p.c)}</b><br>${T_.p.mass} : ${f(p.c.m)} M⊕<br>${T_.p.radius} : ${f(p.c.r)} R⊕<br>${T_.method[p.c.md] ?? p.c.md ?? ''} · ${p.c.y ?? ''}` });
+    let lx = true, ly = true;
+    tools.append(btn(T_.chLogX, e => { lx = !lx; ch.setLog('x', lx); e.target.setAttribute('aria-pressed', String(lx)); }, true), btn(T_.chLogY, e => { ly = !ly; ch.setLog('y', ly); e.target.setAttribute('aria-pressed', String(ly)); }, true),
+      btn(T_.chReset, () => ch.reset()), btn('PNG', () => ch.png()), btn('CSV', () => csvDl('masse-rayon-exoplanetes', ['id', 'name', 'mass_earth', 'radius_earth', 'method', 'year', 'estimated_by_mass_radius_relation'], ch.visible().map(p => [p.id, p.c.n, p.c.m, p.c.r, p.c.md, p.c.y, p.c.ec ? 'yes' : 'no']))));
+  }
+  // 2. Diagramme de Hertzsprung-Russell
+  {
+    const st = ALL.filter(c => c.k === 'star' && c.te > 0 && c.mv != null && c.te < 60000);
+    const ORDER = ['spectral-O', 'spectral-B', 'spectral-A', 'spectral-F', 'spectral-G', 'spectral-K', 'spectral-M', 'white-dwarf', 'brown-dwarf', 'other-star'];
+    const COL = ['#9bb0ff', '#aabfff', '#cad7ff', '#f8f7ff', '#fff4ea', '#ffd2a1', '#ffb56c', '#7fdcff', '#c39bff', '#9aa8c7'];
+    const series = ORDER.filter(k => st.some(c => c.s === k)).map(k => ({ key: k, label: T_.sub[k] ?? k, color: COL[ORDER.indexOf(k)] }));
+    const { tools, body } = card(T_.chHR, T_.chHRText, T_.chHRSrc);
+    const ch = scatter(body, { points: st.map(c => ({ x: c.te, y: c.mv, s: ORDER.includes(c.s) ? c.s : 'other-star', id: c.i, c })), series, file: 'diagramme-hr',
+      overlay: [{ x: 5772, y: 4.83, label: lang === 'fr' ? 'Soleil' : 'Sun' }],
+      x: { label: T_.chTeff, log: true, reverse: true }, y: { label: T_.chMv, reverse: true }, ariaLabel: T_.chHR, onPick: pick,
+      tip: p => `<b>${nm(p.c)}</b><br>T<sub>eff</sub> : ${f(p.c.te)} K<br>M<sub>V</sub> : ${f(p.c.mv)}<br>${T_.subOne[p.c.s] ?? ''}${p.c.d ? ` · ${f(p.c.d)} ${T_.ly}` : ''}` });
+    tools.append(btn(T_.chReset, () => ch.reset()), btn('PNG', () => ch.png()), btn('CSV', () => csvDl('diagramme-hr', ['id', 'name', 'teff_K', 'abs_mag_V', 'class', 'distance_ly'], ch.visible().map(p => [p.id, p.c.n, p.c.te, p.c.mv, p.c.s, p.c.d]))));
+  }
+  // 3. Découvertes d'exoplanètes par année et par méthode
+  {
+    const ex = ALL.filter(c => c.k === 'exoplanet' && c.y);
+    const y0 = Math.min(...ex.map(c => c.y)), y1 = Math.max(...ex.map(c => c.y)), cats = []; for (let y = y0; y <= y1; y++) cats.push(String(y));
+    const cnt = {}; ex.forEach(c => { cnt[c.md] = (cnt[c.md] ?? 0) + 1; });
+    const top = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a]).slice(0, 5);
+    const series = [...top, 'other'].map((k, i) => ({ key: k, label: k === 'other' ? T_.chOther : (T_.method[k] ?? k), color: k === 'other' ? PALETTE[9] : PALETTE[i],
+      values: cats.map(y => ex.filter(c => String(c.y) === y && (k === 'other' ? !top.includes(c.md) : c.md === k)).length) }));
+    const { tools, body } = card(T_.chDisc, T_.chDiscText, T_.chMRSrc);
+    const ch = bars(body, { cats, series, yLabel: T_.chCount, file: 'decouvertes-par-an', ariaLabel: T_.chDisc, tip: (c, s, v) => `<b>${c}</b><br>${s.label} : ${v}` });
+    tools.append(btn('PNG', () => ch.png()), btn('CSV', () => csvDl('decouvertes-par-an', ['year', ...series.map(s => s.label)], cats.map((c, i) => [c, ...series.map(s => s.values[i])]))));
+  }
 }
 
 /* ---------- recherche SIMBAD en direct (pour les objets absents du catalogue local) ---------- */

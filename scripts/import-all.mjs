@@ -16,6 +16,7 @@ const STEPS = [
   ['import-missions.mjs', 'NASA NSSDCA (missions)', false],
   ['import-missions-nasa-science.mjs', 'NASA Science (missions, repli)', false],
   ['import-iss.mjs', 'NASA — ISS (faits)', false],
+  ['import-sky-events.mjs', 'Événements à venir : météores (IMO), phénomènes planétaires (JPL Horizons)', false],
   ['import-events.mjs', 'Événements : ondes gravitationnelles (GWOSC) et éclipses (NASA GSFC)', false],
   ['import-images.mjs', 'NASA Image Library', false],
   ['import-commons-images.mjs', 'Wikimedia Commons (images libres)', false],

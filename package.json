@@ -29,6 +29,7 @@
   "description": "Encyclopédie spatiale interactive (Astro, site statique + fonctions serverless pour le direct)",
   "devDependencies": {
     "axe-core": "^4.14.1",
-    "jsdom": "^31.0.1"
+    "jsdom": "^31.0.1",
+    "pdfjs-dist": "^4.10.38"
   }
 }

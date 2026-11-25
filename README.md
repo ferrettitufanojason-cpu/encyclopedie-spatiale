@@ -85,7 +85,9 @@ L'action `.github/workflows/weekly-update.yml` s'exécute chaque lundi (et à la
 - *Régions* : 159 (galaxies, amas de galaxies, nébuleuses, amas ouverts et globulaires).
 - *Petits corps* : 4 994 (astéroïdes, comètes, objets de Kuiper, interstellaires).
 - *Autres* : 88 constellations, 39 missions et sondes dont l'ISS, 720 événements (268 ondes gravitationnelles, 224 éclipses solaires, 228 éclipses lunaires).
-- *En direct* : ISS (position + vidéo), APOD, EPIC, rovers, recherche SIMBAD.
+- *En direct* : ISS (position + vidéo), **agenda du ciel des 12 prochains mois**, APOD, EPIC, rovers, recherche SIMBAD.
+- *Événements à venir* : maxima des pluies de météores (calendrier officiel IMO, année en cours et suivante), oppositions des planètes, plus grandes élongations de Mercure et Vénus, rapprochements de planètes (calculés au pas d'un jour avec les éphémérides **JPL Horizons**), éclipses.
+- *Graphiques interactifs* : masse–rayon des exoplanètes (les valeurs **estimées** par la NASA via une relation masse-rayon sont séparées des valeurs mesurées et masquées par défaut), diagramme de Hertzsprung-Russell (magnitude absolue calculée, sans correction d'extinction), découvertes d'exoplanètes par année et par méthode ; survol, clic vers la fiche, zoom par sélection, légende filtrante, export PNG/CSV.
 
 **Non couvert ou partiel (à dire clairement)**
 - Les étoiles et galaxies **ne sont pas toutes** importées (des milliards) : le catalogue local en contient ~4 800 ; le reste passe par la recherche SIMBAD en direct (bouton qui apparaît sous la barre de recherche).

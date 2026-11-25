@@ -114,7 +114,7 @@ for (const o of objects) {
     i: o.id, n: o.name, c: o.code, k: o.cat, s: o.sub, t: o.tags,
     m: round(toEarthMass(o.props.mass)), r: round(radiusOf(o)), d: round(dist),
     q: o.props.teq?.v ?? o.props.teff?.v ?? null, y: o.disc?.year ?? null, md: o.disc?.method ?? null,
-    ss: o.src === 'ssod' || o.live ? 1 : undefined, dt: o.eventDate,
+    ss: o.src === 'ssod' || o.live ? 1 : undefined, dt: o.eventDate, zh: o.sub === 'meteor-shower' ? (o.zhr ?? 0) : undefined,
     nw: o.cat === 'exoplanet' && o.disc?.pubdate && Date.now() - Date.parse(`${o.disc.pubdate}-15`) < 183 * 86400000 ? 1 : undefined, // découverte publiée depuis moins de ~6 mois
     hz: o.props.in_hz ? o.props.in_hz.v : null, h: o.host ?? null,
     x: (o.aliases ?? []).filter(a => /^(HD|HIP|NGC|IC|M|GJ) /.test(a)).join(' ') || undefined,
@@ -127,6 +127,13 @@ for (const o of objects) {
     card.il = 3;
   }
   if (o.nameFr && o.nameFr !== o.name) card.nf = o.nameFr;
+  // masse ou rayon ESTIMÉ par la NASA (relation masse-rayon, « Calculated Value ») et non mesuré : à distinguer dans les graphiques
+  if (o.cat === 'exoplanet' && [o.props.mass, o.props.radius].some(p => /calculated/i.test(p?.ref?.t ?? ''))) card.ec = 1;
+  // pour le diagramme de Hertzsprung-Russell : température effective et magnitude absolue V = V + 5 − 5 log10(d / 1 pc) (calculée)
+  if (o.cat === 'star') {
+    if (o.props.teff?.v) card.te = round(o.props.teff.v);
+    if (o.props.vmag?.v != null && o.props.dist?.v > 0) card.mv = round(o.props.vmag.v + 5 - 5 * Math.log10(o.props.dist.v), 3);
+  }
   index.push(card);
   csvRows.push([o.id, o.name, o.nameFr ?? '', o.cat === 'exoplanet' ? 'exoplanet' : o.cat, o.sub, o.code, card.m ?? '', card.r ?? '', card.d ?? '', card.q ?? '', o.disc?.year ?? '', o.disc?.method ?? '', o.ra ?? '', o.dec ?? '',
     o.src, o.updated ?? '', `${SITE}/?o=${encodeURIComponent(o.id)}`, o.cat]);
