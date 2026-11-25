@@ -160,6 +160,42 @@
   "fr": "Dinkinesh est un petit astéroïde de la ceinture principale survolé par la sonde Lucy en novembre 2023. Ce survol a révélé qu'il s'agit d'un astéroïde binaire.",
   "en": "Dinkinesh is a small main-belt asteroid flown past by the Lucy spacecraft in November 2023. The flyby revealed it to be a binary asteroid."
  },
+ "mission-hubble-space-telescope": {
+  "fr": "Le télescope spatial Hubble, lancé le 24 avril 1990, observe l'Univers en lumière visible, ultraviolette et proche infrarouge depuis son orbite autour de la Terre. Ses images ont permis, entre autres, de mesurer l'expansion de l'Univers et d'observer des galaxies lointaines. Il a été réparé et modernisé en orbite par des astronautes de la navette spatiale.",
+  "en": "The Hubble Space Telescope, launched on 24 April 1990, observes the Universe in visible, ultraviolet and near-infrared light from Earth orbit. Its images helped measure the expansion of the Universe and observe distant galaxies. It was repaired and upgraded in orbit by Space Shuttle astronauts."
+ },
+ "mission-cassini-huygens": {
+  "fr": "Cassini-Huygens, lancée le 15 octobre 1997, a exploré Saturne, ses anneaux et ses lunes de 2004 à 2017. Son atterrisseur européen Huygens s'est posé sur Titan en 2005. Elle a découvert les geysers d'Encelade avant de plonger dans l'atmosphère de Saturne lors de sa fin de mission programmée.",
+  "en": "Cassini-Huygens, launched on 15 October 1997, explored Saturn, its rings and moons from 2004 to 2017. Its European lander Huygens touched down on Titan in 2005. It discovered Enceladus's geysers before plunging into Saturn's atmosphere at the planned end of its mission."
+ },
+ "mission-galileo": {
+  "fr": "Galileo, lancée en 1989, est la première sonde à avoir orbité Jupiter (1995-2003). Elle a largué une sonde atmosphérique dans Jupiter et révélé des indices d'océans sous la glace de la lune Europe. L'image est une illustration d'artiste.",
+  "en": "Galileo, launched in 1989, was the first spacecraft to orbit Jupiter (1995-2003). It dropped an atmospheric probe into Jupiter and found hints of oceans beneath the ice of the moon Europa. The image is an artist's illustration."
+ },
+ "mission-soho": {
+  "fr": "SOHO, mission commune de l'ESA et de la NASA lancée en décembre 1995, observe le Soleil en continu depuis le point de Lagrange L1. C'est le satellite d'observation du Soleil resté le plus longtemps en service, et il a aussi découvert des milliers de comètes.",
+  "en": "SOHO, a joint ESA and NASA mission launched in December 1995, observes the Sun continuously from the L1 Lagrange point. It is the longest-lived Sun-watching satellite and has also discovered thousands of comets."
+ },
+ "mission-ulysses": {
+  "fr": "Ulysses, lancée en octobre 1990, est la première sonde à avoir étudié les pôles du Soleil, en suivant une orbite perpendiculaire au plan des planètes après un passage par Jupiter.",
+  "en": "Ulysses, launched in October 1990, was the first spacecraft to study the Sun's poles, following an orbit perpendicular to the plane of the planets after a Jupiter flyby."
+ },
+ "mission-magellan": {
+  "fr": "Magellan, lancée en mai 1989, a cartographié presque toute la surface de Vénus par radar à travers les nuages, révélant volcans, plaines de lave et cratères.",
+  "en": "Magellan, launched in May 1989, mapped nearly all of Venus's surface by radar through its clouds, revealing volcanoes, lava plains and craters."
+ },
+ "mission-double-asteroid-redirection-test-dart": {
+  "fr": "DART est le premier test de défense planétaire : en septembre 2022, la sonde a volontairement percuté Dimorphos, la petite lune de l'astéroïde Didymos, et a modifié la durée de son orbite.",
+  "en": "DART was the first planetary defence test: in September 2022 the spacecraft deliberately hit Dimorphos, the small moon of asteroid Didymos, and changed the length of its orbit."
+ },
+ "mission-juice": {
+  "fr": "JUICE, mission de l'ESA lancée en avril 2023 avec une participation de la NASA, doit étudier Jupiter et ses grandes lunes glacées (Ganymède, Callisto, Europe). L'image est une illustration.",
+  "en": "JUICE, an ESA mission launched in April 2023 with NASA participation, is to study Jupiter and its large icy moons (Ganymede, Callisto, Europa). The image is an illustration."
+ },
+ "mission-europa-clipper": {
+  "fr": "Europa Clipper est la mission de la NASA destinée à étudier en détail la lune Europe de Jupiter et son océan sous la glace, en la survolant à de nombreuses reprises. Son arrivée est prévue en 2030.",
+  "en": "Europa Clipper is NASA's mission to study Jupiter's moon Europa and its subsurface ocean in detail through many flybys. It is scheduled to arrive in 2030."
+ },
  "mission-voyager-1": {
   "fr": "Voyager 1, lancée en 1977, est l'objet fabriqué par l'humanité le plus lointain de la Terre. Après avoir survolé Jupiter et Saturne, elle est entrée dans l'espace interstellaire en 2012.",
   "en": "Voyager 1, launched in 1977, is the most distant human-made object from Earth. After flying past Jupiter and Saturn, it entered interstellar space in 2012."

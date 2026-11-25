@@ -232,5 +232,37 @@
  },
  "mission-dawn": {
   "file": "Dawn Flight Configuration 2.jpg"
+ },
+ "mission-hubble-space-telescope": {
+  "file": "STS-125 approaching the Hubble Space Telescope.jpg"
+ },
+ "mission-cassini-huygens": {
+  "file": "Cassini Saturn Orbit Insertion.jpg",
+  "kind": "illustration"
+ },
+ "mission-galileo": {
+  "file": "Artwork Galileo-Io-Jupiter.JPG",
+  "kind": "illustration"
+ },
+ "mission-soho": {
+  "file": "NASA SOHO spacecraft.png",
+  "kind": "illustration"
+ },
+ "mission-ulysses": {
+  "file": "Ulysses spacecraft.jpg"
+ },
+ "mission-double-asteroid-redirection-test-dart": {
+  "file": "Dimorphos from DART aprox. 3 sec before impact.jpg",
+  "note": {
+   "fr": "Dernière image de Dimorphos prise par DART quelques secondes avant l’impact.",
+   "en": "Last image of Dimorphos taken by DART seconds before impact."
+  }
+ },
+ "mission-juice": {
+  "file": "JUICE spacecraft concept.jpg",
+  "kind": "illustration"
+ },
+ "mission-europa-clipper": {
+  "file": "Europa Clipper Team Deploys Magnetometer Boom.jpg"
  }
 }

@@ -57,6 +57,7 @@ const srcOf = (o, p) => {
   if (s === 'nea') return { name: 'NASA Exoplanet Archive', url: `https://exoplanetarchive.ipac.caltech.edu/overview/${encodeURIComponent(o.hostNames?.[0] ?? o.name)}` };
   if (s === 'simbad') return { name: 'SIMBAD (CDS)', url: `https://simbad.cds.unistra.fr/simbad/sim-id?Ident=${encodeURIComponent(o.simbadId ?? o.name)}` };
   if (s === 'sbdb') return { name: 'JPL Small-Body Database', url: `https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=${encodeURIComponent(o.sbdbId ?? o.name)}` };
+  if (s === 'nasasci') return { name: 'NASA Science', url: `https://science.nasa.gov/mission/${o.mslug}/` };
   if (s === 'nssdca') return { name: 'NASA NSSDCA', url: `https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=${encodeURIComponent(o.code)}` };
   if (s === 'iau') return { name: 'Union astronomique internationale', url: 'https://www.iau.org/public/themes/constellations/' };
   return { name: 'Système solaire OpenData', url: `https://api.le-systeme-solaire.net/rest/bodies/${o.ssodId}` };
@@ -164,7 +165,7 @@ function drawFilterOptions() {
 
 /* ---------- fiche détaillée ---------- */
 const ORDER = ['mass', 'radius', 'radius_eq', 'radius_pol', 'density', 'gravity', 'escape', 'teq', 'insol', 'axial_tilt', 'rotation',
-  'period', 'sma', 'perihelion', 'aphelion', 'ecc', 'incl', 'diameter', 'abs_mag', 'albedo', 'spec', 'orbit_class', 'first_obs', 'moid', 'launch', 'vehicle', 'site', 'mass_kg', 'agency', 'disciplines', 'sptype', 'morph', 'teff', 'lum', 'met', 'age', 'ang_major', 'ang_minor', 'redshift', 'st_teff', 'st_rad', 'st_mass', 'st_lum', 'st_met', 'st_age', 'dist', 'vmag', 'hz_inner', 'hz_outer', 'in_hz'];
+  'period', 'sma', 'perihelion', 'aphelion', 'ecc', 'incl', 'diameter', 'abs_mag', 'albedo', 'spec', 'orbit_class', 'first_obs', 'moid', 'launch', 'mtype', 'target', 'vehicle', 'site', 'mass_kg', 'agency', 'disciplines', 'sptype', 'morph', 'teff', 'lum', 'met', 'age', 'ang_major', 'ang_minor', 'redshift', 'st_teff', 'st_rad', 'st_mass', 'st_lum', 'st_met', 'st_age', 'dist', 'vmag', 'hz_inner', 'hz_outer', 'in_hz'];
 const GORDER = ['mission', 'physical', 'planet', 'orbit', 'star', 'sys', 'calc'];
 
 function summary(o) {
@@ -194,7 +195,7 @@ function summary(o) {
     if (o.tags.includes('visited')) s += fr ? ' Il a été visité ou survolé par au moins une sonde spatiale.' : ' It has been visited or flown past by at least one spacecraft.';
     return s;
   }
-  if (o.src === 'nssdca') {
+  if (o.src === 'nssdca' || o.src === 'nasasci') {
     const p = o.props, bits = [];
     const date = o.launchDate;
     bits.push(fr ? `${o.name} est une mission spatiale (identifiant COSPAR ${o.code})${date ? ` lancée le ${date}` : ''}${p.vehicle ? ` par ${p.vehicle.t}` : ''}${p.site ? ` depuis ${p.site.t}` : ''}.` : `${o.name} is a space mission (COSPAR ID ${o.code})${date ? ` launched on ${date}` : ''}${p.vehicle ? ` by ${p.vehicle.t}` : ''}${p.site ? ` from ${p.site.t}` : ''}.`);
@@ -294,7 +295,7 @@ async function openObj(id, push) {
         el('p', { class: 'summary' }, summary(o), el('small', { text: o.desc ? T_.sumEdito : T_.sumAuto })),
         disc ? el('p', { class: 'credit' }, `${T_.sec.disc} : ${disc}`, o.disc.ref ? [' · ', el('a', { href: o.disc.ref.url, target: '_blank', rel: 'noopener', text: o.disc.ref.t })] : '') : null)),
     el('div', { class: 'sect' }, el('h3', { text: T_.sec.props }), propsTable(o)),
-    o.nssdcaDesc ? el('div', { class: 'sect' }, el('h3', { text: T_.nasaDesc }), el('p', { class: 'summary', lang: 'en' }, o.nssdcaDesc.length > 900 ? o.nssdcaDesc.slice(0, o.nssdcaDesc.lastIndexOf(' ', 900)) + '…' : o.nssdcaDesc, el('small', { text: `${T_.source} : NASA NSSDCA` }))) : '',
+    o.nssdcaDesc ? el('div', { class: 'sect' }, el('h3', { text: T_.nasaDesc }), el('p', { class: 'summary', lang: 'en' }, o.nssdcaDesc.length > 900 ? o.nssdcaDesc.slice(0, o.nssdcaDesc.lastIndexOf(' ', 900)) + '…' : o.nssdcaDesc, el('small', { text: `${T_.source} : ${srcOf(o).name}` }))) : '',
     rel.length ? el('div', { class: 'sect' }, el('h3', { text: T_.sec.rel }), el('div', { class: 'rel' }, rel)) : '',
     el('div', { class: 'srcbox' }, `${T_.source} : `, el('a', { href: s.url, target: '_blank', rel: 'noopener', text: s.name }), ` · ${T_.updated} ${o.updated}`));
   dlg.scrollTop = 0; body.scrollTop = 0;
