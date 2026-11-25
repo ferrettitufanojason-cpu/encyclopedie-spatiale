@@ -40,6 +40,7 @@ function fmt(v) {
 function fmtProp(key, p) {
   const T_ = t();
   if (key === 'in_hz') return p.v ? T_.yes : T_.no;
+  if (p.t != null) return p.t;
   let s = (p.lim ? p.lim + ' ' : '') + fmt(p.v);
   if (p.ep != null || p.em != null) {
     const ep = p.ep ?? 0, em = Math.abs(p.em ?? 0);
@@ -49,13 +50,17 @@ function fmtProp(key, p) {
   if (key === 'dist') s += ` (${fmt(p.v * 3.26156)} ${T_.ly})`;
   return s;
 }
-const srcOf = o => o.src === 'nea'
-  ? { name: 'NASA Exoplanet Archive', url: `https://exoplanetarchive.ipac.caltech.edu/overview/${encodeURIComponent(o.name)}` }
-  : { name: 'Système solaire OpenData', url: `https://api.le-systeme-solaire.net/rest/bodies/${o.ssodId}` };
+const srcOf = (o, p) => {
+  const s = p?.s ?? o.src;
+  if (s === 'nea') return { name: 'NASA Exoplanet Archive', url: `https://exoplanetarchive.ipac.caltech.edu/overview/${encodeURIComponent(o.hostNames?.[0] ?? o.name)}` };
+  if (s === 'simbad') return { name: 'SIMBAD (CDS)', url: `https://simbad.cds.unistra.fr/simbad/sim-id?Ident=${encodeURIComponent(o.simbadId ?? o.name)}` };
+  if (s === 'iau') return { name: 'Union astronomique internationale', url: 'https://www.iau.org/public/themes/constellations/' };
+  return { name: 'Système solaire OpenData', url: `https://api.le-systeme-solaire.net/rest/bodies/${o.ssodId}` };
+};
 
 /* ---------- carte ---------- */
 const orb = sub => el('div', { class: `orb o-${sub || 'def'}`, 'aria-hidden': 'true' });
-function tagLabel(x) { return t().tag[x] ?? t().exotype[x] ?? t().method[x] ?? x.replace(/-/g, ' '); }
+function tagLabel(x) { return t().tag[x] ?? t().sub[x] ?? t().lumClass?.[x] ?? t().exotype[x] ?? t().method[x] ?? x.replace(/-/g, ' '); }
 function cardTags(c) {
   const out = [];
   if (c.k === 'exoplanet') out.push(t().exotype[c.s] ?? c.s);
@@ -116,7 +121,9 @@ function drawCats() {
 function drawSubs() {
   const counts = {};
   for (const c of ALL) if (groupOf(c.k) === state.cat) counts[subOf(c)] = (counts[subOf(c)] ?? 0) + 1;
-  const keys = Object.keys(counts);
+  const SUBORDER = ['sun', 'spectral-O', 'spectral-B', 'spectral-A', 'spectral-F', 'spectral-G', 'spectral-K', 'spectral-M', 'other-star', 'brown-dwarf', 'white-dwarf', 'neutron-star', 'pulsar', 'magnetar', 'black-hole',
+    'galaxy', 'galaxy-cluster', 'nebula', 'open-cluster', 'globular-cluster'];
+  const keys = Object.keys(counts).sort((a, b) => (SUBORDER.indexOf(a) + 1 || 99) - (SUBORDER.indexOf(b) + 1 || 99));
   const mk = (k, label, n) => el('button', { type: 'button', 'aria-pressed': String(state.sub === k),
     onclick: () => { state.sub = k; if (k !== 'exoplanet') state.type = ''; apply(); } }, label, el('em', { text: n.toLocaleString(lang) }));
   $('#subs').replaceChildren(keys.length > 1 ? mk('', t().all, keys.reduce((s, k) => s + counts[k], 0)) : '',
@@ -133,7 +140,7 @@ function drawFilterOptions() {
 
 /* ---------- fiche détaillée ---------- */
 const ORDER = ['mass', 'radius', 'radius_eq', 'radius_pol', 'density', 'gravity', 'escape', 'teq', 'insol', 'axial_tilt', 'rotation',
-  'period', 'sma', 'perihelion', 'aphelion', 'ecc', 'incl', 'st_teff', 'st_rad', 'st_mass', 'st_lum', 'st_met', 'st_age', 'dist', 'vmag', 'hz_inner', 'hz_outer', 'in_hz'];
+  'period', 'sma', 'perihelion', 'aphelion', 'ecc', 'incl', 'sptype', 'morph', 'teff', 'lum', 'met', 'age', 'ang_major', 'ang_minor', 'redshift', 'st_teff', 'st_rad', 'st_mass', 'st_lum', 'st_met', 'st_age', 'dist', 'vmag', 'hz_inner', 'hz_outer', 'in_hz'];
 const GORDER = ['physical', 'planet', 'orbit', 'star', 'sys', 'calc'];
 
 function summary(o) {
@@ -153,6 +160,28 @@ function summary(o) {
     if (o.controversial) bits.push(fr ? 'Son statut est signalé comme controversé.' : 'Its status is flagged as controversial.');
     return bits.join(' ');
   }
+  if (o.src === 'simbad' || o.src === 'iau') {
+    const nm = fr && o.nameFr ? o.nameFr : o.name;
+    const cn = o.related.find(r => r.rel === 'constellation');
+    if (o.sub === 'constellation') {
+      const stars = o.related.filter(r => r.rel === 'star').slice(0, 5).map(r => r.name).join(', ');
+      return fr ? `${nm} (${o.code}, génitif ${o.genitive}) est l’une des 88 constellations officielles de l’Union astronomique internationale. Son nom latin signifie « ${o.meaning} ».${stars ? ` Parmi les étoiles de ce catalogue : ${stars}.` : ''}`
+        : `${o.name} (${o.code}, genitive ${o.genitive}) is one of the 88 official constellations of the International Astronomical Union. Its name means “${o.meaning}”.${stars ? ` Stars of this catalogue include ${stars}.` : ''}`;
+    }
+    const lum = (o.tags ?? []).find(x => T_.lumClass[x]);
+    const kind = T_.subKind[o.sub] ?? T_.subKind['other-object'];
+    const pl = o.related.filter(r => r.rel === 'planet').length;
+    let s = fr ? `${nm} est ${kind}${lum ? ` (${T_.lumClass[lum]})` : ''}${o.props.sptype ? `, de type spectral ${o.props.sptype.t}` : ''}${o.props.morph ? `, de type morphologique ${o.props.morph.t}` : ''}.`
+      : `${nm} is ${kind}${lum ? ` (${T_.lumClass[lum]})` : ''}${o.props.sptype ? `, of spectral type ${o.props.sptype.t}` : ''}${o.props.morph ? `, of morphological type ${o.props.morph.t}` : ''}.`;
+    if (o.props.dist) {
+      const ly = o.props.dist.v * 3.26156;
+      const big = ly >= 1e9 ? `${(ly / 1e9).toLocaleString(lang, { maximumFractionDigits: 1 })} ${fr ? 'milliards' : 'billion'}` : ly >= 1e6 ? `${(ly / 1e6).toLocaleString(lang, { maximumFractionDigits: 1 })} ${fr ? 'millions' : 'million'}` : fmt(ly);
+      s += fr ? ` Distance : environ ${big} ${ly >= 1e6 ? 'd’' : ''}années-lumière.` : ` Distance: about ${big} light-years.`;
+    }
+    if (cn) s += ' ' + T_.constLine(cn.name);
+    if (pl) s += fr ? ` Ce système compte ${pl >= 12 ? 'au moins ' : ''}${pl} exoplanète${pl > 1 ? 's' : ''} confirmée${pl > 1 ? 's' : ''}.` : ` This system has ${pl >= 12 ? 'at least ' : ''}${pl} confirmed exoplanet${pl > 1 ? 's' : ''}.`;
+    return s;
+  }
   const kind = T_.sub[o.sub]?.toLowerCase();
   const parent = o.related.find(r => r.rel === 'parent');
   let s = fr ? `${name} : ${kind ?? o.cat}${parent ? `, lié à ${parent.name}` : ''}.` : `${name}: ${kind ?? o.cat}${parent ? `, related to ${parent.name}` : ''}.`;
@@ -164,6 +193,7 @@ function propsTable(o) {
   const T_ = t(), s = srcOf(o);
   const groups = {};
   for (const k of ORDER) if (o.props[k]) (groups[o.props[k].g ?? 'physical'] ??= []).push(k);
+  const gLabel = g => (g === 'star' && o.cat === 'star' ? T_.g.starSelf : T_.g[g]);
   const frag = [];
   const parent = o.related.find(r => r.rel === 'parent');
   const pos = o.rank ? T_.posV(o.rank) : parent ? (lang === 'fr' ? `Satellite / corps lié : ${parent.name}` : `Satellite / related body: ${parent.name}`) : null;
@@ -173,17 +203,19 @@ function propsTable(o) {
     if (!groups[g]) continue;
     const rows = groups[g].map(k => {
       const p = o.props[k];
-      const srcLine = p.calc
+      const ps = srcOf(o, p);
+      const srcLine = p.calc && p.calcNote !== 'plx'
         ? el('span', { class: 'src calc', text: T_.hzNote })
-        : el('span', { class: 'src' }, `${T_.source} : `, el('a', { href: s.url, target: '_blank', rel: 'noopener', text: s.name }),
+        : el('span', { class: 'src' }, p.calc ? el('span', { class: 'calc', text: `${T_.plxNote} ` }) : '', `${T_.source} : `, el('a', { href: ps.url, target: '_blank', rel: 'noopener', text: ps.name }),
           p.ref ? [` · ${T_.ref} `, p.ref.url ? el('a', { href: p.ref.url, target: '_blank', rel: 'noopener', text: p.ref.t }) : p.ref.t] : '',
           ` · ${T_.updated} ${o.updated}`, p.note ? ` · ${p.note}` : '');
       return el('tr', {}, el('th', { scope: 'row', text: T_.p[k] ?? k }), el('td', {}, el('span', { class: 'val', text: fmtProp(k, p) }), srcLine));
     });
-    frag.push(el('h3', { text: T_.g[g] }), el('table', { class: 'props' }, el('tbody', {}, rows)));
+    frag.push(el('h3', { text: gLabel(g) }), el('table', { class: 'props' }, el('tbody', {}, rows)));
   }
   // valeurs absentes les plus utiles : afficher explicitement « non disponible »
-  const key = o.cat === 'exoplanet' ? ['mass', 'radius', 'period', 'sma', 'teq'] : ['mass', 'radius', 'density', 'teq'];
+  const key = o.cat === 'exoplanet' ? ['mass', 'radius', 'period', 'sma', 'teq'] : o.cat === 'planet' ? ['mass', 'radius', 'density', 'teq']
+    : o.cat === 'star' ? ['dist', 'teff', 'sptype'] : o.cat === 'region' ? ['dist', 'redshift'] : [];
   const miss = key.filter(k => !o.props[k]);
   if (miss.length) frag.push(el('h3', { text: lang === 'fr' ? 'Données manquantes' : 'Missing data' }),
     el('table', { class: 'props' }, el('tbody', {}, miss.map(k => el('tr', {}, el('th', { scope: 'row', text: T_.p[k] }), el('td', { class: 'na', text: T_.na }))))));
@@ -206,7 +238,7 @@ async function openObj(id, push) {
       el('a', { href: img.source, target: '_blank', rel: 'noopener', text: 'source' }), img.note ? ` — ${img.note[lang]}` : '')
     : el('div', { class: 'credit', text: T_.noImg });
   const title = lang === 'fr' && o.nameFr ? o.nameFr : o.name;
-  const tags = (o.tags ?? []).map(x => el('span', { class: 'tag' + (x === 'habitable-zone' ? ' hz' : ''), text: tagLabel(x) }));
+  const tags = (o.tags ?? []).filter(x => x !== o.otype && !['star', 'region', 'other', 'planet'].includes(x)).map(x => el('span', { class: 'tag' + (x === 'habitable-zone' ? ' hz' : ''), text: tagLabel(x) }));
   const rel = o.related.map(r => r.id
     ? el('a', { href: `?o=${r.id}`, onclick: e => { e.preventDefault(); openObj(r.id, true); } }, r.name, el('small', { text: T_.rel[r.rel] }))
     : el('span', {}, r.name, el('small', { text: T_.rel[r.rel] })));
