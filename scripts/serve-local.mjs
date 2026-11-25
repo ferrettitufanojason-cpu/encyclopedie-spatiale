@@ -8,14 +8,15 @@ import { join, extname, normalize } from 'node:path';
 import { ROOT, loadEnv } from './lib/common.mjs';
 import { issNow } from '../lib/iss.mjs';
 import { apod, epic, rovers, simbadLookup } from '../lib/nasa.mjs';
+import { issStreams } from '../lib/iss-tv.mjs';
 
 await loadEnv();
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.png': 'image/png' };
-const API = { iss: () => issNow(), apod, epic, rovers, simbad: u => simbadLookup(u.searchParams.get('q')) };
+const API = { iss: () => issNow(), 'iss-tv': () => issStreams(), apod, epic, rovers, simbad: u => simbadLookup(u.searchParams.get('q')) };
 const PORT = Number(process.env.PORT ?? 4322);
 createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
-  const m = url.pathname.match(/^\/api\/(\w+)$/);
+  const m = url.pathname.match(/^\/api\/([\w-]+)$/);
   if (m) {
     try { if (!API[m[1]]) throw new Error('inconnu'); const d = await API[m[1]](url); res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(d)); }
     catch (e) { res.writeHead(502, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: String(e.message).replace(/api_key=[^&\s]+/g, 'api_key=***') })); }

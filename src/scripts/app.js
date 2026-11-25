@@ -303,9 +303,37 @@ async function openObj(id, push) {
     o.nssdcaDesc ? el('div', { class: 'sect' }, el('h3', { text: T_.nasaDesc }), el('p', { class: 'summary', lang: 'en' }, o.nssdcaDesc.length > 900 ? o.nssdcaDesc.slice(0, o.nssdcaDesc.lastIndexOf(' ', 900)) + '…' : o.nssdcaDesc, el('small', { text: `${T_.source} : ${srcOf(o).name}` }))) : '',
     rel.length ? el('div', { class: 'sect' }, el('h3', { text: T_.sec.rel }), el('div', { class: 'rel' }, rel)) : '',
     el('div', { class: 'srcbox' }, `${T_.source} : `, el('a', { href: s.url, target: '_blank', rel: 'noopener', text: s.name }), ` · ${T_.updated} ${o.updated}`));
-  if (o.live === 'iss') mountIss(body); else stopIss();
+  if (o.live === 'iss') { mountIss(body); mountIssTv(body, { inFiche: true }); } else stopIss();
   dlg.scrollTop = 0; body.scrollTop = 0;
 }
+/* ---------- ISS TV : flux vidéo officiels en direct (NASA, Sen) avec plusieurs points de vue ---------- */
+async function mountIssTv(host, { inFiche = false } = {}) {
+  const T_ = t();
+  const box = el('section', { class: 'tv' });
+  const stage = el('div', { class: 'tv-stage' });
+  const side = el('div', { class: 'tv-side', role: 'tablist', 'aria-label': T_.tvPov });
+  const meta = el('div', { class: 'tv-meta' });
+  box.append(el('h3', { text: T_.tvTitle }), el('div', { class: 'tv-grid' }, el('div', { class: 'tv-main' }, stage, meta), side), el('p', { class: 'credit', text: T_.tvNote }));
+  if (inFiche) host.querySelector('.dlg-head').after(box); else host.append(box);
+  stage.append(el('p', { class: 'na', text: T_.loading }));
+  let streams = [];
+  try { streams = (await getJson('/api/iss-tv')).streams; } catch {}
+  if (!streams.length) { stage.replaceChildren(el('div', { class: 'tv-poster' }, el('p', { text: T_.tvNone }), el('a', { class: 'btn', href: 'https://www.nasa.gov/live/', target: '_blank', rel: 'noopener', text: T_.tvNasaLive }))); return; }
+  let cur = null, playing = false;
+  const show = (s, play) => {
+    cur = s; playing = play;
+    side.querySelectorAll('button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.id === s.id)));
+    if (play) stage.replaceChildren(el('iframe', { src: `https://www.youtube-nocookie.com/embed/${s.video}?autoplay=1&mute=1&rel=0&playsinline=1`, title: s.label[lang], allow: 'autoplay; encrypted-media; picture-in-picture; fullscreen', allowfullscreen: true, referrerpolicy: 'strict-origin-when-cross-origin' }));
+    else stage.replaceChildren(el('button', { class: 'tv-poster', type: 'button', onclick: () => show(cur, true), 'aria-label': `${T_.tvPlay} — ${s.label[lang]}` },
+      el('span', { class: 'live-badge', text: T_.tvLive }), el('span', { class: 'tv-play', 'aria-hidden': 'true', text: '▶' }), el('strong', { text: T_.tvPlay }), el('small', { text: s.label[lang] }), el('small', { class: 'tv-priv', text: T_.tvPrivacy })));
+    meta.replaceChildren(el('div', { class: 'tv-title' }, el('span', { class: 'live-badge', text: T_.tvLive }), el('b', { text: s.label[lang] })), el('p', { text: s.desc[lang] }),
+      el('p', { class: 'credit' }, `${T_.source} : ${s.owner} (YouTube) · `, el('a', { href: s.watch, target: '_blank', rel: 'noopener', text: T_.tvYoutube })));
+  };
+  streams.forEach(s => side.append(el('button', { type: 'button', role: 'tab', 'data-id': s.id, 'aria-selected': 'false', onclick: () => show(s, playing) },
+    el('span', { class: 'tv-dot', 'aria-hidden': 'true' }), el('span', {}, el('b', { text: s.label[lang] }), el('small', { text: s.owner })))));
+  show(streams[0], false);
+}
+
 /* ---------- ISS en direct (position calculée côté serveur depuis l'éphéméride officielle de la NASA) ---------- */
 let issTimer = null, landPath = null;
 function stopIss() { clearInterval(issTimer); issTimer = null; }
@@ -353,7 +381,8 @@ async function mountLive() {
   const T_ = t(), host = $('#live');
   host.replaceChildren(el('h2', { text: T_.cat.live }), el('p', { class: 'credit', text: T_.liveIntro }));
   const section = (title, ...kids) => { const s = el('section', { class: 'live-sec' }, el('h3', { text: title }), ...kids); host.append(s); return s; };
-  // ISS
+  // ISS TV (flux vidéo) puis position
+  const tvHost = el('div', { class: 'live-sec' }); host.append(tvHost); mountIssTv(tvHost);
   const issHost = section(T_.issLive); issHost.querySelector('h3').remove();
   mountIss(issHost, { inFiche: false });
   issHost.append(el('p', {}, el('a', { href: '?o=mission-international-space-station', onclick: e => { e.preventDefault(); openObj('mission-international-space-station', true); }, text: T_.issFiche })));
@@ -389,7 +418,7 @@ async function mountLive() {
 function showLive(on) {
   $('#live').hidden = !on; ['#filters', '#grid', '#count', '#subs', '#sentinel'].forEach(s => { const n = $(s); if (n) n.hidden = on; });
   $('.layout').classList.toggle('live-mode', on);
-  if (on) mountLive(); else if (!$('#dlg').open) stopIss();
+  if (on) mountLive(); else { $('#live').replaceChildren(); if (!$('#dlg').open) stopIss(); } // vide aussi les lecteurs vidéo
 }
 
 /* ---------- recherche SIMBAD en direct (pour les objets absents du catalogue local) ---------- */
@@ -420,6 +449,7 @@ async function runSimbad(q) {
 
 $('#dlg').addEventListener('close', () => {
   stopIss();
+  $('#dlgBody').querySelectorAll('iframe').forEach(f => f.remove()); // coupe la vidéo en direct à la fermeture de la fiche
   document.title = t().title;
   if (new URLSearchParams(location.search).get('o')) { history.state?.o ? history.back() : history.replaceState(null, '', location.pathname); }
 });
