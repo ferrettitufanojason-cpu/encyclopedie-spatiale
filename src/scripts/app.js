@@ -37,7 +37,7 @@ function fmt(v) {
     const sup = String(Number(e)).replace(/-/g, '⁻').replace(/[0-9]/g, d => '⁰¹²³⁴⁵⁶⁷⁸⁹'[d]);
     return `${Number(m)}×10${sup}`;
   }
-  return v.toLocaleString(lang, { maximumSignificantDigits: 5 });
+  return v.toLocaleString(lang, { maximumSignificantDigits: 6 });
 }
 function fmtProp(key, p) {
   const T_ = t();
@@ -57,6 +57,7 @@ const srcOf = (o, p) => {
   if (s === 'nea') return { name: 'NASA Exoplanet Archive', url: `https://exoplanetarchive.ipac.caltech.edu/overview/${encodeURIComponent(o.hostNames?.[0] ?? o.name)}` };
   if (s === 'simbad') return { name: 'SIMBAD (CDS)', url: `https://simbad.cds.unistra.fr/simbad/sim-id?Ident=${encodeURIComponent(o.simbadId ?? o.name)}` };
   if (s === 'sbdb') return { name: 'JPL Small-Body Database', url: `https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=${encodeURIComponent(o.sbdbId ?? o.name)}` };
+  if (s === 'nasaiss') return { name: 'NASA — ISS Facts and Figures', url: 'https://www.nasa.gov/international-space-station/space-station-facts-and-figures/' };
   if (s === 'nasasci') return { name: 'NASA Science', url: `https://science.nasa.gov/mission/${o.mslug}/` };
   if (s === 'nssdca') return { name: 'NASA NSSDCA', url: `https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=${encodeURIComponent(o.code)}` };
   if (s === 'iau') return { name: 'Union astronomique internationale', url: 'https://www.iau.org/public/themes/constellations/' };
@@ -165,7 +166,7 @@ function drawFilterOptions() {
 
 /* ---------- fiche détaillée ---------- */
 const ORDER = ['mass', 'radius', 'radius_eq', 'radius_pol', 'density', 'gravity', 'escape', 'teq', 'insol', 'axial_tilt', 'rotation',
-  'period', 'sma', 'perihelion', 'aphelion', 'ecc', 'incl', 'diameter', 'abs_mag', 'albedo', 'spec', 'orbit_class', 'first_obs', 'moid', 'launch', 'mtype', 'target', 'vehicle', 'site', 'mass_kg', 'agency', 'disciplines', 'sptype', 'morph', 'teff', 'lum', 'met', 'age', 'ang_major', 'ang_minor', 'redshift', 'st_teff', 'st_rad', 'st_mass', 'st_lum', 'st_met', 'st_age', 'dist', 'vmag', 'hz_inner', 'hz_outer', 'in_hz'];
+  'period', 'sma', 'perihelion', 'aphelion', 'ecc', 'incl', 'diameter', 'abs_mag', 'albedo', 'spec', 'orbit_class', 'first_obs', 'moid', 'launch', 'occupied', 'crew', 'mtype', 'target', 'length_m', 'module_length_m', 'truss_length_m', 'array_span_m', 'hab_volume', 'press_volume', 'power', 'orbit_min', 'orbits_day', 'speed_text', 'agencies', 'vehicle', 'site', 'mass_kg', 'agency', 'disciplines', 'sptype', 'morph', 'teff', 'lum', 'met', 'age', 'ang_major', 'ang_minor', 'redshift', 'st_teff', 'st_rad', 'st_mass', 'st_lum', 'st_met', 'st_age', 'dist', 'vmag', 'hz_inner', 'hz_outer', 'in_hz'];
 const GORDER = ['mission', 'physical', 'planet', 'orbit', 'star', 'sys', 'calc'];
 
 function summary(o) {
@@ -298,9 +299,51 @@ async function openObj(id, push) {
     o.nssdcaDesc ? el('div', { class: 'sect' }, el('h3', { text: T_.nasaDesc }), el('p', { class: 'summary', lang: 'en' }, o.nssdcaDesc.length > 900 ? o.nssdcaDesc.slice(0, o.nssdcaDesc.lastIndexOf(' ', 900)) + '…' : o.nssdcaDesc, el('small', { text: `${T_.source} : ${srcOf(o).name}` }))) : '',
     rel.length ? el('div', { class: 'sect' }, el('h3', { text: T_.sec.rel }), el('div', { class: 'rel' }, rel)) : '',
     el('div', { class: 'srcbox' }, `${T_.source} : `, el('a', { href: s.url, target: '_blank', rel: 'noopener', text: s.name }), ` · ${T_.updated} ${o.updated}`));
+  if (o.live === 'iss') mountIss(body); else stopIss();
   dlg.scrollTop = 0; body.scrollTop = 0;
 }
+/* ---------- ISS en direct (position calculée côté serveur depuis l'éphéméride officielle de la NASA) ---------- */
+let issTimer = null, landPath = null;
+function stopIss() { clearInterval(issTimer); issTimer = null; }
+async function mountIss(host) {
+  stopIss();
+  const T_ = t();
+  const box = el('div', { class: 'iss' });
+  const info = el('div', { class: 'iss-info', 'aria-live': 'polite' });
+  const map = el('div', { class: 'iss-map' });
+  box.append(el('h3', { text: T_.issLive }), map, info, el('p', { class: 'credit', text: T_.issNote }));
+  host.querySelector('.dlg-head').after(box);
+  try { landPath ??= (await (await fetch('/data/land.json')).json()).d; } catch { landPath = ''; }
+  const draw = d => {
+    const segs = []; let cur = [];
+    for (let i = 0; i < d.track.length; i++) {
+      const [la, lo] = d.track[i], pt = `${(lo + 180).toFixed(1)},${(90 - la).toFixed(1)}`;
+      if (cur.length && Math.abs(lo - d.track[i - 1][1]) > 180) { segs.push(cur); cur = []; }
+      cur.push(pt);
+    }
+    segs.push(cur);
+    const x = d.lon + 180, y = 90 - d.lat;
+    map.innerHTML = `<svg viewBox="0 0 360 180" role="img" aria-label="${T_.issMapAlt}"><rect width="360" height="180" fill="#0a1426"/>`
+      + [-60, -30, 0, 30, 60].map(la => `<line x1="0" x2="360" y1="${90 - la}" y2="${90 - la}" stroke="#16264a" stroke-width=".4"/>`).join('')
+      + `<path d="${landPath}" fill="#1b3358" stroke="#2f4f84" stroke-width=".3"/>`
+      + segs.map(s => `<polyline points="${s.join(' ')}" fill="none" stroke="#ffd36e" stroke-width=".8" stroke-dasharray="2 1.5"/>`).join('')
+      + `<circle cx="${x}" cy="${y}" r="5" fill="#ffd36e33"/><circle cx="${x}" cy="${y}" r="2.2" fill="#fff" stroke="#ffd36e" stroke-width=".8"/></svg>`;
+    const f = v => v.toLocaleString(lang, { maximumFractionDigits: 2 });
+    info.replaceChildren(
+      ...[[T_.issLat, `${f(Math.abs(d.lat))}° ${d.lat >= 0 ? 'N' : 'S'}`], [T_.issLon, `${f(Math.abs(d.lon))}° ${d.lon >= 0 ? 'E' : 'O'}`.replace('O', lang === 'fr' ? 'O' : 'W')],
+        [T_.issAlt, `${f(d.alt_km)} km`], [T_.issSpeed, `${d.speed_kmh.toLocaleString(lang)} km/h`], [T_.issTime, new Date(d.time).toLocaleTimeString(lang)]]
+        .map(([k, v]) => el('div', { class: 'iss-kv' }, el('span', { text: k }), el('b', { text: v }))));
+  };
+  const tick = async () => {
+    try { const r = await fetch('/api/iss'); if (!r.ok) throw new Error(r.status); draw(await r.json()); }
+    catch { info.replaceChildren(el('p', { class: 'na', text: T_.issErr })); }
+  };
+  await tick();
+  issTimer = setInterval(() => { if ($('#dlg').open) tick(); else stopIss(); }, 5000);
+}
+
 $('#dlg').addEventListener('close', () => {
+  stopIss();
   document.title = t().title;
   if (new URLSearchParams(location.search).get('o')) { history.state?.o ? history.back() : history.replaceState(null, '', location.pathname); }
 });

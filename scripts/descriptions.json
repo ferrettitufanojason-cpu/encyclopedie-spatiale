@@ -160,6 +160,10 @@
   "fr": "Dinkinesh est un petit astéroïde de la ceinture principale survolé par la sonde Lucy en novembre 2023. Ce survol a révélé qu'il s'agit d'un astéroïde binaire.",
   "en": "Dinkinesh is a small main-belt asteroid flown past by the Lucy spacecraft in November 2023. The flyby revealed it to be a binary asteroid."
  },
+ "mission-international-space-station": {
+  "fr": "La Station spatiale internationale (ISS) est un laboratoire orbital habité en permanence depuis novembre 2000. Cinq agences spatiales (NASA, Roscosmos, ESA, JAXA et CSA) l'ont assemblée en orbite à partir de 1998. Elle fait le tour de la Terre environ toutes les 90 minutes, soit 16 orbites par jour, et se voit parfois à l'œil nu comme un point brillant qui traverse le ciel à l'aube ou au crépuscule. Sa position est affichée en direct ci-dessous.",
+  "en": "The International Space Station (ISS) is an orbiting laboratory continuously crewed since November 2000. Five space agencies (NASA, Roscosmos, ESA, JAXA and CSA) assembled it in orbit starting in 1998. It circles the Earth about every 90 minutes, 16 orbits per day, and can sometimes be seen with the naked eye as a bright dot crossing the sky at dawn or dusk. Its live position is shown below."
+ },
  "mission-hubble-space-telescope": {
   "fr": "Le télescope spatial Hubble, lancé le 24 avril 1990, observe l'Univers en lumière visible, ultraviolette et proche infrarouge depuis son orbite autour de la Terre. Ses images ont permis, entre autres, de mesurer l'expansion de l'Univers et d'observer des galaxies lointaines. Il a été réparé et modernisé en orbite par des astronautes de la navette spatiale.",
   "en": "The Hubble Space Telescope, launched on 24 April 1990, observes the Universe in visible, ultraviolet and near-infrared light from Earth orbit. Its images helped measure the expansion of the Universe and observe distant galaxies. It was repaired and upgraded in orbit by Space Shuttle astronauts."
