@@ -307,31 +307,85 @@ async function openObj(id, push) {
   dlg.scrollTop = 0; body.scrollTop = 0;
 }
 /* ---------- ISS TV : flux vidéo officiels en direct (NASA, Sen) avec plusieurs points de vue ---------- */
+let ytReady = null;
+const loadYT = () => ytReady ??= new Promise((ok, ko) => {
+  if (window.YT?.Player) return ok(window.YT);
+  const prev = window.onYouTubeIframeAPIReady;
+  window.onYouTubeIframeAPIReady = () => { prev?.(); ok(window.YT); };
+  const s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api'; s.onerror = ko; document.head.append(s);
+});
+
 async function mountIssTv(host, { inFiche = false } = {}) {
   const T_ = t();
   const box = el('section', { class: 'tv' });
   const stage = el('div', { class: 'tv-stage' });
   const side = el('div', { class: 'tv-side', role: 'tablist', 'aria-label': T_.tvPov });
   const meta = el('div', { class: 'tv-meta' });
-  box.append(el('h3', { text: T_.tvTitle }), el('div', { class: 'tv-grid' }, el('div', { class: 'tv-main' }, stage, meta), side), el('p', { class: 'credit', text: T_.tvNote }));
+  const status = el('div', { class: 'tv-status', role: 'status', 'aria-live': 'polite' });
+  const controls = el('div', { class: 'tv-controls' });
+  const msg = el('p', { class: 'credit tv-msg', 'aria-live': 'polite' });
+  box.append(el('h3', { text: T_.tvTitle }), el('div', { class: 'tv-grid' }, el('div', { class: 'tv-main' }, stage, status, controls, msg, meta), side), el('p', { class: 'credit', text: T_.tvNote }));
   if (inFiche) host.querySelector('.dlg-head').after(box); else host.append(box);
   stage.append(el('p', { class: 'na', text: T_.loading }));
   let streams = [];
   try { streams = (await getJson('/api/iss-tv')).streams; } catch {}
   if (!streams.length) { stage.replaceChildren(el('div', { class: 'tv-poster' }, el('p', { text: T_.tvNone }), el('a', { class: 'btn', href: 'https://www.nasa.gov/live/', target: '_blank', rel: 'noopener', text: T_.tvNasaLive }))); return; }
-  let cur = null, playing = false;
-  const show = (s, play) => {
-    cur = s; playing = play;
+
+  let cur = null, player = null, lastDay = null;
+  const btn = (label, onclick, cls = '') => el('button', { class: 'btn tv-btn ' + cls, type: 'button', onclick, text: label });
+  const seek = async (minBack, label) => { // retour en arrière dans l'enregistrement tampon du direct (DVR YouTube), si le flux le permet
+    msg.textContent = '';
+    if (!player?.getDuration) { msg.textContent = T_.tvStartFirst; return; }
+    const dur = player.getDuration(), target = Math.max(0, dur - minBack * 60);
+    player.seekTo(minBack === 0 ? dur : target, true); player.playVideo?.();
+    await new Promise(r => setTimeout(r, 2500));
+    const now = player.getCurrentTime?.() ?? 0;
+    if (minBack > 0 && Math.abs(now - target) > 120) msg.textContent = T_.tvNoDvr; else if (label) msg.textContent = label;
+  };
+  const play = async () => {
+    stage.replaceChildren(el('div', { id: 'ytp' }));
+    try {
+      const YT = await loadYT();
+      player = new YT.Player('ytp', { host: 'https://www.youtube-nocookie.com', videoId: cur.video, width: '100%', height: '100%',
+        playerVars: { autoplay: 1, mute: 1, playsinline: 1, rel: 0, fs: 1 }, events: { onReady: e => e.target.playVideo() } });
+    } catch { stage.replaceChildren(el('p', { class: 'na', text: T_.liveErr })); }
+  };
+  const fullscreen = () => { const n = stage; (n.requestFullscreen ?? n.webkitRequestFullscreen)?.call(n); };
+  const dayBtn = btn('', () => lastDay != null ? seek(lastDay, T_.tvDayShown) : null, 'tv-day'); dayBtn.hidden = true;
+  const rew = [btn('−5 min', () => seek(5)), btn('−15 min', () => seek(15)), btn('−1 h', () => seek(60))];
+  const syncDvr = () => { // seul un flux dont l'enregistrement tampon est activé permet de remonter dans le temps
+    const ok = !!cur?.dvr; [...rew, dayBtn].forEach(b => { b.disabled = !ok; b.title = ok ? '' : T_.tvNoDvrShort; });
+    msg.textContent = ok ? '' : T_.tvNoDvrShort;
+  };
+  controls.append(btn('● ' + T_.tvLive, () => seek(0), 'tv-live-btn'), ...rew, dayBtn,
+    btn('⛶ ' + T_.tvFull, fullscreen), btn(T_.tvTheater, e => { const on = box.classList.toggle('theater'); e.currentTarget.setAttribute('aria-pressed', String(on)); }));
+  const show = (s, start) => {
+    cur = s; syncDvr();
     side.querySelectorAll('button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.id === s.id)));
-    if (play) stage.replaceChildren(el('iframe', { src: `https://www.youtube-nocookie.com/embed/${s.video}?autoplay=1&mute=1&rel=0&playsinline=1`, title: s.label[lang], allow: 'autoplay; encrypted-media; picture-in-picture; fullscreen', allowfullscreen: true, referrerpolicy: 'strict-origin-when-cross-origin' }));
+    if (start) { if (player?.loadVideoById) player.loadVideoById(s.video); else play(); }
     else stage.replaceChildren(el('button', { class: 'tv-poster', type: 'button', onclick: () => show(cur, true), 'aria-label': `${T_.tvPlay} — ${s.label[lang]}` },
       el('span', { class: 'live-badge', text: T_.tvLive }), el('span', { class: 'tv-play', 'aria-hidden': 'true', text: '▶' }), el('strong', { text: T_.tvPlay }), el('small', { text: s.label[lang] }), el('small', { class: 'tv-priv', text: T_.tvPrivacy })));
     meta.replaceChildren(el('div', { class: 'tv-title' }, el('span', { class: 'live-badge', text: T_.tvLive }), el('b', { text: s.label[lang] })), el('p', { text: s.desc[lang] }),
       el('p', { class: 'credit' }, `${T_.source} : ${s.owner} (YouTube) · `, el('a', { href: s.watch, target: '_blank', rel: 'noopener', text: T_.tvYoutube })));
   };
-  streams.forEach(s => side.append(el('button', { type: 'button', role: 'tab', 'data-id': s.id, 'aria-selected': 'false', onclick: () => show(s, playing) },
+  streams.forEach(s => side.append(el('button', { type: 'button', role: 'tab', 'data-id': s.id, 'aria-selected': 'false', onclick: () => show(s, !!player || stage.querySelector('#ytp')) },
     el('span', { class: 'tv-dot', 'aria-hidden': 'true' }), el('span', {}, el('b', { text: s.label[lang] }), el('small', { text: s.owner })))));
   show(streams[0], false);
+
+  // jour / nuit à bord : expliquer l'écran noir et proposer de revenir à la dernière portion éclairée
+  const refresh = async () => {
+    if (!box.isConnected) return;
+    try {
+      const d = await getJson('/api/iss'); const m = d.minutes_to_change;
+      status.className = 'tv-status ' + (d.sunlit ? 'day' : 'night');
+      status.textContent = d.sunlit ? T_.tvDay(m) : T_.tvNight(m);
+      const ld = d.last_daylight;
+      lastDay = !d.sunlit && ld ? -ld.mid_min : null;
+      dayBtn.hidden = lastDay == null; if (lastDay != null) { dayBtn.textContent = `☀ ${T_.tvLastDay(lastDay)}`; dayBtn.disabled = !cur?.dvr; }
+    } catch { status.textContent = ''; }
+    setTimeout(refresh, 30000);
+  };
+  refresh();
 }
 
 /* ---------- ISS en direct (position calculée côté serveur depuis l'éphéméride officielle de la NASA) ---------- */
