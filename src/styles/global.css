@@ -59,6 +59,7 @@ a { color: var(--acc); }
 .orb::after { content: "no image"; }
 :lang(fr) .orb::after { content: "pas d'image"; }
 
+.badge { position: absolute; top: 8px; left: 8px; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; padding: 2px 7px; border-radius: 999px; background: #02050bcc; color: var(--warn); border: 1px solid #f2c26166; }
 #sentinel { height: 1px; }
 .foot { text-align: center; color: var(--mute); font-size: 12px; padding: 20px; border-top: 1px solid var(--line); }
 

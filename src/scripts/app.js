@@ -66,7 +66,8 @@ function cardTags(c) {
   return tags;
 }
 function card(c) {
-  const pic = el('div', { class: 'pic' }, c.im ? el('img', { src: c.im, alt: '', loading: 'lazy', decoding: 'async' }) : orb(c.k === 'exoplanet' ? c.s : c.s));
+  const pic = el('div', { class: 'pic' }, c.im ? el('img', { src: c.im, alt: '', loading: 'lazy', decoding: 'async' }) : orb(c.s),
+    c.il ? el('span', { class: 'badge', text: t().illus }) : null);
   const name = lang === 'fr' && c.nf ? c.nf : c.n;
   const a = el('a', { class: 'card', href: `?o=${c.i}`, 'data-id': c.i }, pic,
     el('div', { class: 'body' }, el('h2', { text: name }), el('span', { class: 'code', text: c.c }), el('div', { class: 'tags' }, cardTags(c))));
@@ -201,7 +202,8 @@ async function openObj(id, push) {
   document.title = `${o.name} — ${T_.title}`;
   const img = o.image;
   const pic = el('div', { class: 'dlg-pic' }, img ? el('img', { src: img.url, alt: img.alt ?? o.name }) : orb(o.sub));
-  const credit = img ? el('div', { class: 'credit' }, `${T_.imgCredit} : ${img.credit} · ${img.license} · `, el('a', { href: img.source, target: '_blank', rel: 'noopener', text: 'source' }))
+  const credit = img ? el('div', { class: 'credit' }, `${img.kind === 'illustration' ? T_.illusLong + (img.scope === 'system' ? ' ' + T_.illusSys : '') + ' — ' : ''}${T_.imgCredit} : ${img.credit} · ${img.license} · `,
+      el('a', { href: img.source, target: '_blank', rel: 'noopener', text: 'source' }), img.note ? ` — ${img.note[lang]}` : '')
     : el('div', { class: 'credit', text: T_.noImg });
   const title = lang === 'fr' && o.nameFr ? o.nameFr : o.name;
   const tags = (o.tags ?? []).map(x => el('span', { class: 'tag' + (x === 'habitable-zone' ? ' hz' : ''), text: tagLabel(x) }));

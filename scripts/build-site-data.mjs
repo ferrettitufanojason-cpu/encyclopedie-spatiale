@@ -64,7 +64,7 @@ for (const o of objects) {
     ss: o.src === 'ssod' ? 1 : undefined,
     hz: o.props.in_hz ? o.props.in_hz.v : null, h: o.host ?? null,
     x: (o.aliases ?? []).filter(a => /^(HD|HIP) /.test(a)).join(' ') || undefined,
-    im: img?.thumb ?? img?.url ?? null,
+    im: img?.thumb ?? img?.url ?? null, il: img?.kind === 'illustration' ? 1 : undefined,
   };
   if (o.nameFr && o.nameFr !== o.name) card.nf = o.nameFr;
   index.push(card);

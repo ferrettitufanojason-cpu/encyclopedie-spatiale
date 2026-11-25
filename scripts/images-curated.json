@@ -1,5 +1,11 @@
 {
- "sun": "GSFC_20171208_Archive_e002035",
+ "sun": {
+  "nasa": "GSFC_20171208_Archive_e000878",
+  "note": {
+   "fr": "Image du Soleil en ultraviolet extrême (satellite SDO), aux couleurs artificielles. À l’œil nu, le Soleil est blanc, et jaune-orangé près de l’horizon.",
+   "en": "Image of the Sun in extreme ultraviolet (SDO satellite) with artificial colours. To the eye the Sun is white, and yellow-orange near the horizon."
+  }
+ },
  "mercury": "GSFC_20171208_Archive_e001922",
  "venus": "PIA00478",
  "earth": "GSFC_20171208_Archive_e001386",
@@ -11,7 +17,11 @@
  "neptune": "PIA02219",
  "pluto": "PIA19952",
  "ceres": "PIA19167",
- "eris": "PIA17307",
+ "eris": {
+  "nasa": "PIA17307",
+  "kind": "illustration",
+  "scope": "planet"
+ },
  "io": "PIA02308",
  "europa": "PIA19048",
  "ganymede": "PIA00716",
@@ -31,5 +41,160 @@
  "titania": "PIA01979",
  "oberon": "PIA00034",
  "umbriel": "PIA00040",
- "ariel": "PIA00037"
+ "ariel": "PIA00037",
+ "trappist-1-f": {
+  "nasa": "PIA21423",
+  "kind": "illustration",
+  "scope": "planet"
+ },
+ "kepler-186-f": {
+  "nasa": "PIA17999",
+  "kind": "illustration",
+  "scope": "planet"
+ },
+ "kepler-22-b": {
+  "nasa": "PIA14882",
+  "kind": "illustration",
+  "scope": "planet"
+ },
+ "kepler-62-f": {
+  "nasa": "PIA17001",
+  "kind": "illustration",
+  "scope": "planet"
+ },
+ "kepler-69-c": {
+  "nasa": "PIA17003",
+  "kind": "illustration",
+  "scope": "planet"
+ },
+ "kepler-16-b": {
+  "nasa": "PIA14724",
+  "kind": "illustration",
+  "scope": "planet"
+ },
+ "kepler-7-b": {
+  "nasa": "PIA17445",
+  "kind": "illustration",
+  "scope": "planet"
+ },
+ "kepler-452-b": {
+  "nasa": "PIA19825",
+  "kind": "illustration",
+  "scope": "planet"
+ },
+ "55-cnc-e": {
+  "nasa": "PIA22069",
+  "kind": "illustration",
+  "scope": "planet"
+ },
+ "wasp-121-b": {
+  "nasa": "PIA22565",
+  "kind": "illustration",
+  "scope": "planet"
+ },
+ "wasp-12-b": {
+  "nasa": "PIA13691",
+  "kind": "illustration",
+  "scope": "planet"
+ },
+ "lhs-3844-b": {
+  "nasa": "PIA23130",
+  "kind": "illustration",
+  "scope": "planet"
+ },
+ "toi-700-d": {
+  "nasa": "PIA23408",
+  "kind": "illustration",
+  "scope": "planet"
+ },
+ "hd-189733-b": {
+  "nasa": "PIA10363",
+  "kind": "illustration",
+  "scope": "planet"
+ },
+ "trappist-1-b": {
+  "nasa": "PIA21422",
+  "kind": "illustration",
+  "scope": "system"
+ },
+ "trappist-1-c": {
+  "nasa": "PIA21422",
+  "kind": "illustration",
+  "scope": "system"
+ },
+ "trappist-1-d": {
+  "nasa": "PIA21422",
+  "kind": "illustration",
+  "scope": "system"
+ },
+ "trappist-1-e": {
+  "nasa": "PIA21422",
+  "kind": "illustration",
+  "scope": "system"
+ },
+ "trappist-1-g": {
+  "nasa": "PIA21422",
+  "kind": "illustration",
+  "scope": "system"
+ },
+ "trappist-1-h": {
+  "nasa": "PIA21422",
+  "kind": "illustration",
+  "scope": "system"
+ },
+ "kepler-90-b": {
+  "nasa": "PIA22192",
+  "kind": "illustration",
+  "scope": "system"
+ },
+ "kepler-90-c": {
+  "nasa": "PIA22192",
+  "kind": "illustration",
+  "scope": "system"
+ },
+ "kepler-90-d": {
+  "nasa": "PIA22192",
+  "kind": "illustration",
+  "scope": "system"
+ },
+ "kepler-90-e": {
+  "nasa": "PIA22192",
+  "kind": "illustration",
+  "scope": "system"
+ },
+ "kepler-90-f": {
+  "nasa": "PIA22192",
+  "kind": "illustration",
+  "scope": "system"
+ },
+ "kepler-90-g": {
+  "nasa": "PIA22192",
+  "kind": "illustration",
+  "scope": "system"
+ },
+ "kepler-90-h": {
+  "nasa": "PIA22192",
+  "kind": "illustration",
+  "scope": "system"
+ },
+ "hr-8799-b": {
+  "nasa": "PIA17010",
+  "kind": "illustration",
+  "scope": "system"
+ },
+ "hr-8799-c": {
+  "nasa": "PIA17010",
+  "kind": "illustration",
+  "scope": "system"
+ },
+ "hr-8799-d": {
+  "nasa": "PIA17010",
+  "kind": "illustration",
+  "scope": "system"
+ },
+ "hr-8799-e": {
+  "nasa": "PIA17010",
+  "kind": "illustration",
+  "scope": "system"
+ }
 }
