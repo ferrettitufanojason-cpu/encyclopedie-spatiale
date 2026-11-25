@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { DATA_DIR, writeJson, slug } from './lib/common.mjs';
 import { tap, sq } from './lib/simbad.mjs';
-import { CURATED, NGC_FAMOUS, MESSIER_NAMES } from './simbad-curated.mjs';
+import { CURATED, NGC_FAMOUS, MESSIER_NAMES, FR_NAMES } from './simbad-curated.mjs';
 
 const today = new Date().toISOString().slice(0, 10);
 const chunk = (a, n) => Array.from({ length: Math.ceil(a.length / n) }, (_, i) => a.slice(i * n, i * n + n));
@@ -83,14 +83,15 @@ for (const ids of chunk(detailOids, 300)) {
 const median = arr => { const s = [...arr].sort((a, b) => a.v - b.v); return s[Math.floor(s.length / 2)]; };
 
 // ---- 5. classification ----
-const GAL = new Set(['G', 'GiC', 'GiG', 'GiP', 'LIN', 'SyG', 'Sy1', 'Sy2', 'AGN', 'Sy*', 'BiC', 'rG', 'SBG', 'H2G', 'LSB', 'EmG', 'QSO', 'Bla', 'BLL', 'Seyfert_1', 'Seyfert_2', 'StarburstG', 'PartofG', 'BClG']);
+const GAL = new Set(['G', 'GiC', 'GiG', 'GiP', 'LIN', 'SyG', 'Sy1', 'Sy2', 'AGN', 'Sy*', 'BiC', 'rG', 'SBG', 'H2G', 'LSB', 'EmG', 'QSO', 'Bla', 'BLL', 'Seyfert_1', 'Seyfert_2', 'StarburstG', 'PartofG', 'BClG', 'IG']);
+const STAR_EXTRA = new Set(['EB?', 'mul', 'LXB', 'HXB', 'XB', 'LMXB', 'HMXB', 'CV*', 'Sy*']);
 const CLUSTER_G = new Set(['ClG', 'GrG', 'CGG', 'PaG', 'SCG', 'ClG?']);
 const NEB = new Set(['PN', 'Neb', 'HII', 'RNe', 'SNR', 'DNe', 'EmO', 'MoC', 'Cld', 'ISM', 'bub', 'SFR', 'HH', 'PN?', 'SNR?', 'Cl*', 'cor', 'glb', 'CGb']);
 const STARS = /\*|^(Psr|Mi|Er|Pu|RR|Ce|Or|FU|TT|Be|Em|BY|RS|Ir|Fl|dS|bC|gD|gB|Al|Ro|Ae|SN|Pe|HB|HS|sg|s\*|sd|Ma|Y\*|C\*|S\*|HV|No|Hv|BD|WD|N\*|AB|TT|Ev|LP|PM|Pl|Er)/;
 function classify(o) {
   const t = o.row.otype, cur = o.cur ?? {};
   if (cur.sub) return { cat: cur.cat ?? 'star', sub: cur.sub };
-  if (/^(OpC|Cl\*)$/.test(t)) return { cat: 'region', sub: 'open-cluster' };
+  if (/^(OpC|Cl\*|MGr|As\*)$/.test(t)) return { cat: 'region', sub: 'open-cluster' };
   if (t === 'GlC') return { cat: 'region', sub: 'globular-cluster' };
   if (CLUSTER_G.has(t)) return { cat: 'region', sub: 'galaxy-cluster' };
   if (GAL.has(t)) return { cat: 'region', sub: 'galaxy' };
@@ -100,7 +101,7 @@ function classify(o) {
   if (t === 'Psr' || t === 'Psr?') return { cat: 'star', sub: 'pulsar' };
   if (t === 'BH' || t === 'BH?' || t === 'BHCand') return { cat: 'star', sub: 'black-hole' };
   if (t === 'BD*' || t === 'BD?' || t === 'brownD*') return { cat: 'star', sub: 'brown-dwarf' };
-  if (STARS.test(t) || t === 'Star' || t === 'SB*' || t === 'EB*' || t === 'V*') {
+  if (STARS.test(t) || STAR_EXTRA.has(t) || t === 'Star' || t === 'SB*' || t === 'EB*' || t === 'V*') {
     const m = (o.row.sp_type || '').match(/^[a-z]*([OBAFGKM])/);
     return { cat: 'star', sub: m ? `spectral-${m[1]}` : 'other-star' };
   }
@@ -140,12 +141,12 @@ for (const [oid, o] of objs) {
     P('dist', +d.toPrecision(5), 'pc', 'sys', { calc: true, calcNote: 'plx', ...(ok ? { ep: +(1000 / (plx - e) - d).toPrecision(2), em: -+(d - 1000 / (plx + e)).toPrecision(2) } : {}) });
   }
   const dd = dist.get(oid);
-  if (cat === 'region' && dd?.length) { const m = median(dd.map(x => ({ v: x.pc, bib: x.bib }))); P('dist', m.v, 'pc', 'sys', { ref: ref(m.bib), note: `médiane de ${dd.length} mesure(s)` }); }
+  if (cat === 'region' && dd?.length) { const m = median(dd.map(x => ({ v: x.pc, bib: x.bib }))); P('dist', m.v, 'pc', 'sys', { ref: ref(m.bib), note: { fr: `médiane de ${dd.length} mesure(s)`, en: `median of ${dd.length} measurement(s)` } }); }
   const v = num(r.vmag); P('vmag', v, 'mag', 'sys');
   const ma = num(r.galdim_majaxis), mi = num(r.galdim_minaxis);
   if (ma) P('ang_major', ma, 'arcmin', 'sys'); if (mi) P('ang_minor', mi, 'arcmin', 'sys');
   const z = num(r.rvz_redshift); if (z != null && cat === 'region') P('redshift', z, '', 'sys');
-  const tf = cat === 'star' ? teff.get(oid) : null; if (tf?.length) { const m = median(tf); P('teff', m.v, 'K', 'star', { ref: ref(m.bib), note: `médiane de ${tf.length} mesure(s)` }); }
+  const tf = cat === 'star' ? teff.get(oid) : null; if (tf?.length) { const m = median(tf); P('teff', m.v, 'K', 'star', { ref: ref(m.bib), note: { fr: `médiane de ${tf.length} mesure(s)`, en: `median of ${tf.length} measurement(s)` } }); }
   if (r.sp_type) props.sptype = { t: r.sp_type, g: 'star', s: 'simbad' };
   if (r.morph_type) props.morph = { t: r.morph_type, g: 'sys', s: 'simbad' };
 
@@ -157,7 +158,7 @@ for (const [oid, o] of objs) {
     id: slug(baseName) || `simbad-${oid}`, cat, sub, name: display, code: main, aliases: [...new Set([main, ...nm, ...(aliases.get(oid) ?? [])].filter(a => a && a !== display))].slice(0, 12),
     tags: [...new Set(tags.filter(Boolean))], otype: r.otype,
     hostNames: [...o.hostNames], ra: num(r.ra), dec: num(r.dec), messier: o.cur?.messier ?? undefined,
-    props, src: 'simbad', updated: r.update_date || today, simbadId: r.main_id, ...(o.cur?.fr ? { nameFr: o.cur.fr } : {}),
+    props, src: 'simbad', updated: r.update_date || today, simbadId: r.main_id, ...((o.cur?.fr ?? FR_NAMES[display]) ? { nameFr: o.cur?.fr ?? FR_NAMES[display] } : {}),
   });
 }
 // compacts et régions d'abord pour garder l'id le plus « propre » en cas de collision

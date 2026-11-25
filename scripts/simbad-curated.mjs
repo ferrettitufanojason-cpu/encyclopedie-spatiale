@@ -24,7 +24,8 @@ export const CURATED = [
   { q: ['PSR J0437-4715'], name: 'PSR J0437-4715', cat: 'star', sub: 'pulsar', tags: ['millisecond'] },
   { q: ['PSR B1937+21', 'PSR J1939+2134'], name: 'PSR B1937+21', cat: 'star', sub: 'pulsar', tags: ['millisecond'] },
   { q: ['PSR B1913+16', 'PSR J1915+1606'], name: 'Hulse-Taylor pulsar (PSR B1913+16)', cat: 'star', sub: 'pulsar', tags: ['binary'] },
-  { q: ['PSR J0737-3039A', 'PSR J0737-3039'], name: 'Double Pulsar (PSR J0737-3039A)', cat: 'star', sub: 'pulsar', tags: ['binary'] },
+  { q: ['PSR J0348+0432'], name: 'PSR J0348+0432', cat: 'star', sub: 'pulsar', tags: ['binary'] },
+  { q: ['PSR J0737-3039A'], name: 'Double Pulsar (PSR J0737-3039A)', cat: 'star', sub: 'pulsar', tags: ['binary'] },
   { q: ['PSR B1257+12', 'PSR J1300+1240'], name: 'PSR B1257+12', cat: 'star', sub: 'pulsar', tags: ['millisecond'] },
   { q: ['PSR J0740+6620'], name: 'PSR J0740+6620', cat: 'star', sub: 'pulsar', tags: ['millisecond'] },
   { q: ['PSR J1748-2446ad'], name: 'PSR J1748-2446ad', cat: 'star', sub: 'pulsar', tags: ['millisecond'] },
@@ -62,6 +63,24 @@ export const MESSIER_NAMES = {
   63: ['Sunflower Galaxy', 'Galaxie du Tournesol'], 64: ['Black Eye Galaxy', "Galaxie de l'Œil noir"], 81: ["Bode's Galaxy", 'Galaxie de Bode'],
   82: ['Cigar Galaxy', 'Galaxie du Cigare'], 83: ['Southern Pinwheel Galaxy', 'Galaxie du Moulinet austral'], 87: ['Virgo A (M87)', 'Virgo A (M87)'],
   97: ['Owl Nebula', 'Nébuleuse du Hibou'], 101: ['Pinwheel Galaxy', 'Galaxie du Moulinet'], 104: ['Sombrero Galaxy', 'Galaxie du Sombrero'],
+};
+
+// Noms français d'usage (affichage en mode FR). Les noms propres identiques en français ne sont pas listés.
+export const FR_NAMES = {
+  'Sculptor Galaxy': 'Galaxie du Sculpteur', 'Tarantula Nebula': 'Nébuleuse de la Tarentule', 'Rosette Nebula': 'Nébuleuse de la Rosette',
+  'Carina Nebula': 'Nébuleuse de la Carène', 'Antennae Galaxies (NGC 4038)': 'Galaxies des Antennes (NGC 4038)', 'Omega Centauri': 'Oméga du Centaure',
+  '47 Tucanae': '47 du Toucan', "Cat's Eye Nebula": "Nébuleuse de l'Œil de chat", 'Helix Nebula': "Nébuleuse de l'Hélice",
+  'North America Nebula': "Nébuleuse de l'Amérique du Nord", 'Eskimo Nebula': "Nébuleuse de l'Esquimau", 'Butterfly Nebula': 'Nébuleuse du Papillon',
+  'Crescent Nebula': 'Nébuleuse du Croissant', 'Cone Nebula region (NGC 2264)': 'Région de la nébuleuse du Cône (NGC 2264)', 'Flame Nebula': 'Nébuleuse de la Flamme',
+  'Southern Ring Nebula': "Nébuleuse de l'Anneau austral", 'Needle Galaxy': "Galaxie de l'Aiguille", 'Perseus A (NGC 1275)': 'Persée A (NGC 1275)',
+  'Double Cluster (h Persei)': 'Double Amas (h Persée)', 'Double Cluster (chi Persei)': 'Double Amas (χ Persée)', 'Western Veil Nebula': 'Nébuleuse du Voile (partie ouest)',
+  'Mice Galaxies (NGC 4676)': 'Galaxies des Souris (NGC 4676)', 'Running Chicken Nebula (IC 2944)': 'Nébuleuse du Poulet courant (IC 2944)',
+  'Bullet Cluster': 'Amas du Boulet', "Pandora's Cluster (Abell 2744)": 'Amas de Pandore (Abell 2744)', 'Fornax Cluster': 'Amas du Fourneau',
+  "Stephan's Quintet": 'Quintette de Stephan', 'Coma Star Cluster': 'Amas de la Chevelure de Bérénice', 'Alpha Persei Cluster': "Amas de l'Alpha de Persée",
+  'Tadpole Galaxy': 'Galaxie du Têtard', 'Butterfly Cluster': 'Amas du Papillon', "Ptolemy's Cluster": 'Amas de Ptolémée', 'Barbell Nebula': "Petite nébuleuse de l'Haltère",
+  "Mairan's Nebula": 'Nébuleuse de De Mairan', 'Praesepe': 'Praesepe (la Crèche)', 'Large Magellanic Cloud': 'Grand Nuage de Magellan', 'Small Magellanic Cloud': 'Petit Nuage de Magellan',
+  'Hercules X-1': 'Hercule X-1', 'Centaurus X-3': 'Centaure X-3', 'Scorpius X-1': 'Scorpion X-1', 'Cygnus X-1': 'Cygne X-1', 'V404 Cygni': 'V404 du Cygne',
+  'Double Pulsar (PSR J0737-3039A)': 'Double pulsar (PSR J0737-3039A)', 'Hulse-Taylor pulsar (PSR B1913+16)': 'Pulsar de Hulse-Taylor (PSR B1913+16)',
 };
 
 export const NGC_FAMOUS = [

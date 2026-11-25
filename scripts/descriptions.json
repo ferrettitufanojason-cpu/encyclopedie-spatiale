@@ -56,6 +56,46 @@
   "fr": "Makémaké est une planète naine de la ceinture de Kuiper, découverte en 2005. Sa surface est recouverte de glaces, notamment de méthane. Une petite lune lui a été découverte en 2016.",
   "en": "Makemake is a dwarf planet in the Kuiper belt, discovered in 2005. Its surface is covered in ices, notably methane. A small moon was found orbiting it in 2016."
  },
+ "sagittarius-a": {
+  "fr": "Sagittarius A* est le trou noir supermassif situé au centre de la Voie lactée. Il est entouré d'étoiles qui l'orbitent à grande vitesse, ce qui a permis de mesurer sa masse. En 2022, l'Event Horizon Telescope a obtenu la première image de son ombre ; la version montrée ici est une image en lumière polarisée publiée en 2024.",
+  "en": "Sagittarius A* is the supermassive black hole at the centre of the Milky Way. Stars orbit it at great speed, which made it possible to measure its mass. In 2022 the Event Horizon Telescope produced the first image of its shadow; the version shown here is a polarised-light image published in 2024."
+ },
+ "cygnus-x-1": {
+  "fr": "Cygnus X-1 est l'une des sources de rayons X les plus brillantes du ciel et l'un des tout premiers systèmes reconnus comme abritant un trou noir de masse stellaire. Le trou noir arrache de la matière à une étoile supergéante compagnon, qui forme un disque d'accrétion très chaud. L'image est une illustration d'artiste.",
+  "en": "Cygnus X-1 is one of the brightest X-ray sources in the sky and one of the first systems recognised as hosting a stellar-mass black hole. The black hole pulls matter from a supergiant companion star, forming a very hot accretion disc. The image is an artist's illustration."
+ },
+ "v404-cygni": {
+  "fr": "V404 Cygni est un système binaire composé d'un trou noir de masse stellaire et d'une étoile compagnon. Il est connu pour ses sursauts spectaculaires de rayons X, comme celui de 2015. Les photons X diffusés par la poussière interstellaire forment un halo autour de lui, visible sur l'image.",
+  "en": "V404 Cygni is a binary system made of a stellar-mass black hole and a companion star. It is known for its spectacular X-ray outbursts, such as the one in 2015. X-rays scattered by interstellar dust form a halo around it, visible in the image."
+ },
+ "crab-pulsar": {
+  "fr": "Le pulsar du Crabe est une étoile à neutrons qui tourne sur elle-même environ trente fois par seconde. Il est le reste de la supernova observée en 1054 et se trouve au cœur de la nébuleuse du Crabe, qu'il alimente en particules énergétiques. L'image montre le pulsar en rayons X.",
+  "en": "The Crab Pulsar is a neutron star spinning about thirty times per second. It is the remnant of the supernova seen in 1054 and sits at the heart of the Crab Nebula, which it feeds with energetic particles. The image shows the pulsar in X-rays."
+ },
+ "vela-pulsar": {
+  "fr": "Le pulsar de la Voile est une étoile à neutrons jeune, reste d'une supernova, qui tourne une dizaine de fois par seconde. Il est entouré d'une nébuleuse de vent de pulsar et émet un jet visible en rayons X par l'observatoire Chandra.",
+  "en": "The Vela Pulsar is a young neutron star left by a supernova, spinning about ten times per second. It is surrounded by a pulsar wind nebula and emits a jet seen in X-rays by the Chandra observatory."
+ },
+ "sirius-a": {
+  "fr": "Sirius A est l'étoile la plus brillante du ciel nocturne. Elle forme avec une naine blanche compagnon, Sirius B, un système double proche du Soleil. L'image du télescope spatial Hubble montre Sirius A, très lumineuse, et le minuscule point de Sirius B.",
+  "en": "Sirius A is the brightest star in the night sky. With a white dwarf companion, Sirius B, it forms a double system close to the Sun. The Hubble Space Telescope image shows the dazzling Sirius A and the tiny dot of Sirius B."
+ },
+ "sirius-b": {
+  "fr": "Sirius B est une naine blanche, le noyau mort d'une étoile qui a épuisé son combustible. Elle est bien plus petite mais bien plus dense que le Soleil, et orbite autour de Sirius A. L'image est une illustration d'artiste du couple.",
+  "en": "Sirius B is a white dwarf, the dead core of a star that ran out of fuel. It is much smaller but far denser than the Sun and orbits Sirius A. The image is an artist's illustration of the pair."
+ },
+ "betelgeuse": {
+  "fr": "Bételgeuse est une supergéante rouge de la constellation d'Orion, l'une des plus grosses étoiles visibles à l'œil nu. Elle est en fin de vie et finira en supernova. L'image ALMA est l'une des premières à montrer la surface d'une étoile autre que le Soleil.",
+  "en": "Betelgeuse is a red supergiant in the constellation Orion, one of the largest stars visible to the naked eye. It is near the end of its life and will end as a supernova. The ALMA image is one of the first to show the surface of a star other than the Sun."
+ },
+ "proxima-cen": {
+  "fr": "Proxima du Centaure est l'étoile la plus proche du Soleil. Cette petite naine rouge, trop faible pour être vue à l'œil nu, appartient au système d'Alpha du Centaure et possède des exoplanètes, dont Proxima b.",
+  "en": "Proxima Centauri is the closest star to the Sun. This small red dwarf, too faint to see with the naked eye, belongs to the Alpha Centauri system and has exoplanets, including Proxima b."
+ },
+ "antares": {
+  "fr": "Antarès est une supergéante rouge au cœur de la constellation du Scorpion, dont le nom signifie « rival de Mars » à cause de sa couleur. Le VLTI de l'ESO a reconstruit une image de sa surface.",
+  "en": "Antares is a red supergiant at the heart of the constellation Scorpius; its name means 'rival of Mars' because of its colour. ESO's VLTI reconstructed an image of its surface."
+ },
  "io": {
   "fr": "Io est la lune la plus volcanique du Système solaire. Chauffée par les forces de marée qu'exercent Jupiter et les autres lunes galiléennes, elle est parcourue par des centaines de volcans actifs dont les panaches de soufre retombent en couleurs jaune, orange et rouge sur sa surface.",
   "en": "Io is the most volcanically active body in the Solar System. Heated by tidal forces from Jupiter and the other Galilean moons, it is covered with hundreds of active volcanoes whose sulphur plumes fall back as yellow, orange and red deposits."

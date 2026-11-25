@@ -14,12 +14,14 @@ await mkdir(join(OUT, 'o'), { recursive: true });
 const PC_LY = 3.26156, M_EARTH = 5.9722e24, R_EARTH = 6371;
 const sources = [];
 let objects = [];
-for (const f of (await readdir(DATA_DIR)).filter(f => f.endsWith('.json') && f !== 'images.json').sort()) {
+const imageFiles = (await readdir(DATA_DIR)).filter(f => /^images.*\.json$/.test(f)).sort();
+for (const f of (await readdir(DATA_DIR)).filter(f => f.endsWith('.json') && !imageFiles.includes(f)).sort()) {
   const d = JSON.parse(await readFile(join(DATA_DIR, f), 'utf8'));
   sources.push({ ...d.source, file: f, count: d.objects.length });
   objects.push(...d.objects);
 }
-const images = existsSync(join(DATA_DIR, 'images.json')) ? JSON.parse(await readFile(join(DATA_DIR, 'images.json'), 'utf8')) : {};
+const images = {};
+for (const f of imageFiles) Object.assign(images, JSON.parse(await readFile(join(DATA_DIR, f), 'utf8')));
 
 const descs = JSON.parse(await readFile(join(ROOT, 'scripts', 'descriptions.json'), 'utf8'));
 // rang des 8 planètes par demi-grand axe

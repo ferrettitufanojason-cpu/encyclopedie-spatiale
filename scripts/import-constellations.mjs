@@ -92,11 +92,14 @@ Virgo|Vir|Virginis|Vierge|Maiden
 Volans|Vol|Volantis|Poisson volant|Flying fish
 Vulpecula|Vul|Vulpeculae|Petit Renard|Little fox`;
 
+
+// Signification en français (nom latin traduit)
+const FRM = { And: "Andromède, la princesse enchaînée", Ant: 'la machine pneumatique', Aps: 'l’oiseau de paradis', Aqr: 'le porteur d’eau', Aql: 'l’aigle', Ara: 'l’autel', Ari: 'le bélier', Aur: 'le cocher', Boo: 'le bouvier', Cae: 'le burin du graveur', Cam: 'la girafe', Cnc: 'le crabe', CVn: 'les chiens de chasse', CMa: 'le grand chien', CMi: 'le petit chien', Cap: 'le capricorne (chèvre de mer)', Car: 'la quille du navire', Cas: 'Cassiopée, la reine', Cen: 'le centaure', Cep: 'Céphée, le roi', Cet: 'le monstre marin (la baleine)', Cha: 'le caméléon', Cir: 'le compas', Col: 'la colombe', Com: 'la chevelure de Bérénice', CrA: 'la couronne australe', CrB: 'la couronne boréale', Crv: 'le corbeau', Crt: 'la coupe', Cru: 'la croix', Cyg: 'le cygne', Del: 'le dauphin', Dor: 'la dorade', Dra: 'le dragon', Equ: 'le petit cheval', Eri: 'le fleuve Éridan', For: 'le fourneau', Gem: 'les jumeaux', Gru: 'la grue', Her: 'Hercule', Hor: 'l’horloge à pendule', Hya: 'l’hydre (serpent d’eau)', Hyi: 'la petite hydre', Ind: 'l’indien', Lac: 'le lézard', Leo: 'le lion', LMi: 'le petit lion', Lep: 'le lièvre', Lib: 'la balance', Lup: 'le loup', Lyn: 'le lynx', Lyr: 'la lyre', Men: 'la montagne de la Table', Mic: 'le microscope', Mon: 'la licorne', Mus: 'la mouche', Nor: 'l’équerre', Oct: 'l’octant', Oph: 'le porteur de serpent', Ori: 'Orion, le chasseur', Pav: 'le paon', Peg: 'Pégase, le cheval ailé', Per: 'Persée, le héros', Phe: 'le phénix', Pic: 'le chevalet du peintre', Psc: 'les poissons', PsA: 'le poisson austral', Pup: 'la poupe du navire', Pyx: 'la boussole', Ret: 'le réticule', Sge: 'la flèche', Sgr: 'l’archer', Sco: 'le scorpion', Scl: 'le sculpteur', Sct: 'l’écu', Ser: 'le serpent', Sex: 'le sextant', Tau: 'le taureau', Tel: 'le télescope', Tri: 'le triangle', TrA: 'le triangle austral', Tuc: 'le toucan', UMa: 'la grande ourse', UMi: 'la petite ourse', Vel: 'les voiles du navire', Vir: 'la vierge', Vol: 'le poisson volant', Vul: 'le petit renard' };
 const today = new Date().toISOString().slice(0, 10);
 const objects = L.split('\n').map(l => {
   const [name, abbr, gen, fr, en] = l.split('|');
   return { id: `constellation-${slug(name)}`, cat: 'other', sub: 'constellation', name, nameFr: fr, code: abbr,
-    aliases: [gen], tags: ['constellation'], meaning: en, genitive: gen, props: {}, src: 'iau', updated: today };
+    aliases: [gen], tags: ['constellation'], meaning: en, meaningFr: FRM[abbr], genitive: gen, props: {}, src: 'iau', updated: today };
 });
 if (objects.length !== 88) throw new Error(`${objects.length} constellations au lieu de 88`);
 await writeJson('constellations.json', { source: { id: 'iau', name: 'Union astronomique internationale (UAI)', url: 'https://www.iau.org/public/themes/constellations/', license: 'Liste officielle, usage libre avec citation', fetched: today }, objects });

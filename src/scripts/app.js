@@ -12,8 +12,10 @@ const el = (tag, attrs = {}, ...kids) => {
   return n;
 };
 
-let lang = (() => { try { return localStorage.getItem('lang'); } catch { return null; } })()
-  || new URLSearchParams(location.search).get('lang') || (navigator.language?.startsWith('fr') ? 'fr' : 'en');
+// Français par défaut ; l'anglais seulement si choisi (bouton EN, ?lang=en) ou mémorisé.
+const askedLang = new URLSearchParams(location.search).get('lang');
+let lang = ['fr', 'en'].includes(askedLang) ? askedLang : (() => { try { return localStorage.getItem('lang'); } catch { return null; } })() || 'fr';
+if (!['fr', 'en'].includes(lang)) lang = 'fr';
 const t = () => T[lang];
 const norm = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
@@ -64,7 +66,7 @@ function tagLabel(x) { return t().tag[x] ?? t().sub[x] ?? t().lumClass?.[x] ?? t
 function cardTags(c) {
   const out = [];
   if (c.k === 'exoplanet') out.push(t().exotype[c.s] ?? c.s);
-  else out.push(t().sub[c.s] ?? c.s);
+  else out.push(t().subOne[c.s] ?? t().sub[c.s] ?? c.s);
   if (c.md) out.push(t().method[c.md] ?? c.md);
   const tags = out.map(x => el('span', { class: 'tag', text: x }));
   if (c.hz === 1) tags.push(el('span', { class: 'tag hz', text: tagLabel('habitable-zone') }));
@@ -165,7 +167,7 @@ function summary(o) {
     const cn = o.related.find(r => r.rel === 'constellation');
     if (o.sub === 'constellation') {
       const stars = o.related.filter(r => r.rel === 'star').slice(0, 5).map(r => r.name).join(', ');
-      return fr ? `${nm} (${o.code}, génitif ${o.genitive}) est l’une des 88 constellations officielles de l’Union astronomique internationale. Son nom latin signifie « ${o.meaning} ».${stars ? ` Parmi les étoiles de ce catalogue : ${stars}.` : ''}`
+      return fr ? `${nm} (${o.code}, génitif ${o.genitive}) est l’une des 88 constellations officielles de l’Union astronomique internationale. Son nom latin signifie « ${o.meaningFr ?? o.meaning} ».${stars ? ` Parmi les étoiles de ce catalogue : ${stars}.` : ''}`
         : `${o.name} (${o.code}, genitive ${o.genitive}) is one of the 88 official constellations of the International Astronomical Union. Its name means “${o.meaning}”.${stars ? ` Stars of this catalogue include ${stars}.` : ''}`;
     }
     const lum = (o.tags ?? []).find(x => T_.lumClass[x]);
@@ -208,14 +210,14 @@ function propsTable(o) {
         ? el('span', { class: 'src calc', text: T_.hzNote })
         : el('span', { class: 'src' }, p.calc ? el('span', { class: 'calc', text: `${T_.plxNote} ` }) : '', `${T_.source} : `, el('a', { href: ps.url, target: '_blank', rel: 'noopener', text: ps.name }),
           p.ref ? [` · ${T_.ref} `, p.ref.url ? el('a', { href: p.ref.url, target: '_blank', rel: 'noopener', text: p.ref.t }) : p.ref.t] : '',
-          ` · ${T_.updated} ${o.updated}`, p.note ? ` · ${p.note}` : '');
+          ` · ${T_.updated} ${o.updated}`, p.note ? ` · ${typeof p.note === 'object' ? p.note[lang] : p.note}` : '');
       return el('tr', {}, el('th', { scope: 'row', text: T_.p[k] ?? k }), el('td', {}, el('span', { class: 'val', text: fmtProp(k, p) }), srcLine));
     });
     frag.push(el('h3', { text: gLabel(g) }), el('table', { class: 'props' }, el('tbody', {}, rows)));
   }
   // valeurs absentes les plus utiles : afficher explicitement « non disponible »
   const key = o.cat === 'exoplanet' ? ['mass', 'radius', 'period', 'sma', 'teq'] : o.cat === 'planet' ? ['mass', 'radius', 'density', 'teq']
-    : o.cat === 'star' ? ['dist', 'teff', 'sptype'] : o.cat === 'region' ? ['dist', 'redshift'] : [];
+    : o.cat === 'star' ? (/^spectral|other-star|^sun$/.test(o.sub) ? ['dist', 'teff', 'sptype'] : ['dist']) : o.cat === 'region' ? ['dist', 'redshift'] : [];
   const miss = key.filter(k => !o.props[k]);
   if (miss.length) frag.push(el('h3', { text: lang === 'fr' ? 'Données manquantes' : 'Missing data' }),
     el('table', { class: 'props' }, el('tbody', {}, miss.map(k => el('tr', {}, el('th', { scope: 'row', text: T_.p[k] }), el('td', { class: 'na', text: T_.na }))))));
@@ -251,7 +253,7 @@ async function openObj(id, push) {
         el('p', { class: 'summary' }, summary(o), el('small', { text: o.desc ? T_.sumEdito : T_.sumAuto })),
         disc ? el('p', { class: 'credit' }, `${T_.sec.disc} : ${disc}`, o.disc.ref ? [' · ', el('a', { href: o.disc.ref.url, target: '_blank', rel: 'noopener', text: o.disc.ref.t })] : '') : null)),
     el('div', { class: 'sect' }, el('h3', { text: T_.sec.props }), propsTable(o)),
-    rel.length ? el('div', { class: 'sect' }, el('h3', { text: T_.sec.rel }), el('div', { class: 'rel' }, rel)) : null,
+    rel.length ? el('div', { class: 'sect' }, el('h3', { text: T_.sec.rel }), el('div', { class: 'rel' }, rel)) : '',
     el('div', { class: 'srcbox' }, `${T_.source} : `, el('a', { href: s.url, target: '_blank', rel: 'noopener', text: s.name }), ` · ${T_.updated} ${o.updated}`));
   dlg.scrollTop = 0; body.scrollTop = 0;
 }

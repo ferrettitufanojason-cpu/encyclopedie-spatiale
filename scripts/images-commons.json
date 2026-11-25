@@ -1,0 +1,89 @@
+{
+ "betelgeuse": {
+  "file": "Betelgeuse captured by ALMA.jpg"
+ },
+ "sirius-a": {
+  "file": "Sirius A and B Hubble photo.jpg"
+ },
+ "sirius-b": {
+  "file": "Sirius A and B artwork.jpg",
+  "kind": "illustration"
+ },
+ "proxima-cen": {
+  "file": "New shot of Proxima Centauri, our nearest neighbour.jpg"
+ },
+ "proxima-b": {
+  "file": "Proxima Centauri b.jpg",
+  "kind": "illustration"
+ },
+ "rigel-kentaurus": {
+  "file": "Best image of Alpha Centauri A and B.jpg"
+ },
+ "vega": {
+  "file": "Vega Spitzer.jpg",
+  "note": {
+   "fr": "Image infrarouge du disque de poussières autour de Vega.",
+   "en": "Infrared image of the dust disc around Vega."
+  }
+ },
+ "antares": {
+  "file": "VLTI reconstructed view of the surface of Antares.jpg",
+  "note": {
+   "fr": "Surface d'Antarès reconstruite par interférométrie (VLTI).",
+   "en": "Surface of Antares reconstructed by interferometry (VLTI)."
+  }
+ },
+ "fomalhaut": {
+  "file": "Fomalhaut-Hubble-ALMA-Eso1216a.tif",
+  "note": {
+   "fr": "Le disque de poussières autour de Fomalhaut (Hubble + ALMA).",
+   "en": "The dust ring around Fomalhaut (Hubble + ALMA)."
+  }
+ },
+ "sagittarius-a": {
+  "file": "A view of the Milky Way supermassive black hole Sagittarius A* in polarised light (eso2406a).jpg",
+  "note": {
+   "fr": "Image de l'ombre du trou noir par l'Event Horizon Telescope (lumière polarisée).",
+   "en": "Image of the black hole's shadow by the Event Horizon Telescope (polarised light)."
+  }
+ },
+ "cygnus-x-1": {
+  "file": "Artist's impression of Cygnus X-1.jpg",
+  "kind": "illustration"
+ },
+ "v404-cygni": {
+  "file": "V404Cyg XRT halo fullsize.jpg",
+  "note": {
+   "fr": "Halo de rayons X autour de V404 Cygni (Swift).",
+   "en": "X-ray halo around V404 Cygni (Swift)."
+  }
+ },
+ "grs-1915+105": {
+  "file": "GRS 1915+105 with Scale Bar (2009-g1915-more-4).jpg"
+ },
+ "crab-pulsar": {
+  "file": "Crab Nebula pulsar x-ray.jpg",
+  "note": {
+   "fr": "Le pulsar au cœur de la nébuleuse du Crabe en rayons X (Chandra).",
+   "en": "The pulsar at the heart of the Crab Nebula in X-rays (Chandra)."
+  }
+ },
+ "vela-pulsar": {
+  "file": "Vela Pulsar jet.jpg",
+  "note": {
+   "fr": "Pulsar de la Voile et son jet, en rayons X (Chandra).",
+   "en": "The Vela pulsar and its jet, in X-rays (Chandra)."
+  }
+ },
+ "xte-j1810-197": {
+  "file": "CSIRO ScienceImage 3575 An artists impression of magnetar XTE J1810197 showing the radio emissions and the magnetic field.jpg",
+  "kind": "illustration"
+ },
+ "rx-j1856-5-3754": {
+  "file": "Isolated Neutron Star RX J185635-3754 - opo9732a.jpg"
+ },
+ "psr-j0348+0432": {
+  "file": "Artist’s impression of the PSR J0348+0432.jpg",
+  "kind": "illustration"
+ }
+}
