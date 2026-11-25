@@ -85,5 +85,152 @@
  "psr-j0348+0432": {
   "file": "Artist’s impression of the PSR J0348+0432.jpg",
   "kind": "illustration"
+ },
+ "itokawa": {
+  "file": "Asteroid (25143) Itokawa seen in close-up (eso1405c).jpg"
+ },
+ "ryugu": {
+  "file": "Images of asteroid Ryugu from the wide angle Optical Navigation Cameras (ONC-W1 and ONC-W2) via Hayabusa2.jpg"
+ },
+ "bennu": {
+  "file": "Bennu mosaic OSIRIS-REx.jpg"
+ },
+ "arrokoth": {
+  "file": "Composite Image of Arrokoth (ann19067a).jpg"
+ },
+ "vesta": {
+  "file": "Vesta full mosaic.jpg"
+ },
+ "eros": {
+  "file": "PIA02475 Eros' Bland Butterscotch Colors.jpg"
+ },
+ "lutetia": {
+  "file": "Lutetia 31052010 Rosetta NAVCAM-A.jpg"
+ },
+ "mathilde": {
+  "file": "253 Mathilde HQ.png"
+ },
+ "steins": {
+  "file": "2867 Steins.jpg"
+ },
+ "dinkinesh": {
+  "file": "Dinkinesh First Look L'LORRI.png"
+ },
+ "oumuamua": {
+  "file": "Artist’s impression of the interstellar asteroid `Oumuamua.jpg",
+  "kind": "illustration"
+ },
+ "1p-halley": {
+  "file": "Comet Halley ARC-1986-AC86-0720-4~orig.jpg"
+ },
+ "67p-churyumov-gerasimenko": {
+  "file": "Comet 67P on 19 September 2014 NavCam mosaic.jpg"
+ },
+ "103p-hartley-2": {
+  "file": "Comet Hartley 2.jpg"
+ },
+ "9p-tempel-1": {
+  "file": "Hubble Images Comet Tempel 1 Just Before Deep Impact Probe Arrives (heic0509h).jpg"
+ },
+ "c-2019-q4-borisov": {
+  "file": "Comet 2I Borisov and Distant Galaxy in November 2019.tif"
+ },
+ "mission-voyager-1": {
+  "file": "Voyager spacecraft.jpg"
+ },
+ "mission-voyager-2": {
+  "file": "Voyager testing at JPL.jpg"
+ },
+ "mission-new-horizons-pluto-kuiper-belt-flyby": {
+  "file": "New Horizons spacecraft model 1.png",
+  "kind": "illustration"
+ },
+ "mission-james-webb-space-telescope": {
+  "file": "Legacy Image- The James Webb Space Telescope.jpg"
+ },
+ "mission-parker-solar-probe": {
+  "file": "Parker Solar Probe.jpg"
+ },
+ "mission-juno": {
+  "file": "Illustration of Juno spacecraft at Jupiter (PIA19639).jpg",
+  "kind": "illustration"
+ },
+ "mission-pioneer-11": {
+  "file": "Pioneer 11 at Saturn.jpg",
+  "kind": "illustration"
+ },
+ "mission-mariner-10": {
+  "file": "Mariner 10 flight spare.jpg",
+  "note": {
+   "fr": "Exemplaire de rechange de vol de Mariner 10 (musée), pas la sonde elle-même.",
+   "en": "Mariner 10 flight spare (museum), not the spacecraft itself."
+  }
+ },
+ "mission-viking-1-orbiter": {
+  "file": "Viking Orbiter releasing the lander.jpg",
+  "kind": "illustration"
+ },
+ "mission-kepler": {
+  "file": "Kepler Space Telescope spacecraft model 1.png",
+  "kind": "illustration"
+ },
+ "mission-transiting-exoplanet-survey-satellite": {
+  "file": "TESS alone high res.jpg"
+ },
+ "mission-chandra-x-ray-observatory": {
+  "file": "Chandra artist illustration.jpg",
+  "kind": "illustration"
+ },
+ "mission-spitzer-space-telescope": {
+  "file": "Spitzer space telescope.jpg"
+ },
+ "mission-swift": {
+  "file": "Swift Observatory spacecraft model.png",
+  "kind": "illustration"
+ },
+ "mission-mars-reconnaissance-orbiter": {
+  "file": "Mars Reconnaissance Orbiter (cropped).jpg"
+ },
+ "mission-solar-dynamics-observatory": {
+  "file": "Solar Dynamics Observatory 1.jpg"
+ },
+ "mission-mars-science-laboratory-msl": {
+  "file": "Curiosity Self-Portrait at 'Big Sky' Drilling Site (PIA19920).jpg"
+ },
+ "mission-mars-2020": {
+  "file": "Perseverance Stuns in New Selfie.png"
+ },
+ "mission-lucy": {
+  "file": "Lucy spacecraft model.png",
+  "kind": "illustration"
+ },
+ "mission-psyche": {
+  "file": "Psyche Spacecraft (Artist's Concept).jpg",
+  "kind": "illustration"
+ },
+ "mission-artemis-1": {
+  "file": "Artemis I Launch (NHQ202211160017).jpg"
+ },
+ "mission-apollo-11-command-and-service-module-csm": {
+  "file": "Buzz Aldrin and Apollo 11 Lunar Lander, AS11-40-5927.jpg"
+ },
+ "mission-messenger": {
+  "file": "MESSENGER - spacecraft at mercury - atmercury lg.jpg",
+  "kind": "illustration"
+ },
+ "mission-wise-neowise": {
+  "file": "Wide-field Infrared Survey Explorer spacecraft model.png",
+  "kind": "illustration"
+ },
+ "mission-fermi-gamma-ray-space-telescope": {
+  "file": "Fermi Gamma-ray Space Telescope spacecraft model.png",
+  "kind": "illustration"
+ },
+ "mission-osiris-rex": {
+  "file": "OSIRIS-REx spacecraft model.png",
+  "kind": "illustration"
+ },
+ "mission-dawn": {
+  "file": "Dawn Flight Configuration 2.jpg"
  }
 }

@@ -56,9 +56,30 @@ const srcOf = (o, p) => {
   const s = p?.s ?? o.src;
   if (s === 'nea') return { name: 'NASA Exoplanet Archive', url: `https://exoplanetarchive.ipac.caltech.edu/overview/${encodeURIComponent(o.hostNames?.[0] ?? o.name)}` };
   if (s === 'simbad') return { name: 'SIMBAD (CDS)', url: `https://simbad.cds.unistra.fr/simbad/sim-id?Ident=${encodeURIComponent(o.simbadId ?? o.name)}` };
+  if (s === 'sbdb') return { name: 'JPL Small-Body Database', url: `https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=${encodeURIComponent(o.sbdbId ?? o.name)}` };
+  if (s === 'nssdca') return { name: 'NASA NSSDCA', url: `https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=${encodeURIComponent(o.code)}` };
   if (s === 'iau') return { name: 'Union astronomique internationale', url: 'https://www.iau.org/public/themes/constellations/' };
   return { name: 'Système solaire OpenData', url: `https://api.le-systeme-solaire.net/rest/bodies/${o.ssodId}` };
 };
+
+/* ---------- schéma d'orbite (calculé à partir des éléments orbitaux, pas une photo) ---------- */
+const PLANET_A = [0.387, 0.723, 1, 1.524, 5.203, 9.537, 19.19, 30.07]; // demi-grands axes (UA) des 8 planètes
+function orbitSvg([q, e, om, w, inc], size = 200) {
+  const a = q / (1 - e), ad = a * (1 + e), rmax = Math.max(ad, 6);
+  const R = size / 2 - 8, sc = r => (Math.sqrt(r / rmax) * R); // échelle en racine carrée
+  const rad = Math.PI / 180, cO = Math.cos(om * rad), sO = Math.sin(om * rad), ci = Math.cos(inc * rad);
+  const pt = nu => {
+    const r = a * (1 - e * e) / (1 + e * Math.cos(nu)), u = w * rad + nu, k = sc(r) / r;
+    return [(cO * Math.cos(u) - sO * Math.sin(u) * ci) * r * k, (sO * Math.cos(u) + cO * Math.sin(u) * ci) * r * k];
+  };
+  const c = size / 2, pts = [];
+  for (let n = 0; n <= 240; n++) { const [x, y] = pt(-Math.PI + n / 240 * 2 * Math.PI); pts.push(`${(c + x).toFixed(1)},${(c - y).toFixed(1)}`); }
+  const [px, py] = pt(0);
+  const rings = PLANET_A.filter(r => r <= rmax * 1.05).map(r => `<circle cx="${c}" cy="${c}" r="${sc(r).toFixed(1)}" fill="none" stroke="#3a4b72" stroke-width="0.8"/>`).join('');
+  return `<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Schéma de l’orbite">${rings}<polyline points="${pts.join(' ')}" fill="none" stroke="#ffd36e" stroke-width="1.6"/>`
+    + `<circle cx="${(c + px).toFixed(1)}" cy="${(c - py).toFixed(1)}" r="3" fill="#fff"/><circle cx="${c}" cy="${c}" r="4" fill="#ffcf4a"/></svg>`;
+}
+const svgEl = (svg, cls) => { const d = el('div', { class: cls }); d.innerHTML = svg; return d; };
 
 /* ---------- carte ---------- */
 const orb = sub => el('div', { class: `orb o-${sub || 'def'}`, 'aria-hidden': 'true' });
@@ -73,8 +94,8 @@ function cardTags(c) {
   return tags;
 }
 function card(c) {
-  const pic = el('div', { class: 'pic' }, c.im ? el('img', { src: c.im, alt: '', loading: 'lazy', decoding: 'async' }) : orb(c.s),
-    c.il ? el('span', { class: 'badge', text: c.il === 2 ? t().skyBadge : t().illus }) : null,
+  const pic = el('div', { class: 'pic' }, c.im ? el('img', { src: c.im, alt: '', loading: 'lazy', decoding: 'async' }) : c.ob ? svgEl(orbitSvg(c.ob), 'orbit') : orb(c.s),
+    c.il ? el('span', { class: 'badge', text: c.il === 3 ? t().orbitBadge : c.il === 2 ? t().skyBadge : t().illus }) : null,
     c.il === 2 ? el('span', { class: 'crosshair', 'aria-hidden': 'true' }) : null);
   const name = lang === 'fr' && c.nf ? c.nf : c.n;
   const a = el('a', { class: 'card', href: `?o=${c.i}`, 'data-id': c.i }, pic,
@@ -125,7 +146,7 @@ function drawSubs() {
   const counts = {};
   for (const c of ALL) if (groupOf(c.k) === state.cat) counts[subOf(c)] = (counts[subOf(c)] ?? 0) + 1;
   const SUBORDER = ['sun', 'spectral-O', 'spectral-B', 'spectral-A', 'spectral-F', 'spectral-G', 'spectral-K', 'spectral-M', 'other-star', 'brown-dwarf', 'white-dwarf', 'neutron-star', 'pulsar', 'magnetar', 'black-hole',
-    'galaxy', 'galaxy-cluster', 'nebula', 'open-cluster', 'globular-cluster'];
+    'galaxy', 'galaxy-cluster', 'nebula', 'open-cluster', 'globular-cluster', 'main-belt', 'near-earth', 'trojan', 'other-asteroid', 'kuiper', 'comet', 'interstellar', 'mission'];
   const keys = Object.keys(counts).sort((a, b) => (SUBORDER.indexOf(a) + 1 || 99) - (SUBORDER.indexOf(b) + 1 || 99));
   const mk = (k, label, n) => el('button', { type: 'button', 'aria-pressed': String(state.sub === k),
     onclick: () => { state.sub = k; if (k !== 'exoplanet') state.type = ''; apply(); } }, label, el('em', { text: n.toLocaleString(lang) }));
@@ -143,8 +164,8 @@ function drawFilterOptions() {
 
 /* ---------- fiche détaillée ---------- */
 const ORDER = ['mass', 'radius', 'radius_eq', 'radius_pol', 'density', 'gravity', 'escape', 'teq', 'insol', 'axial_tilt', 'rotation',
-  'period', 'sma', 'perihelion', 'aphelion', 'ecc', 'incl', 'sptype', 'morph', 'teff', 'lum', 'met', 'age', 'ang_major', 'ang_minor', 'redshift', 'st_teff', 'st_rad', 'st_mass', 'st_lum', 'st_met', 'st_age', 'dist', 'vmag', 'hz_inner', 'hz_outer', 'in_hz'];
-const GORDER = ['physical', 'planet', 'orbit', 'star', 'sys', 'calc'];
+  'period', 'sma', 'perihelion', 'aphelion', 'ecc', 'incl', 'diameter', 'abs_mag', 'albedo', 'spec', 'orbit_class', 'first_obs', 'moid', 'launch', 'vehicle', 'site', 'mass_kg', 'agency', 'disciplines', 'sptype', 'morph', 'teff', 'lum', 'met', 'age', 'ang_major', 'ang_minor', 'redshift', 'st_teff', 'st_rad', 'st_mass', 'st_lum', 'st_met', 'st_age', 'dist', 'vmag', 'hz_inner', 'hz_outer', 'in_hz'];
+const GORDER = ['mission', 'physical', 'planet', 'orbit', 'star', 'sys', 'calc'];
 
 function summary(o) {
   const T_ = t(), fr = lang === 'fr';
@@ -161,6 +182,23 @@ function summary(o) {
     if (o.nPlanets > 1) bits.push(fr ? `Le système compte ${o.nPlanets} planètes confirmées.` : `The system has ${o.nPlanets} confirmed planets.`);
     if (o.props.in_hz?.v === 1) bits.push(fr ? 'Son orbite se situe dans la zone habitable calculée de son étoile.' : 'Its orbit lies within the computed habitable zone of its star.');
     if (o.controversial) bits.push(fr ? 'Son statut est signalé comme controversé.' : 'Its status is flagged as controversial.');
+    return bits.join(' ');
+  }
+  if (o.src === 'sbdb') {
+    const nm = o.name, d = o.props.diameter?.v, per = o.props.period?.v;
+    let s = fr ? `${nm} est ${T_.subKind[o.sub] ?? 'un petit corps'}` : `${nm} is ${T_.subKind[o.sub] ?? 'a small body'}`;
+    if (d) s += fr ? `, d’environ ${fmt(d)} km de diamètre` : `, about ${fmt(d)} km across`;
+    s += '.';
+    if (per) { const y = per / 365.25; s += fr ? ` Il fait le tour du Soleil en ${y < 2 ? `${fmt(per)} jours` : `${fmt(y)} ans`}.` : ` It orbits the Sun in ${y < 2 ? `${fmt(per)} days` : `${fmt(y)} years`}.`; }
+    if (o.tags.includes('hazardous')) s += fr ? ' Le JPL le classe parmi les astéroïdes potentiellement dangereux : il passe à moins de 0,05 UA de l’orbite terrestre et sa taille est notable.' : ' JPL classifies it as potentially hazardous: it can pass within 0.05 AU of Earth’s orbit and is of significant size.';
+    if (o.tags.includes('visited')) s += fr ? ' Il a été visité ou survolé par au moins une sonde spatiale.' : ' It has been visited or flown past by at least one spacecraft.';
+    return s;
+  }
+  if (o.src === 'nssdca') {
+    const p = o.props, bits = [];
+    const date = o.launchDate;
+    bits.push(fr ? `${o.name} est une mission spatiale (identifiant COSPAR ${o.code})${date ? ` lancée le ${date}` : ''}${p.vehicle ? ` par ${p.vehicle.t}` : ''}${p.site ? ` depuis ${p.site.t}` : ''}.` : `${o.name} is a space mission (COSPAR ID ${o.code})${date ? ` launched on ${date}` : ''}${p.vehicle ? ` by ${p.vehicle.t}` : ''}${p.site ? ` from ${p.site.t}` : ''}.`);
+    if (p.mass_kg) bits.push(fr ? `Masse au lancement : ${fmt(p.mass_kg.v)} kg.` : `Launch mass: ${fmt(p.mass_kg.v)} kg.`);
     return bits.join(' ');
   }
   if (o.src === 'simbad' || o.src === 'iau') {
@@ -236,12 +274,14 @@ async function openObj(id, push) {
   const T_ = t(), s = srcOf(o);
   document.title = `${o.name} — ${T_.title}`;
   const img = o.image;
-  const pic = el('div', { class: 'dlg-pic' + (img?.kind === 'sky' ? ' sky' : '') }, img ? el('img', { src: img.url, alt: img.alt ?? o.name }) : orb(o.sub), img?.kind === 'sky' ? el('span', { class: 'crosshair', 'aria-hidden': 'true' }) : null);
+  const ob = !img && o.src === 'sbdb' && o.props.perihelion && o.props.ecc?.v < 1 && o.props.node && o.props.peri_arg && o.props.incl
+    ? [o.props.perihelion.v, o.props.ecc.v, o.props.node.v, o.props.peri_arg.v, o.props.incl.v] : null;
+  const pic = el('div', { class: 'dlg-pic' + (img?.kind === 'sky' ? ' sky' : '') }, img ? el('img', { src: img.url, alt: img.alt ?? o.name }) : ob ? svgEl(orbitSvg(ob, 220), 'orbit') : orb(o.sub), img?.kind === 'sky' ? el('span', { class: 'crosshair', 'aria-hidden': 'true' }) : null);
   const credit = img ? el('div', { class: 'credit' }, `${img.kind === 'sky' ? T_.skyLong + ' — ' : ''}${img.kind === 'illustration' ? T_.illusLong + (img.scope === 'system' ? ' ' + T_.illusSys : img.scope === 'generic' ? ' ' + T_.illusGen : '') + ' — ' : ''}${T_.imgCredit} : ${img.credit} · ${img.license} · `,
       el('a', { href: img.source, target: '_blank', rel: 'noopener', text: 'source' }), img.note ? ` — ${img.note[lang]}` : '')
-    : el('div', { class: 'credit', text: T_.noImg });
+    : ob ? el('div', { class: 'credit', text: T_.orbitLong }) : el('div', { class: 'credit', text: T_.noImg });
   const title = lang === 'fr' && o.nameFr ? o.nameFr : o.name;
-  const tags = (o.tags ?? []).filter(x => x !== o.otype && !['star', 'region', 'other', 'planet'].includes(x)).map(x => el('span', { class: 'tag' + (x === 'habitable-zone' ? ' hz' : ''), text: tagLabel(x) }));
+  const tags = (o.tags ?? []).filter(x => x !== o.otype && !['star', 'region', 'other', 'planet', 'smallbody'].includes(x) && (!/^[A-Z]{2,4}$/.test(x) || T_.tag[x])).map(x => el('span', { class: 'tag' + (x === 'habitable-zone' ? ' hz' : ''), text: tagLabel(x) }));
   const rel = o.related.map(r => r.id
     ? el('a', { href: `?o=${r.id}`, onclick: e => { e.preventDefault(); openObj(r.id, true); } }, r.name, el('small', { text: T_.rel[r.rel] }))
     : el('span', {}, r.name, el('small', { text: T_.rel[r.rel] })));
@@ -254,6 +294,7 @@ async function openObj(id, push) {
         el('p', { class: 'summary' }, summary(o), el('small', { text: o.desc ? T_.sumEdito : T_.sumAuto })),
         disc ? el('p', { class: 'credit' }, `${T_.sec.disc} : ${disc}`, o.disc.ref ? [' · ', el('a', { href: o.disc.ref.url, target: '_blank', rel: 'noopener', text: o.disc.ref.t })] : '') : null)),
     el('div', { class: 'sect' }, el('h3', { text: T_.sec.props }), propsTable(o)),
+    o.nssdcaDesc ? el('div', { class: 'sect' }, el('h3', { text: T_.nasaDesc }), el('p', { class: 'summary', lang: 'en' }, o.nssdcaDesc.length > 900 ? o.nssdcaDesc.slice(0, o.nssdcaDesc.lastIndexOf(' ', 900)) + '…' : o.nssdcaDesc, el('small', { text: `${T_.source} : NASA NSSDCA` }))) : '',
     rel.length ? el('div', { class: 'sect' }, el('h3', { text: T_.sec.rel }), el('div', { class: 'rel' }, rel)) : '',
     el('div', { class: 'srcbox' }, `${T_.source} : `, el('a', { href: s.url, target: '_blank', rel: 'noopener', text: s.name }), ` · ${T_.updated} ${o.updated}`));
   dlg.scrollTop = 0; body.scrollTop = 0;

@@ -96,6 +96,150 @@
   "fr": "Antarès est une supergéante rouge au cœur de la constellation du Scorpion, dont le nom signifie « rival de Mars » à cause de sa couleur. Le VLTI de l'ESO a reconstruit une image de sa surface.",
   "en": "Antares is a red supergiant at the heart of the constellation Scorpius; its name means 'rival of Mars' because of its colour. ESO's VLTI reconstructed an image of its surface."
  },
+ "vesta": {
+  "fr": "Vesta est le deuxième corps le plus massif de la ceinture principale d'astéroïdes. Elle porte au pôle sud l'immense bassin d'impact Rheasilvia et est la source de nombreuses météorites. La sonde Dawn l'a orbitée en 2011-2012 avant de rejoindre Cérès.",
+  "en": "Vesta is the second most massive body in the main asteroid belt. Its south pole holds the huge Rheasilvia impact basin, and it is the source of many meteorites. The Dawn spacecraft orbited it in 2011-2012 before heading to Ceres."
+ },
+ "itokawa": {
+  "fr": "Itokawa est un petit astéroïde géocroiseur en forme d'arachide. La sonde japonaise Hayabusa l'a étudié en 2005 et a rapporté sur Terre en 2010 des grains de sa surface : le premier retour d'échantillon d'un astéroïde.",
+  "en": "Itokawa is a small peanut-shaped near-Earth asteroid. Japan's Hayabusa spacecraft studied it in 2005 and brought grains of its surface back to Earth in 2010: the first asteroid sample return."
+ },
+ "bennu": {
+  "fr": "Bennu est un astéroïde géocroiseur riche en carbone, en forme de toupie, que la sonde OSIRIS-REx a étudié à partir de 2018. Elle y a prélevé un échantillon en 2020 et l'a livré sur Terre en septembre 2023.",
+  "en": "Bennu is a carbon-rich, spinning-top-shaped near-Earth asteroid studied by the OSIRIS-REx spacecraft from 2018. It collected a sample in 2020 and delivered it to Earth in September 2023."
+ },
+ "ryugu": {
+  "fr": "Ryugu est un astéroïde géocroiseur sombre, en forme de toupie, exploré par la sonde japonaise Hayabusa2. Des échantillons de sa surface sont revenus sur Terre en décembre 2020.",
+  "en": "Ryugu is a dark, spinning-top-shaped near-Earth asteroid explored by Japan's Hayabusa2 spacecraft. Samples of its surface returned to Earth in December 2020."
+ },
+ "eros": {
+  "fr": "Éros est un grand astéroïde géocroiseur allongé. La sonde NEAR Shoemaker l'a orbité en 2000 puis s'y est posée en 2001 : c'était la première fois qu'un engin se posait sur un astéroïde.",
+  "en": "Eros is a large, elongated near-Earth asteroid. The NEAR Shoemaker spacecraft orbited it in 2000 and landed on it in 2001, the first landing on an asteroid."
+ },
+ "apophis": {
+  "fr": "Apophis est un astéroïde géocroiseur d'environ 340 mètres. Il passera très près de la Terre, à environ 32 000 km, le 13 avril 2029, sans risque d'impact selon les calculs actuels du JPL ; il sera visible à l'œil nu.",
+  "en": "Apophis is a near-Earth asteroid roughly 340 metres across. It will pass very close to Earth, about 32,000 km away, on 13 April 2029, with no impact risk according to current JPL calculations; it will be visible to the naked eye."
+ },
+ "arrokoth": {
+  "fr": "Arrokoth est un objet de la ceinture de Kuiper formé de deux lobes accolés (un « bilobé de contact »). La sonde New Horizons l'a survolé le 1er janvier 2019 : c'était alors le monde le plus lointain jamais exploré de près.",
+  "en": "Arrokoth is a Kuiper belt object made of two lobes stuck together (a 'contact binary'). The New Horizons spacecraft flew past it on 1 January 2019, then the most distant world ever explored up close."
+ },
+ "ida": {
+  "fr": "Ida est un astéroïde de la ceinture principale survolé par la sonde Galileo en 1993. C'est là qu'a été découvert le premier satellite d'astéroïde connu, Dactyl.",
+  "en": "Ida is a main-belt asteroid flown past by the Galileo spacecraft in 1993. It was there that the first known asteroid moon, Dactyl, was discovered."
+ },
+ "1p-halley": {
+  "fr": "La comète de Halley revient près du Soleil environ tous les 76 ans ; son dernier passage date de 1986 et le prochain est attendu en 2061. Plusieurs sondes, dont Giotto, l'ont observée de près en 1986.",
+  "en": "Halley's Comet returns near the Sun about every 76 years; its last passage was in 1986 and the next is expected in 2061. Several spacecraft, including Giotto, observed it up close in 1986."
+ },
+ "67p-churyumov-gerasimenko": {
+  "fr": "67P/Tchourioumov-Guerassimenko est une comète périodique étudiée par la sonde européenne Rosetta, en orbite autour d'elle de 2014 à 2016. Son atterrisseur Philae s'y est posé en novembre 2014.",
+  "en": "67P/Churyumov-Gerasimenko is a periodic comet studied by ESA's Rosetta spacecraft, which orbited it from 2014 to 2016. Its Philae lander touched down on it in November 2014."
+ },
+ "c-1995-o1-hale-bopp": {
+  "fr": "Hale-Bopp est une grande comète qui a été visible à l'œil nu pendant environ dix-huit mois, culminant au printemps 1997. Son noyau est exceptionnellement gros.",
+  "en": "Hale-Bopp is a great comet that was visible to the naked eye for about eighteen months, peaking in spring 1997. Its nucleus is exceptionally large."
+ },
+ "oumuamua": {
+  "fr": "ʻOumuamua est le premier objet interstellaire détecté dans le Système solaire, découvert en octobre 2017. Sa forme très allongée ou aplatie reste débattue. L'image est une illustration d'artiste : aucun instrument n'a pu résoudre sa forme.",
+  "en": "ʻOumuamua is the first interstellar object detected in the Solar System, discovered in October 2017. Its very elongated or flattened shape is still debated. The image is an artist's illustration: no instrument could resolve its shape."
+ },
+ "c-2019-q4-borisov": {
+  "fr": "2I/Borisov est le deuxième objet interstellaire détecté et la première comète interstellaire, découverte en 2019 par l'astronome amateur Gennadiy Borisov. Il a traversé le Système solaire sur une orbite ouverte.",
+  "en": "2I/Borisov is the second interstellar object detected and the first interstellar comet, discovered in 2019 by amateur astronomer Gennadiy Borisov. It crossed the Solar System on an open orbit."
+ },
+ "sedna": {
+  "fr": "Sedna est un très lointain objet transneptunien, à l'orbite extrêmement allongée : il met plus de dix mille ans à faire le tour du Soleil. Sa découverte en 2003 a ouvert l'étude des objets du « nuage de Oort interne ».",
+  "en": "Sedna is a very distant trans-Neptunian object on an extremely elongated orbit: it takes over ten thousand years to circle the Sun. Its discovery in 2003 opened the study of 'inner Oort cloud' objects."
+ },
+ "didymos": {
+  "fr": "Didymos est un astéroïde géocroiseur qui possède une petite lune, Dimorphos. En septembre 2022, la sonde DART de la NASA a percuté Dimorphos pour tester la déviation d'un astéroïde ; l'orbite de la lune en a été modifiée.",
+  "en": "Didymos is a near-Earth asteroid with a small moon, Dimorphos. In September 2022 NASA's DART spacecraft hit Dimorphos to test asteroid deflection; the moon's orbit was changed."
+ },
+ "dinkinesh": {
+  "fr": "Dinkinesh est un petit astéroïde de la ceinture principale survolé par la sonde Lucy en novembre 2023. Ce survol a révélé qu'il s'agit d'un astéroïde binaire.",
+  "en": "Dinkinesh is a small main-belt asteroid flown past by the Lucy spacecraft in November 2023. The flyby revealed it to be a binary asteroid."
+ },
+ "mission-voyager-1": {
+  "fr": "Voyager 1, lancée en 1977, est l'objet fabriqué par l'humanité le plus lointain de la Terre. Après avoir survolé Jupiter et Saturne, elle est entrée dans l'espace interstellaire en 2012.",
+  "en": "Voyager 1, launched in 1977, is the most distant human-made object from Earth. After flying past Jupiter and Saturn, it entered interstellar space in 2012."
+ },
+ "mission-voyager-2": {
+  "fr": "Voyager 2, lancée en 1977, est la seule sonde à avoir survolé Uranus (1986) et Neptune (1989), après Jupiter et Saturne. Elle est entrée dans l'espace interstellaire en 2018.",
+  "en": "Voyager 2, launched in 1977, is the only spacecraft to have flown past Uranus (1986) and Neptune (1989), after Jupiter and Saturn. It entered interstellar space in 2018."
+ },
+ "mission-james-webb-space-telescope": {
+  "fr": "Le télescope spatial James Webb, lancé en décembre 2021, observe l'Univers en infrarouge depuis le point de Lagrange L2. Il étudie les premières galaxies, la formation des étoiles et l'atmosphère des exoplanètes.",
+  "en": "The James Webb Space Telescope, launched in December 2021, observes the Universe in infrared from the L2 Lagrange point. It studies the first galaxies, star formation and exoplanet atmospheres."
+ },
+ "mission-new-horizons-pluto-kuiper-belt-flyby": {
+  "fr": "New Horizons, lancée en 2006, a survolé Pluton en juillet 2015 puis l'objet Arrokoth en 2019, en pleine ceinture de Kuiper. L'image est un rendu 3D de la sonde.",
+  "en": "New Horizons, launched in 2006, flew past Pluto in July 2015 and then Arrokoth in 2019, deep in the Kuiper belt. The image is a 3D render of the spacecraft."
+ },
+ "mission-parker-solar-probe": {
+  "fr": "Parker Solar Probe, lancée en 2018, s'approche du Soleil plus près qu'aucun engin avant elle, plongeant dans la couronne solaire pour étudier l'origine du vent solaire.",
+  "en": "Parker Solar Probe, launched in 2018, flies closer to the Sun than any spacecraft before it, diving into the solar corona to study the origin of the solar wind."
+ },
+ "mission-juno": {
+  "fr": "Juno est en orbite polaire autour de Jupiter depuis 2016. Elle étudie l'intérieur de la planète, son champ magnétique et ses aurores.",
+  "en": "Juno has been in polar orbit around Jupiter since 2016. It studies the planet's interior, magnetic field and auroras."
+ },
+ "mission-kepler": {
+  "fr": "Le télescope spatial Kepler a observé le même champ d'étoiles de 2009 à 2018 pour détecter des exoplanètes par transit. Il a révélé que les planètes sont courantes dans la Galaxie.",
+  "en": "The Kepler space telescope stared at the same star field from 2009 to 2018 to detect exoplanets by transit. It showed that planets are common in the Galaxy."
+ },
+ "mission-mars-science-laboratory-msl": {
+  "fr": "Mars Science Laboratory a déposé le rover Curiosity dans le cratère Gale en août 2012. Il y a montré que l'environnement martien a pu être habitable par le passé.",
+  "en": "Mars Science Laboratory delivered the Curiosity rover to Gale crater in August 2012. It showed that Mars once had environments that could have been habitable."
+ },
+ "mission-mars-2020": {
+  "fr": "La mission Mars 2020 a posé le rover Perseverance dans le cratère Jezero en février 2021, avec l'hélicoptère Ingenuity. Elle collecte des échantillons de roches en vue d'un retour sur Terre.",
+  "en": "The Mars 2020 mission landed the Perseverance rover in Jezero crater in February 2021, together with the Ingenuity helicopter. It collects rock samples intended for return to Earth."
+ },
+ "mission-apollo-11-command-and-service-module-csm": {
+  "fr": "Apollo 11 a conduit les premiers humains sur la Lune : Neil Armstrong et Buzz Aldrin ont marché à sa surface le 20 juillet 1969, tandis que Michael Collins pilotait le module de commande en orbite.",
+  "en": "Apollo 11 carried the first humans to the Moon: Neil Armstrong and Buzz Aldrin walked on its surface on 20 July 1969 while Michael Collins piloted the command module in orbit."
+ },
+ "mission-artemis-1": {
+  "fr": "Artemis 1 est le premier vol d'essai, sans équipage, du lanceur SLS et du vaisseau Orion, autour de la Lune, en novembre-décembre 2022.",
+  "en": "Artemis 1 was the first uncrewed test flight of the SLS rocket and Orion spacecraft around the Moon, in November-December 2022."
+ },
+ "mission-dawn": {
+  "fr": "Dawn est la seule sonde à avoir orbité deux mondes extraterrestres différents : l'astéroïde Vesta (2011-2012) puis la planète naine Cérès (2015-2018).",
+  "en": "Dawn is the only spacecraft to have orbited two different extraterrestrial worlds: the asteroid Vesta (2011-2012) and then the dwarf planet Ceres (2015-2018)."
+ },
+ "mission-osiris-rex": {
+  "fr": "OSIRIS-REx a étudié l'astéroïde Bennu, en a prélevé un échantillon en 2020 et l'a largué sur Terre en septembre 2023. La sonde poursuit ensuite vers Apophis.",
+  "en": "OSIRIS-REx studied asteroid Bennu, collected a sample in 2020 and dropped it to Earth in September 2023. The spacecraft then continues toward Apophis."
+ },
+ "mission-messenger": {
+  "fr": "MESSENGER est la première sonde à avoir orbité Mercure (2011-2015). Elle a cartographié toute la planète et détecté de la glace d'eau dans des cratères polaires.",
+  "en": "MESSENGER was the first spacecraft to orbit Mercury (2011-2015). It mapped the whole planet and detected water ice in polar craters."
+ },
+ "mission-lucy": {
+  "fr": "Lucy, lancée en 2021, doit survoler plusieurs astéroïdes troyens de Jupiter, des vestiges de la formation du Système solaire. Elle a déjà survolé l'astéroïde Dinkinesh en 2023.",
+  "en": "Lucy, launched in 2021, is to fly past several Jupiter Trojan asteroids, relics of the formation of the Solar System. It has already flown past asteroid Dinkinesh in 2023."
+ },
+ "mission-psyche": {
+  "fr": "Psyché, lancée en octobre 2023, doit atteindre en 2029 l'astéroïde (16) Psyché, qui pourrait être le noyau métallique d'un corps en formation.",
+  "en": "Psyche, launched in October 2023, is due to reach asteroid (16) Psyche in 2029, which may be the metallic core of an early planetary body."
+ },
+ "mission-chandra-x-ray-observatory": {
+  "fr": "L'observatoire Chandra, lancé en 1999, observe l'Univers en rayons X : trous noirs, supernovae, amas de galaxies.",
+  "en": "The Chandra Observatory, launched in 1999, observes the Universe in X-rays: black holes, supernovae, galaxy clusters."
+ },
+ "mission-spitzer-space-telescope": {
+  "fr": "Le télescope spatial Spitzer a observé l'Univers en infrarouge de 2003 à 2020, notamment des exoplanètes, des nébuleuses et des galaxies lointaines.",
+  "en": "The Spitzer Space Telescope observed the Universe in infrared from 2003 to 2020, including exoplanets, nebulae and distant galaxies."
+ },
+ "mission-transiting-exoplanet-survey-satellite": {
+  "fr": "TESS, lancé en 2018, balaie presque tout le ciel à la recherche d'exoplanètes en transit devant des étoiles proches et brillantes.",
+  "en": "TESS, launched in 2018, surveys nearly the whole sky for exoplanets transiting nearby, bright stars."
+ },
+ "mission-pioneer-11": {
+  "fr": "Pioneer 11 a survolé Jupiter (1974) puis, en 1979, est devenue la première sonde à survoler Saturne. L'image est une illustration d'artiste.",
+  "en": "Pioneer 11 flew past Jupiter (1974) and in 1979 became the first spacecraft to fly past Saturn. The image is an artist's illustration."
+ },
  "io": {
   "fr": "Io est la lune la plus volcanique du Système solaire. Chauffée par les forces de marée qu'exercent Jupiter et les autres lunes galiléennes, elle est parcourue par des centaines de volcans actifs dont les panaches de soufre retombent en couleurs jaune, orange et rouge sur sa surface.",
   "en": "Io is the most volcanically active body in the Solar System. Heated by tidal forces from Jupiter and the other Galilean moons, it is covered with hundreds of active volcanoes whose sulphur plumes fall back as yellow, orange and red deposits."

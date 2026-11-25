@@ -15,7 +15,9 @@ const PC_LY = 3.26156, M_EARTH = 5.9722e24, R_EARTH = 6371;
 const sources = [];
 let objects = [];
 const imageFiles = (await readdir(DATA_DIR)).filter(f => /^images.*\.json$/.test(f)).sort();
-for (const f of (await readdir(DATA_DIR)).filter(f => f.endsWith('.json') && !imageFiles.includes(f)).sort()) {
+// Le Système solaire passe en premier : en cas d'identifiants identiques (ex. la lune Io et l'astéroïde 85 Io), il garde l'identifiant court.
+const dataFiles = (await readdir(DATA_DIR)).filter(f => f.endsWith('.json') && !imageFiles.includes(f)).sort((a, b) => (b === 'solar-system.json') - (a === 'solar-system.json') || a.localeCompare(b));
+for (const f of dataFiles) {
   const d = JSON.parse(await readFile(join(DATA_DIR, f), 'utf8'));
   sources.push({ ...d.source, file: f, count: d.objects.length });
   objects.push(...d.objects);
@@ -74,6 +76,7 @@ for (const o of objects) {
 
 const toEarthMass = p => !p ? null : p.u === 'kg' ? p.v / M_EARTH : p.u === 'M☉' ? p.v * 332946 : p.v;
 const toEarthRadius = p => !p ? null : p.u === 'km' ? p.v / R_EARTH : p.u === 'R☉' ? p.v * 109.076 : p.v;
+const radiusOf = o => (o.props.radius ? toEarthRadius(o.props.radius) : o.props.diameter ? o.props.diameter.v / 2 / R_EARTH : null);
 const round = (x, d = 4) => x == null ? null : Number(x.toPrecision(d));
 
 const index = [];
@@ -106,13 +109,19 @@ for (const o of objects) {
   const dist = o.props.dist ? o.props.dist.v * PC_LY : null;
   const card = {
     i: o.id, n: o.name, c: o.code, k: o.cat, s: o.sub, t: o.tags,
-    m: round(toEarthMass(o.props.mass)), r: round(toEarthRadius(o.props.radius)), d: round(dist),
+    m: round(toEarthMass(o.props.mass)), r: round(radiusOf(o)), d: round(dist),
     q: o.props.teq?.v ?? o.props.teff?.v ?? null, y: o.disc?.year ?? null, md: o.disc?.method ?? null,
     ss: o.src === 'ssod' ? 1 : undefined,
     hz: o.props.in_hz ? o.props.in_hz.v : null, h: o.host ?? null,
     x: (o.aliases ?? []).filter(a => /^(HD|HIP|NGC|IC|M|GJ) /.test(a)).join(' ') || undefined,
     im: img?.thumb ?? img?.url ?? null, il: img?.kind === 'illustration' ? 1 : img?.kind === 'sky' ? 2 : undefined,
   };
+  // Éléments orbitaux compacts [q, e, Ω, ω, i] : permettent de dessiner le schéma d'orbite quand il n'existe aucune photo.
+  const P_ = o.props;
+  if (o.src === 'sbdb' && !img && P_.perihelion && P_.ecc && P_.ecc.v < 1 && P_.node && P_.peri_arg && P_.incl) {
+    card.ob = [P_.perihelion.v, P_.ecc.v, P_.node.v, P_.peri_arg.v, P_.incl.v].map(v => Number(v.toPrecision(5)));
+    card.il = 3;
+  }
   if (o.nameFr && o.nameFr !== o.name) card.nf = o.nameFr;
   index.push(card);
   const { parent, moons, ...detail } = o;
