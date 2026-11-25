@@ -21,7 +21,7 @@ const TOP = ['planet', 'star', 'region', 'smallbody', 'other', 'live'];
 const groupOf = k => (k === 'exoplanet' ? 'planet' : k === 'planet' ? 'planet' : k === 'star' ? 'star' : k);
 const subOf = c => (c.k === 'exoplanet' ? 'exoplanet' : c.s);
 
-const state = { q: '', cat: 'planet', sub: '', type: '', method: '', hz: false, sort: 'name',
+const state = { q: '', cat: 'planet', sub: '', type: '', method: '', hz: false, sort: 'rel',
   m: [null, null], r: [null, null], d: [null, null], q2: [null, null], y: [null, null] };
 let ALL = [], META = null, VIEW = [], shown = 0;
 const PAGE = 48;
@@ -88,7 +88,8 @@ function apply() {
     if (toks.length) { const h = c._h ?? (c._h = norm(`${c.n} ${c.nf ?? ''} ${c.c} ${c.h ?? ''} ${c.x ?? ''}`)); for (const k of toks) if (!h.includes(k)) return false; }
     return true;
   });
-  const S = { name: (a, b) => a.n.localeCompare(b.n, 'en', { numeric: true }),
+  const S = { rel: (a, b) => (b.ss ?? 0) - (a.ss ?? 0) || (a.ss ? (b.m ?? 0) - (a.m ?? 0) : a.n.localeCompare(b.n, 'en', { numeric: true })),
+    name: (a, b) => a.n.localeCompare(b.n, 'en', { numeric: true }),
     dist: (a, b) => (a.d ?? 1e18) - (b.d ?? 1e18), mass: (a, b) => (b.m ?? -1) - (a.m ?? -1),
     radius: (a, b) => (b.r ?? -1) - (a.r ?? -1), year: (a, b) => (b.y ?? -1) - (a.y ?? -1) };
   VIEW.sort(S[state.sort]);
@@ -126,7 +127,7 @@ function drawFilterOptions() {
   sel('#f-type', [['', T_.any], ...Object.entries(T_.exotype)], state.type);
   const methods = [...new Set(ALL.map(c => c.md).filter(Boolean))].sort();
   sel('#f-method', [['', T_.any], ...methods.map(m => [m, T_.method[m] ?? m])], state.method);
-  sel('#sort', [['name', T_.s_name], ['dist', T_.s_dist], ['mass', T_.s_mass], ['radius', T_.s_radius], ['year', T_.s_year]], state.sort);
+  sel('#sort', [['rel', T_.s_rel], ['name', T_.s_name], ['dist', T_.s_dist], ['mass', T_.s_mass], ['radius', T_.s_radius], ['year', T_.s_year]], state.sort);
 }
 
 /* ---------- fiche détaillée ---------- */
@@ -136,6 +137,7 @@ const GORDER = ['physical', 'planet', 'orbit', 'star', 'sys', 'calc'];
 
 function summary(o) {
   const T_ = t(), fr = lang === 'fr';
+  if (o.desc) return o.desc[lang] ?? o.desc.fr;
   const name = fr && o.nameFr ? o.nameFr : o.name;
   if (o.cat === 'exoplanet') {
     const bits = [];
@@ -162,6 +164,10 @@ function propsTable(o) {
   const groups = {};
   for (const k of ORDER) if (o.props[k]) (groups[o.props[k].g ?? 'physical'] ??= []).push(k);
   const frag = [];
+  const parent = o.related.find(r => r.rel === 'parent');
+  const pos = o.rank ? T_.posV(o.rank) : parent ? (lang === 'fr' ? `Satellite / corps lié : ${parent.name}` : `Satellite / related body: ${parent.name}`) : null;
+  if (pos) frag.push(el('h3', { text: T_.pos }), el('table', { class: 'props' }, el('tbody', {}, el('tr', {}, el('th', { scope: 'row', text: T_.pos }),
+    el('td', {}, el('span', { class: 'val', text: pos }), el('span', { class: 'src', text: `${T_.source} : ${s.name} · ${T_.updated} ${o.updated}` }))))));
   for (const g of GORDER) {
     if (!groups[g]) continue;
     const rows = groups[g].map(k => {
@@ -208,7 +214,7 @@ async function openObj(id, push) {
     el('div', { class: 'dlg-head' }, el('div', {}, pic, credit),
       el('div', { class: 'dlg-title' }, el('span', { class: 'kicker', text: o.code }), el('h2', { id: 'dlgTitle', text: title }),
         el('div', { class: 'tags' }, tags),
-        el('p', { class: 'summary' }, summary(o), el('small', { text: T_.sumAuto })),
+        el('p', { class: 'summary' }, summary(o), el('small', { text: o.desc ? T_.sumEdito : T_.sumAuto })),
         disc ? el('p', { class: 'credit' }, `${T_.sec.disc} : ${disc}`, o.disc.ref ? [' · ', el('a', { href: o.disc.ref.url, target: '_blank', rel: 'noopener', text: o.disc.ref.t })] : '') : null)),
     el('div', { class: 'sect' }, el('h3', { text: T_.sec.props }), propsTable(o)),
     rel.length ? el('div', { class: 'sect' }, el('h3', { text: T_.sec.rel }), el('div', { class: 'rel' }, rel)) : null,

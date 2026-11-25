@@ -1,0 +1,139 @@
+{
+ "_note": "Textes éditoriaux rédigés pour ce projet (vulgarisation, faits qualitatifs bien établis). Les valeurs chiffrées affichées sur les fiches viennent exclusivement des données importées.",
+ "sun": {
+  "fr": "Le Soleil est l'étoile au centre du Système solaire. Cette naine jaune concentre la quasi-totalité de la masse du système et fournit, par fusion de l'hydrogène en hélium dans son cœur, la lumière et la chaleur qui rendent la vie possible sur Terre. Sa surface visible, la photosphère, est animée de taches, d'éruptions et d'éjections de matière qui influencent toute l'héliosphère.",
+  "en": "The Sun is the star at the centre of the Solar System. This yellow dwarf holds almost all of the system's mass and, by fusing hydrogen into helium in its core, supplies the light and heat that make life on Earth possible. Its visible surface, the photosphere, is dotted with sunspots, flares and ejections of matter that shape the whole heliosphere."
+ },
+ "mercury": {
+  "fr": "Mercure est la planète la plus proche du Soleil et la plus petite du Système solaire. Dépourvue d'atmosphère notable, sa surface criblée de cratères ressemble à celle de la Lune, avec des écarts de température extrêmes entre le jour et la nuit. La sonde MESSENGER l'a cartographiée entièrement et y a détecté de la glace d'eau dans des cratères polaires constamment à l'ombre.",
+  "en": "Mercury is the closest planet to the Sun and the smallest in the Solar System. With no significant atmosphere, its cratered surface resembles the Moon's, with extreme temperature swings between day and night. The MESSENGER spacecraft mapped it completely and found water ice in permanently shadowed polar craters."
+ },
+ "venus": {
+  "fr": "Vénus est la deuxième planète à partir du Soleil, de taille et de masse proches de celles de la Terre. Son épaisse atmosphère de dioxyde de carbone provoque un effet de serre intense qui en fait la planète la plus chaude du Système solaire, sous des nuages d'acide sulfurique. Elle tourne sur elle-même très lentement et dans le sens inverse de la plupart des planètes.",
+  "en": "Venus is the second planet from the Sun, similar to Earth in size and mass. Its thick carbon-dioxide atmosphere causes a runaway greenhouse effect that makes it the hottest planet in the Solar System, beneath clouds of sulphuric acid. It rotates very slowly and in the opposite direction to most planets."
+ },
+ "earth": {
+  "fr": "La Terre est la troisième planète à partir du Soleil et le seul endroit connu où la vie existe. Elle possède de l'eau liquide en surface, une atmosphère riche en azote et en oxygène et un champ magnétique qui la protège du vent solaire. Elle est accompagnée d'un unique satellite naturel, la Lune, qui stabilise son inclinaison et provoque les marées.",
+  "en": "Earth is the third planet from the Sun and the only place known to harbour life. It has liquid water on its surface, an atmosphere rich in nitrogen and oxygen, and a magnetic field that shields it from the solar wind. It is accompanied by a single natural satellite, the Moon, which stabilises its tilt and raises the tides."
+ },
+ "moon": {
+  "fr": "La Lune est l'unique satellite naturel de la Terre et le seul autre monde que des humains ont foulé, lors des missions Apollo. Sans atmosphère, sa surface est couverte de cratères d'impact, de plaines de basalte sombres (les mers) et de hautes terres claires. Elle présente toujours la même face à la Terre et provoque les marées océaniques.",
+  "en": "The Moon is Earth's only natural satellite and the only other world humans have walked on, during the Apollo missions. With no atmosphere, its surface is covered in impact craters, dark basalt plains (the maria) and bright highlands. It always shows the same face to Earth and raises the ocean tides."
+ },
+ "mars": {
+  "fr": "Mars, la planète rouge, doit sa couleur à l'oxyde de fer de sa poussière. Elle abrite le plus grand volcan du Système solaire, Olympus Mons, et un immense réseau de canyons, Valles Marineris. Des vallées et des dépôts minéraux prouvent que de l'eau liquide a coulé à sa surface par le passé ; plusieurs rovers y étudient aujourd'hui son habitabilité passée. Deux petites lunes, Phobos et Déimos, l'accompagnent.",
+  "en": "Mars, the Red Planet, owes its colour to iron oxide in its dust. It hosts the largest volcano in the Solar System, Olympus Mons, and a vast canyon system, Valles Marineris. Valleys and mineral deposits show that liquid water once flowed on its surface; several rovers now study its past habitability. Two small moons, Phobos and Deimos, orbit it."
+ },
+ "jupiter": {
+  "fr": "Jupiter est la plus grande planète du Système solaire, une géante gazeuse composée surtout d'hydrogène et d'hélium. Son atmosphère est striée de bandes nuageuses et marquée par la Grande Tache rouge, une tempête observée depuis des siècles. Elle possède un puissant champ magnétique, de fins anneaux et un très grand cortège de lunes, dont les quatre galiléennes : Io, Europe, Ganymède et Callisto.",
+  "en": "Jupiter is the largest planet in the Solar System, a gas giant made mostly of hydrogen and helium. Its atmosphere is striped with cloud bands and marked by the Great Red Spot, a storm observed for centuries. It has a powerful magnetic field, faint rings and a very large retinue of moons, including the four Galilean moons: Io, Europa, Ganymede and Callisto."
+ },
+ "saturn": {
+  "fr": "Saturne est une géante gazeuse célèbre pour son spectaculaire système d'anneaux, faits de particules de glace et de roche de la taille de grains de poussière à celle de maisons. Sa densité moyenne est inférieure à celle de l'eau. La mission Cassini-Huygens l'a étudiée de 2004 à 2017 et a exploré ses lunes, notamment Titan et Encelade.",
+  "en": "Saturn is a gas giant famed for its spectacular ring system, made of particles of ice and rock ranging from dust grains to house-sized blocks. Its average density is lower than that of water. The Cassini-Huygens mission studied it from 2004 to 2017 and explored its moons, notably Titan and Enceladus."
+ },
+ "uranus": {
+  "fr": "Uranus est une géante de glace de couleur bleu-vert due au méthane de son atmosphère. Son axe de rotation est presque couché sur son plan orbital : la planète « roule » sur son orbite et connaît des saisons extrêmes. Elle possède des anneaux sombres et des lunes portant des noms de personnages de Shakespeare et de Pope. Seule Voyager 2 l'a survolée, en 1986.",
+  "en": "Uranus is an ice giant whose blue-green colour comes from methane in its atmosphere. Its rotation axis lies almost in its orbital plane, so the planet effectively rolls around its orbit and has extreme seasons. It has dark rings and moons named after characters from Shakespeare and Pope. Only Voyager 2 has flown past it, in 1986."
+ },
+ "neptune": {
+  "fr": "Neptune est la planète la plus éloignée du Soleil. Cette géante de glace d'un bleu profond abrite les vents les plus rapides mesurés dans le Système solaire. Elle a été repérée en 1846 grâce à des calculs mathématiques avant d'être observée. Voyager 2 l'a survolée en 1989 et a révélé sa grande lune Triton, probablement un objet capturé de la ceinture de Kuiper.",
+  "en": "Neptune is the farthest planet from the Sun. This deep-blue ice giant has the fastest winds measured in the Solar System. It was located in 1846 thanks to mathematical predictions before being observed. Voyager 2 flew past it in 1989 and revealed its large moon Triton, probably a captured Kuiper belt object."
+ },
+ "pluto": {
+  "fr": "Pluton est la planète naine la plus célèbre, située dans la ceinture de Kuiper. Reclassée par l'Union astronomique internationale en 2006, elle a été survolée en 2015 par la sonde New Horizons, qui a révélé des montagnes de glace d'eau, de vastes plaines d'azote gelé et une mince atmosphère. Elle forme avec sa grande lune Charon un système quasi double, accompagné de quatre petites lunes.",
+  "en": "Pluto is the most famous dwarf planet, located in the Kuiper belt. Reclassified by the International Astronomical Union in 2006, it was flown past in 2015 by the New Horizons probe, which revealed water-ice mountains, vast plains of frozen nitrogen and a thin atmosphere. With its large moon Charon it forms an almost double system, accompanied by four small moons."
+ },
+ "eris": {
+  "fr": "Éris est une planète naine du disque des objets épars, au-delà de Neptune. Sa découverte en 2005, alors qu'elle semblait aussi massive que Pluton, a contribué à la redéfinition de la notion de planète par l'Union astronomique internationale en 2006. Elle possède une lune, Dysnomie. Aucune sonde ne l'a visitée : l'image montrée est une illustration d'artiste.",
+  "en": "Eris is a dwarf planet in the scattered disc beyond Neptune. Its discovery in 2005, when it appeared as massive as Pluto, helped prompt the International Astronomical Union's 2006 redefinition of 'planet'. It has one moon, Dysnomia. No spacecraft has visited it: the image shown is an artist's concept."
+ },
+ "haumea": {
+  "fr": "Hauméa est une planète naine de la ceinture de Kuiper, remarquable par sa forme allongée en ballon de rugby due à une rotation très rapide. Elle possède deux lunes, Hi'iaka et Namaka, ainsi qu'un anneau découvert en 2017.",
+  "en": "Haumea is a dwarf planet in the Kuiper belt, notable for its elongated, rugby-ball shape caused by very fast rotation. It has two moons, Hi'iaka and Namaka, and a ring discovered in 2017."
+ },
+ "makemake": {
+  "fr": "Makémaké est une planète naine de la ceinture de Kuiper, découverte en 2005. Sa surface est recouverte de glaces, notamment de méthane. Une petite lune lui a été découverte en 2016.",
+  "en": "Makemake is a dwarf planet in the Kuiper belt, discovered in 2005. Its surface is covered in ices, notably methane. A small moon was found orbiting it in 2016."
+ },
+ "io": {
+  "fr": "Io est la lune la plus volcanique du Système solaire. Chauffée par les forces de marée qu'exercent Jupiter et les autres lunes galiléennes, elle est parcourue par des centaines de volcans actifs dont les panaches de soufre retombent en couleurs jaune, orange et rouge sur sa surface.",
+  "en": "Io is the most volcanically active body in the Solar System. Heated by tidal forces from Jupiter and the other Galilean moons, it is covered with hundreds of active volcanoes whose sulphur plumes fall back as yellow, orange and red deposits."
+ },
+ "europa": {
+  "fr": "Europe est une lune de Jupiter dont la croûte de glace, striée de fractures, recouvre un océan d'eau liquide salée. Elle est l'une des cibles prioritaires de la recherche de milieux habitables hors de la Terre, et la mission Europa Clipper de la NASA est conçue pour l'étudier.",
+  "en": "Europa is a moon of Jupiter whose fractured ice crust covers an ocean of salty liquid water. It is a prime target in the search for habitable environments beyond Earth, and NASA's Europa Clipper mission is designed to study it."
+ },
+ "ganymede": {
+  "fr": "Ganymède est la plus grande lune du Système solaire, plus volumineuse que la planète Mercure. C'est la seule lune connue à posséder son propre champ magnétique, et elle abrite sans doute un océan d'eau salée sous sa croûte de glace.",
+  "en": "Ganymede is the largest moon in the Solar System, bigger than the planet Mercury. It is the only moon known to have its own magnetic field, and it probably hides a salty-water ocean beneath its icy crust."
+ },
+ "callisto": {
+  "fr": "Callisto est une lune de Jupiter dont la surface, très ancienne, est la plus densément cratérisée du Système solaire. Elle ne présente presque aucune activité géologique, et un océan souterrain y est envisagé.",
+  "en": "Callisto is a moon of Jupiter whose very old surface is among the most heavily cratered in the Solar System. It shows almost no geological activity, though a subsurface ocean is considered possible."
+ },
+ "titan": {
+  "fr": "Titan est la plus grande lune de Saturne et la seule du Système solaire à posséder une atmosphère épaisse, composée surtout d'azote. Des lacs et des rivières de méthane et d'éthane liquides en parcourent la surface. La sonde Huygens s'y est posée en 2005 ; la mission Dragonfly doit l'explorer en vol.",
+  "en": "Titan is Saturn's largest moon and the only moon in the Solar System with a thick atmosphere, made mostly of nitrogen. Lakes and rivers of liquid methane and ethane flow across its surface. The Huygens probe landed there in 2005; the Dragonfly mission is planned to explore it by air."
+ },
+ "enceladus": {
+  "fr": "Encelade est une petite lune glacée de Saturne dont le pôle sud émet des geysers de vapeur d'eau et de particules de glace, signe d'un océan d'eau liquide sous la croûte. Ces jets, observés par Cassini, alimentent l'anneau E de Saturne.",
+  "en": "Enceladus is a small icy moon of Saturn whose south pole erupts geysers of water vapour and ice particles, a sign of a liquid-water ocean beneath the crust. These jets, observed by Cassini, feed Saturn's E ring."
+ },
+ "mimas": {
+  "fr": "Mimas est une petite lune de Saturne dominée par l'immense cratère Herschel, qui lui donne un aspect rappelant l'Étoile de la mort de la saga Star Wars. Son intérieur pourrait cacher un océan jeune ou un noyau allongé.",
+  "en": "Mimas is a small moon of Saturn dominated by the giant Herschel crater, which gives it a look reminiscent of the Death Star from Star Wars. Its interior may hide a young ocean or an elongated core."
+ },
+ "rhea": {
+  "fr": "Rhéa est la deuxième plus grande lune de Saturne. Faite principalement de glace d'eau, elle a une surface très cratérisée et claire.",
+  "en": "Rhea is Saturn's second-largest moon. Made mostly of water ice, it has a bright, heavily cratered surface."
+ },
+ "iapetus": {
+  "fr": "Japet est une lune de Saturne à la teinte nettement bicolore : un hémisphère très sombre et un autre très clair. Une longue crête équatoriale, haute de plusieurs kilomètres, lui donne l'allure d'une noix.",
+  "en": "Iapetus is a moon of Saturn with a sharply two-toned look: one very dark hemisphere and one very bright one. A long equatorial ridge several kilometres high gives it a walnut-like profile."
+ },
+ "dione": {
+  "fr": "Dioné est une lune glacée de Saturne, dont la surface est marquée par des falaises de glace brillantes et des cratères. Elle est surtout composée de glace d'eau autour d'un noyau rocheux.",
+  "en": "Dione is an icy moon of Saturn whose surface is marked by bright ice cliffs and craters. It is made mostly of water ice around a rocky core."
+ },
+ "tethys": {
+  "fr": "Téthys est une lune de Saturne presque entièrement faite de glace d'eau. Elle est marquée par le vaste cratère Odysseus et par l'immense vallée Ithaca Chasma, longue de plusieurs milliers de kilomètres.",
+  "en": "Tethys is a moon of Saturn made almost entirely of water ice. It is marked by the vast Odysseus crater and the huge Ithaca Chasma canyon, thousands of kilometres long."
+ },
+ "hyperion": {
+  "fr": "Hypérion est une lune de Saturne à la forme irrégulière et à l'aspect d'éponge, très poreuse. Sa rotation est chaotique : elle bascule de façon imprévisible.",
+  "en": "Hyperion is an irregularly shaped, sponge-like and very porous moon of Saturn. Its rotation is chaotic: it tumbles unpredictably."
+ },
+ "amalthea": {
+  "fr": "Amalthée est une petite lune de Jupiter à la forme allongée et irrégulière, l'une des plus proches de la planète. Elle est d'aspect rougeâtre et semble constituée d'un amas poreux de matériaux.",
+  "en": "Amalthea is a small, elongated and irregular moon of Jupiter, one of the closest to the planet. It looks reddish and appears to be a porous pile of material."
+ },
+ "triton": {
+  "fr": "Triton est la plus grande lune de Neptune. Elle tourne dans le sens inverse de la rotation de la planète, ce qui indique qu'elle a probablement été capturée. Voyager 2 y a observé des geysers d'azote et une surface très jeune et peu cratérisée.",
+  "en": "Triton is Neptune's largest moon. It orbits in the opposite direction to the planet's rotation, which suggests it was captured. Voyager 2 observed nitrogen geysers and a very young, sparsely cratered surface."
+ },
+ "charon": {
+  "fr": "Charon est la plus grande lune de Pluton. Son diamètre représente environ la moitié de celui de Pluton, si bien que les deux astres tournent autour d'un point situé entre eux. Sa région polaire nord, sombre et rougeâtre, a été révélée par New Horizons.",
+  "en": "Charon is Pluto's largest moon. Its diameter is about half Pluto's, so the two bodies orbit a point located between them. Its dark, reddish north polar region was revealed by New Horizons."
+ },
+ "miranda": {
+  "fr": "Miranda est la plus petite des cinq grandes lunes d'Uranus. Sa surface, vue par Voyager 2, est un patchwork spectaculaire de terrains très différents, de failles et de falaises gigantesques.",
+  "en": "Miranda is the smallest of Uranus's five large moons. Its surface, seen by Voyager 2, is a spectacular patchwork of very different terrains, faults and gigantic cliffs."
+ },
+ "titania": {
+  "fr": "Titania est la plus grande lune d'Uranus. Sa surface de glace est parcourue de vallées profondes et de cratères.",
+  "en": "Titania is Uranus's largest moon. Its icy surface is crossed by deep valleys and craters."
+ },
+ "oberon": {
+  "fr": "Obéron est la deuxième plus grande lune d'Uranus. Sa surface ancienne est criblée de cratères, certains au fond sombre.",
+  "en": "Oberon is Uranus's second-largest moon. Its ancient surface is pitted with craters, some with dark floors."
+ },
+ "umbriel": {
+  "fr": "Umbriel est une lune d'Uranus à la surface sombre et très cratérisée, avec une tache claire remarquable dans le cratère Wunda.",
+  "en": "Umbriel is a moon of Uranus with a dark, heavily cratered surface and a striking bright patch in the Wunda crater."
+ },
+ "ariel": {
+  "fr": "Ariel est une lune d'Uranus à la surface relativement claire, parcourue de profonds canyons et de plaines lisses, signes d'une activité géologique passée.",
+  "en": "Ariel is a moon of Uranus with a relatively bright surface, crossed by deep canyons and smooth plains, signs of past geological activity."
+ }
+}

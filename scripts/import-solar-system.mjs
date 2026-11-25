@@ -59,7 +59,7 @@ for (const b of bodies) {
   const around = b.aroundPlanet?.planet;
   const parent = cat === 'star' ? null : (type === 'Moon' ? around : 'soleil');
   objects.push({
-    id: slug(b.englishName || b.name) || b.id, cat, sub,
+    id: slug((b.englishName || b.name).replace(/^\(?\d+\)?\s*/, '')) || b.id, cat, sub,
     name: b.englishName || b.name, nameFr: b.name, code: b.id.toUpperCase(),
     aliases: [b.alternativeName].filter(Boolean),
     tags: ['solar-system', sub],

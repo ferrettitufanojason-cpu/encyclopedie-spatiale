@@ -54,13 +54,10 @@ a { color: var(--acc); }
 .tag { font-size: 11px; padding: 1px 8px; border-radius: 999px; background: #6ea8ff1f; color: #b9d1ff; border: 1px solid #6ea8ff33; }
 .tag.hz { background: #5ed6a41f; color: var(--ok); border-color: #5ed6a444; }
 
-/* Sphère générique quand aucune image officielle n'est disponible */
-.orb { width: 56%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 32% 30%, var(--o1), var(--o2) 62%, #02040a 100%); box-shadow: 0 0 30px var(--o2); }
-.orb.ring { position: relative; }
-.orb.ring::after { content: ''; position: absolute; inset: 40% -28%; border: 3px solid #d7c9a455; border-radius: 50%; transform: rotate(-18deg); }
-.o-terrestrial { --o1: #d9a77a; --o2: #6b4a34; } .o-super-earth { --o1: #8fb8d6; --o2: #3a5f7c; }
-.o-neptune-like, .o-ice-giant { --o1: #8ad0f5; --o2: #2a56a8; } .o-gas-giant { --o1: #e7c18a; --o2: #94603a; }
-.o-dwarf-planet, .o-moon { --o1: #cfcfd4; --o2: #5f6068; } .o-sun { --o1: #fff2b0; --o2: #f29a1f; } .o-unclassified, .o-def { --o1: #9aa8c7; --o2: #2c3a58; }
+/* Aucune image officielle disponible : repère neutre, pas de fausse image */
+.orb { width: 46%; aspect-ratio: 1; border-radius: 50%; border: 2px dashed #3a4b72; display: grid; place-items: center; color: #6c7ea8; font-size: 11px; text-align: center; padding: 6px; }
+.orb::after { content: "no image"; }
+:lang(fr) .orb::after { content: "pas d'image"; }
 
 #sentinel { height: 1px; }
 .foot { text-align: center; color: var(--mute); font-size: 12px; padding: 20px; border-top: 1px solid var(--line); }

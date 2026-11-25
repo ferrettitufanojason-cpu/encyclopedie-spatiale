@@ -21,6 +21,12 @@ for (const f of (await readdir(DATA_DIR)).filter(f => f.endsWith('.json') && f !
 }
 const images = existsSync(join(DATA_DIR, 'images.json')) ? JSON.parse(await readFile(join(DATA_DIR, 'images.json'), 'utf8')) : {};
 
+const descs = JSON.parse(await readFile(join(ROOT, 'scripts', 'descriptions.json'), 'utf8'));
+// rang des 8 planètes par demi-grand axe
+const PL = objects.filter(o => o.cat === 'planet' && ['terrestrial', 'gas-giant', 'ice-giant'].includes(o.sub) && o.props.sma)
+  .sort((a, b) => a.props.sma.v - b.props.sma.v);
+PL.forEach((p, i) => { p.rank = i + 1; });
+
 // ids uniques
 const ids = new Set();
 for (const o of objects) { let id = o.id, n = 2; while (ids.has(id)) id = `${o.id}-${n++}`; o.id = id; ids.add(id); }
@@ -47,6 +53,7 @@ for (const o of objects) {
   for (const m of o.moons ?? []) if (byId.get(m)) rel.push({ id: m, name: byId.get(m).name, rel: 'moon' });
   if (o.cat === 'star' && o.sub === 'sun') for (const c of objects) if (c.parent === o.id) rel.push({ id: c.id, name: c.name, rel: 'child' });
   o.related = rel;
+  if (descs[o.id]) o.desc = descs[o.id];
 
   const img = images[o.id] ?? null;
   const dist = o.props.dist ? o.props.dist.v * PC_LY : null;
@@ -54,6 +61,7 @@ for (const o of objects) {
     i: o.id, n: o.name, c: o.code, k: o.cat, s: o.sub, t: o.tags,
     m: round(toEarthMass(o.props.mass)), r: round(toEarthRadius(o.props.radius)), d: round(dist),
     q: o.props.teq?.v ?? null, y: o.disc?.year ?? null, md: o.disc?.method ?? null,
+    ss: o.src === 'ssod' ? 1 : undefined,
     hz: o.props.in_hz ? o.props.in_hz.v : null, h: o.host ?? null,
     x: (o.aliases ?? []).filter(a => /^(HD|HIP) /.test(a)).join(' ') || undefined,
     im: img?.thumb ?? img?.url ?? null,
