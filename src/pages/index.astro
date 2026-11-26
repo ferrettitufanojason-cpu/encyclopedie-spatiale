@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import Meta from '../components/Meta.astro';
+import FeedbackBox from '../components/FeedbackBox.astro';
 ---
 <!doctype html>
 <html lang="fr">
@@ -47,6 +48,12 @@ import Meta from '../components/Meta.astro';
         <div id="evAgenda" class="live ev-agenda" hidden></div>
         <div id="live" class="live" hidden></div>
         <div id="charts" class="charts" hidden></div>
+        <div id="avisTab" class="live" hidden>
+          <h2 data-i18n="avisTitle">Commentaires</h2>
+          <p class="credit" data-i18n="avisLead">Votre avis aide à améliorer le site : une note, une idée, un problème d’affichage, une erreur dans une donnée… Tout est lu.</p>
+          <FeedbackBox l="fr" />
+          <FeedbackBox l="en" />
+        </div>
         <div class="exp-bar"><p id="count" class="count" role="status" aria-live="polite"></p><button id="exportCsv" class="btn" type="button" data-i18n="exportCsv">Exporter ces résultats (CSV)</button></div>
         <ul id="grid" class="grid"></ul>
         <div id="sentinel" aria-hidden="true"></div>

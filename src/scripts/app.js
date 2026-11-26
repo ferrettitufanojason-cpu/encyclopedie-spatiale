@@ -24,8 +24,9 @@ const t = () => T[lang];
 const norm = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 // catalogues, puis outils (affichés à droite)
-const TOP = ['planet', 'star', 'region', 'smallbody', 'mission', 'event', 'charts', 'live'];
-const TOOLS = new Set(['charts', 'live']);
+const TOP = ['planet', 'star', 'region', 'smallbody', 'mission', 'event', 'charts', 'live', 'avis'];
+const TOOLS = new Set(['charts', 'live', 'avis']);
+const PANELS = new Set(['charts', 'live', 'avis']); // onglets sans grille de cartes
 const CHARTS_N = 4;
 const EVENT_SUBS = new Set(['meteor-shower', 'opposition', 'elongation', 'conjunction', 'solar-eclipse', 'lunar-eclipse', 'gravitational-wave']);
 const groupOf = c => (EVENT_SUBS.has(c.s) ? 'event' : c.s === 'mission' ? 'mission' : c.k === 'other' ? 'region' : c.k === 'exoplanet' ? 'planet' : c.k);
@@ -109,9 +110,10 @@ function card(c) {
 /* ---------- filtrage ---------- */
 const inR = (v, [lo, hi]) => (lo == null && hi == null) || (v != null && (lo == null || v >= lo) && (hi == null || v <= hi));
 function apply() {
-  if (state.cat === 'live') { showCharts(false); showLive(true); drawSimbadBox(); return; }
-  if (state.cat === 'charts') { showLive(false); showCharts(true); drawSimbadBox(); return; }
-  showLive(false); showCharts(false);
+  if (state.cat === 'live') { showCharts(false); showAvis(false); showLive(true); drawSimbadBox(); return; }
+  if (state.cat === 'charts') { showLive(false); showAvis(false); showCharts(true); drawSimbadBox(); return; }
+  if (state.cat === 'avis') { showLive(false); showCharts(false); showAvis(true); drawSimbadBox(); return; }
+  showLive(false); showCharts(false); showAvis(false);
   const nowIso = new Date().toISOString().slice(0, 10);
   const toks = norm(state.q).split(/\s+/).filter(Boolean);
   VIEW = ALL.filter(c => {
@@ -148,10 +150,13 @@ new IntersectionObserver(es => { if (es[0].isIntersecting && shown < VIEW.length
 /* ---------- navigation catégories ---------- */
 function drawCats() {
   const counts = {}; for (const c of ALL) counts[groupOf(c)] = (counts[groupOf(c)] ?? 0) + 1;
-  counts.live = 1; counts.charts = 1;
+  counts.live = 1; counts.charts = 1; counts.avis = 1;
   $('#cats').replaceChildren(...TOP.map(k => el('button', { type: 'button', class: TOOLS.has(k) ? 'tool' : null, 'aria-pressed': String(state.cat === k), disabled: !counts[k],
     onclick: () => { state.cat = k; state.sub = ''; state.type = ''; state.when = ''; apply(); drawCats(); } },
-    t().cat[k], el('em', { text: k === 'live' ? '●' : k === 'charts' ? String(CHARTS_N) : counts[k] ? counts[k].toLocaleString(lang) : t().soon }))));
+    t().cat[k], el('em', { text: k === 'live' ? '●' : k === 'avis' ? '★' : k === 'charts' ? String(CHARTS_N) : counts[k] ? counts[k].toLocaleString(lang) : t().soon }))));
+  // sur mobile, la barre défile : on y amène l'onglet actif (sans faire bouger la page)
+  const bar = $('#cats'), cur = bar.querySelector('[aria-pressed=true]');
+  if (cur && bar.scrollWidth > bar.clientWidth) bar.scrollLeft = cur.offsetLeft - bar.offsetLeft - (bar.clientWidth - cur.offsetWidth) / 2;
 }
 function drawSubs() {
   const counts = {};
@@ -622,7 +627,7 @@ function drawEvAgenda() {
 }
 function showLive(on) {
   $('#live').hidden = !on; ['#filters', '#grid', '.exp-bar', '#subs', '#sentinel'].forEach(s => { const n = $(s); if (n) n.hidden = on; });
-  $('.layout').classList.toggle('live-mode', on || state.cat === 'charts');
+  $('.layout').classList.toggle('live-mode', on || PANELS.has(state.cat));
   if (on) mountLive(); else { $('#live').replaceChildren(); if (!$('#dlg').open) stopIss(); } // vide aussi les lecteurs vidéo
 }
 
@@ -631,7 +636,13 @@ let chartsBuilt = null;
 function showCharts(on) {
   $('#charts').hidden = !on;
   if (on) { ['#filters', '#grid', '.exp-bar', '#subs', '#sentinel'].forEach(s => { const n = $(s); if (n) n.hidden = true; }); $('.layout').classList.add('live-mode'); if (chartsBuilt !== lang) mountCharts(); }
-  else if (state.cat !== 'live') { ['#filters', '#grid', '.exp-bar', '#subs', '#sentinel'].forEach(s => { const n = $(s); if (n) n.hidden = false; }); $('.layout').classList.remove('live-mode'); }
+  else if (!PANELS.has(state.cat)) { ['#filters', '#grid', '.exp-bar', '#subs', '#sentinel'].forEach(s => { const n = $(s); if (n) n.hidden = false; }); $('.layout').classList.remove('live-mode'); }
+}
+// onglet « Commentaires » : le formulaire et les avis (composant FeedbackBox inclus dans la page, une version par langue)
+function showAvis(on) {
+  $('#avisTab').hidden = !on;
+  document.querySelectorAll('#avisTab .fb-box').forEach(b => { b.hidden = b.dataset.l !== lang; });
+  if (on) { ['#filters', '#grid', '.exp-bar', '#subs', '#sentinel'].forEach(s => { const n = $(s); if (n) n.hidden = true; }); $('.layout').classList.add('live-mode'); }
 }
 function mountCharts() {
   chartsBuilt = lang;
@@ -740,7 +751,7 @@ function mountCharts() {
 /* ---------- recherche SIMBAD en direct (pour les objets absents du catalogue local) ---------- */
 function drawSimbadBox() {
   const box = $('#simbadBox'), q = state.q.trim();
-  if (q.length < 2 || state.cat === 'live') { box.hidden = true; return; }
+  if (q.length < 2 || PANELS.has(state.cat)) { box.hidden = true; return; }
   box.hidden = false;
   box.replaceChildren(el('button', { class: 'btn', type: 'button', onclick: () => runSimbad(q) }, t().simbadBtn(q)), el('span', { class: 'credit', text: ' ' + t().simbadHint }));
 }
