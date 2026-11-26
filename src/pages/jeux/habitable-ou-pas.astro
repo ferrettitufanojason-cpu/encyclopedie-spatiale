@@ -1,0 +1,10 @@
+---
+import GameShell from '../../components/GameShell.astro';
+---
+<GameShell titleFr="Habitable ou pas ?" titleEn="Habitable or not?" path="/jeux/habitable-ou-pas/" description="Jeu : une vraie exoplanète de la NASA Exoplanet Archive est-elle dans la zone habitable de son étoile ? Explication à chaque réponse."
+  introFr="Une vraie exoplanète tirée de la base (NASA Exoplanet Archive). Est-elle dans la zone habitable de son étoile, là où de l’eau liquide pourrait exister ? Attention : « habitable » ne veut pas dire « habitée »."
+  introEn="A real exoplanet from the database (NASA Exoplanet Archive). Is it in its star’s habitable zone, where liquid water could exist? Careful: “habitable” does not mean “inhabited”." />
+<script>
+  import { mount } from '../../scripts/games/habitable.js';
+  mount(document.getElementById('game')!);
+</script>
