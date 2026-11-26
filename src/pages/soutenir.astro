@@ -1,0 +1,61 @@
+---
+import Doc from '../layouts/Doc.astro';
+import cfg from '../../site.config.mjs';
+// Le bouton de don n'apparaît que si un lien est renseigné dans site.config.mjs (champ « donate »).
+const donate = /^https:\/\//.test(cfg.donate ?? '') ? cfg.donate : null;
+const issues = cfg.repo ? `${cfg.repo.replace(/\/$/, '')}/issues` : null;
+---
+<Doc titleFr="Soutenir le projet" titleEn="Support the project" description="Comment soutenir l'Encyclopédie spatiale, un site gratuit, sans publicité et sans traceur : partager, donner son avis, signaler une erreur, faire un don." path="/soutenir/">
+  <Fragment slot="fr">
+    <p class="lead">L’Encyclopédie spatiale est <b>gratuite</b>, <b>sans publicité</b> et <b>sans traceur</b>, et le restera. Si elle vous est utile, voici comment l’aider à vivre et à grandir.</p>
+
+    <h2>Faire un don</h2>
+    {donate
+      ? <>
+          <p>Un don, même petit, aide à financer le temps passé sur le site (nouvelles fiches, nouveaux jeux, vérification des données) et, plus tard, un nom de domaine.</p>
+          <p><a class="btn primary sp-btn" href={donate} rel="noopener">Faire un don</a></p>
+          <p class="credit">Le paiement se fait sur la plateforme de dons, dans un nouvel onglet : le site ne voit et ne stocke aucune donnée de paiement. Aucun avantage n’est lié au don : tout le site reste accessible à tous.</p>
+        </>
+      : <p class="na">Les dons ne sont pas encore ouverts. En attendant, les autres façons d’aider ci-dessous comptent déjà beaucoup.</p>}
+
+    <h2>Faire connaître le site</h2>
+    <p>C’est l’aide la plus précieuse : chaque lien vers le site, sur un blog, un forum d’astronomie, le site d’une école ou un réseau social, l’aide à apparaître dans les moteurs de recherche.</p>
+    <ul>
+      <li><b>Enseignants</b> : utilisez les fiches, les <a href="/parcours/">parcours</a> et les <a href="/jeux/">jeux</a> en classe ; toutes les données sont sourcées et <a href="/methodologie/">la méthodologie</a> est publique.</li>
+      <li><b>Clubs et associations d’astronomie</b> : le <a href="/jeux/ciel-de-ce-soir/">ciel de ce soir</a> et les fiches d’événements peuvent compléter vos soirées d’observation.</li>
+    </ul>
+
+    <h2>Améliorer le site</h2>
+    <ul>
+      <li><a href="/avis/">Donner votre avis</a> ou proposer une idée (note de 1 à 5 étoiles).</li>
+      <li>Signaler une erreur : bouton « Signaler une erreur » sur chaque fiche, ou la <a href="/avis/?cat=erreur">page Avis</a>.</li>
+      {issues && <li>Contribuer au code ou aux textes : <a href={issues} rel="noopener">dépôt public du projet</a>. Une relecture scientifique des textes de vulgarisation serait particulièrement utile.</li>}
+    </ul>
+  </Fragment>
+  <Fragment slot="en">
+    <p class="lead">The Space Encyclopedia is <b>free</b>, <b>ad-free</b> and <b>tracker-free</b>, and will stay that way. If you find it useful, here is how to help it live and grow.</p>
+
+    <h2>Make a donation</h2>
+    {donate
+      ? <>
+          <p>A donation, even a small one, helps fund the time spent on the site (new pages, new games, data checks) and, later, a domain name.</p>
+          <p><a class="btn primary sp-btn" href={donate} rel="noopener">Donate</a></p>
+          <p class="credit">Payment happens on the donation platform, in a new tab: the site never sees or stores any payment data. No perk is tied to donating: the whole site stays open to everyone.</p>
+        </>
+      : <p class="na">Donations are not open yet. Meanwhile, the other ways to help below already make a big difference.</p>}
+
+    <h2>Spread the word</h2>
+    <p>This is the most valuable help: every link to the site, on a blog, an astronomy forum, a school website or social media, helps it show up in search engines.</p>
+    <ul>
+      <li><b>Teachers</b>: use the pages, <a href="/parcours/">learning paths</a> and <a href="/jeux/">games</a> in class; all data is sourced and <a href="/methodologie/">the methodology</a> is public.</li>
+      <li><b>Astronomy clubs</b>: <a href="/jeux/ciel-de-ce-soir/">tonight’s sky</a> and the event pages can complement your observing nights.</li>
+    </ul>
+
+    <h2>Improve the site</h2>
+    <ul>
+      <li><a href="/avis/">Give feedback</a> or suggest an idea (1 to 5 stars).</li>
+      <li>Report an error: “Report an error” button on each page, or the <a href="/avis/?cat=erreur">Feedback page</a>.</li>
+      {issues && <li>Contribute code or texts: <a href={issues} rel="noopener">the project’s public repository</a>. A scientific review of the popular-science texts would be especially useful.</li>}
+    </ul>
+  </Fragment>
+</Doc>
