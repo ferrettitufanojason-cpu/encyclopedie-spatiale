@@ -1,0 +1,10 @@
+---
+import GameShell from '../../components/GameShell.astro';
+---
+<GameShell titleFr="Devine la planète" titleEn="Guess the planet" path="/jeux/devine-la-planete/" description="Jeu : trois indices tirés des vraies données (lunes, température, durée du jour…) pour deviner une planète du Système solaire."
+  introFr="Trois indices tirés des fiches de l’encyclopédie apparaissent un à un. Trouve la planète avec le moins d’indices possible : 30, 20 ou 10 points."
+  introEn="Three clues from the encyclopedia’s pages appear one by one. Find the planet with as few clues as possible: 30, 20 or 10 points." />
+<script>
+  import { mount } from '../../scripts/games/guess.js';
+  mount(document.getElementById('game')!);
+</script>
