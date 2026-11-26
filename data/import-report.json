@@ -1,47 +1,47 @@
 {
- "date": "2026-11-25T21:34:11.957Z",
+ "date": "2026-11-26T11:47:40.854Z",
  "steps": [
   {
    "step": "Système solaire OpenData",
    "file": "import-solar-system.mjs",
    "required": true,
    "ok": true,
-   "seconds": 0
+   "seconds": 1
   },
   {
    "step": "NASA Exoplanet Archive",
    "file": "import-exoplanets.mjs",
    "required": true,
    "ok": true,
-   "seconds": 7
+   "seconds": 6
   },
   {
    "step": "Constellations UAI",
    "file": "import-constellations.mjs",
    "required": true,
    "ok": true,
-   "seconds": 1
+   "seconds": 0
   },
   {
    "step": "SIMBAD (étoiles, galaxies, nébuleuses…)",
    "file": "import-simbad.mjs",
    "required": false,
    "ok": true,
-   "seconds": 13
+   "seconds": 6
   },
   {
    "step": "JPL Small-Body Database",
    "file": "import-sbdb.mjs",
    "required": false,
    "ok": true,
-   "seconds": 14
+   "seconds": 13
   },
   {
    "step": "NASA NSSDCA (missions)",
    "file": "import-missions.mjs",
    "required": false,
    "ok": true,
-   "seconds": 118
+   "seconds": 121
   },
   {
    "step": "NASA Science (missions, repli)",
@@ -55,21 +55,35 @@
    "file": "import-iss.mjs",
    "required": false,
    "ok": true,
-   "seconds": 0
+   "seconds": 5
+  },
+  {
+   "step": "Événements à venir : météores (IMO), phénomènes planétaires (JPL Horizons)",
+   "file": "import-sky-events.mjs",
+   "required": false,
+   "ok": true,
+   "seconds": 8
+  },
+  {
+   "step": "Événements : ondes gravitationnelles (GWOSC) et éclipses (NASA GSFC)",
+   "file": "import-events.mjs",
+   "required": false,
+   "ok": true,
+   "seconds": 4
   },
   {
    "step": "NASA Image Library",
    "file": "import-images.mjs",
    "required": false,
    "ok": true,
-   "seconds": 1
+   "seconds": 11
   },
   {
    "step": "Wikimedia Commons (images libres)",
    "file": "import-commons-images.mjs",
    "required": false,
    "ok": true,
-   "seconds": 39
+   "seconds": 18
   }
  ]
 }
