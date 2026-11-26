@@ -99,6 +99,12 @@ export function buildGamesData(objects, images, built) {
   const events = objects.filter(o => EV.includes(o.sub) && o.eventDate && o.eventDate >= built && o.eventDate <= until).sort((a, b) => a.eventDate.localeCompare(b.eventDate))
     .map(o => ({ i: o.id, n: o.name, nf: o.nameFr ?? o.name, s: o.sub, date: o.eventDate, zhr: num(o.props.zhr), v: pos(o.props.met_v), sep: num(o.props.sep_deg), mag: num(o.props.app_mag) }));
 
-  return { built, planets, exoplanets, exoFields: ['i', 'n', 'sma_au', 'hz_inner_au', 'hz_outer_au', 'in_hz', 'teq_K', 'radius_earth', 'star_teff_K', 'host', 'distance_ly'],
+  // « Choisis ta destination » : la Lune, les planètes, Pluton et l'étoile la plus proche, avec leurs vraies valeurs
+  const destinations = ['moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'proxima-cen'].map(id => byId.get(id)).filter(Boolean).map(o => ({
+    i: o.id, n: o.name, nf: o.nameFr ?? o.name, s: o.sub, kind: o.id === 'moon' ? 'moon' : o.cat === 'star' ? 'star' : 'planet',
+    sma: pos(o.props.sma), km: ly(o) ? ly(o) * KM_LY : null, g: pos(o.props.gravity), teq: pos(o.props.teq), img: imgOf(o.id),
+  })).filter(o => (o.kind === 'star' ? o.km : o.sma));
+
+  return { built, planets, exoplanets, destinations, exoFields: ['i', 'n', 'sma_au', 'hz_inner_au', 'hz_outer_au', 'in_hz', 'teq_K', 'radius_earth', 'star_teff_K', 'host', 'distance_ly'],
     bodies, bodyFields: ['i', 'n', 'nf', 'sub', 'radius_km', 'mass_kg', 'teq_K'], moons, missions, remnants, zoom, blackHoles, transits: transitsKept, transitFields: ['i', 'n', 'radius_earth', 'star_radius_sun', 'period_days', 'depth'], constellations, events };
 }

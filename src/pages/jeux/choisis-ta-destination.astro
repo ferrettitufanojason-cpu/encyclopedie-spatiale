@@ -1,0 +1,10 @@
+---
+import GameShell from '../../components/GameShell.astro';
+---
+<GameShell titleFr="Choisis ta destination" titleEn="Choose your destination" path="/jeux/choisis-ta-destination/" description="Jeu : choisis un astre (Lune, Mars, Jupiter, Pluton, Proxima du Centaure…) et découvre la durée du voyage, les dangers et les bagages, avec les hypothèses de calcul."
+  introFr="Lune, Mars, Jupiter, Pluton… ou l’étoile la plus proche ? Estime la durée du voyage, puis découvre le calcul, ses hypothèses, les dangers et ce qu’il faut emporter."
+  introEn="Moon, Mars, Jupiter, Pluto… or the nearest star? Estimate the journey time, then discover the calculation, its assumptions, the hazards and what to pack." />
+<script>
+  import { mount } from '../../scripts/games/destination.js';
+  mount(document.getElementById('game')!);
+</script>

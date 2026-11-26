@@ -1,0 +1,10 @@
+---
+import GameShell from '../../components/GameShell.astro';
+---
+<GameShell titleFr="Quelle mission pour quel objectif ?" titleEn="Which mission for which goal?" path="/jeux/mission-objectif/" description="Jeu : associe des missions spatiales (Hubble, James Webb, Voyager, Kepler…) à leur objectif ou à leur découverte."
+  introFr="Hubble, James Webb, Voyager, Kepler… Associe chaque mission de l’encyclopédie à son objectif ou à sa grande réussite."
+  introEn="Hubble, James Webb, Voyager, Kepler… Match each mission in the encyclopedia with its goal or great achievement." />
+<script>
+  import { mount } from '../../scripts/games/mission.js';
+  mount(document.getElementById('game')!);
+</script>

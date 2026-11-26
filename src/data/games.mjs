@@ -21,8 +21,8 @@ export const GAME_SECTIONS = [
     { slug: 'ciel-de-ce-soir', ready: true, fr: ['Le ciel de ce soir', 'Les prochains événements du ciel, avec une question pour chacun.'], en: ['Tonight’s sky', 'Upcoming sky events, with a question for each.'] },
   ] },
   { id: 'missions', icon: '🛰️', fr: 'Missions et exploration', en: 'Missions and exploration', games: [
-    { slug: 'choisis-ta-destination', fr: ['Choisis ta destination', 'Temps de trajet, dangers et bagages pour aller vers un astre.'], en: ['Choose your destination', 'Travel time, hazards and luggage to reach a world.'] },
-    { slug: 'mission-objectif', fr: ['Quelle mission pour quel objectif ?', 'Associe une sonde ou un télescope à ses découvertes.'], en: ['Which mission for which goal?', 'Match a probe or telescope with its discoveries.'] },
+    { slug: 'choisis-ta-destination', ready: true, fr: ['Choisis ta destination', 'Temps de trajet, dangers et bagages pour aller vers un astre.'], en: ['Choose your destination', 'Travel time, hazards and luggage to reach a world.'] },
+    { slug: 'mission-objectif', ready: true, fr: ['Quelle mission pour quel objectif ?', 'Associe une sonde ou un télescope à ses découvertes.'], en: ['Which mission for which goal?', 'Match a probe or telescope with its discoveries.'] },
   ] },
   { id: 'defis', icon: '🏆', fr: 'Défis et collection', en: 'Challenges and collection', games: [
     { slug: 'defi-du-jour', fr: ['Défi du jour', 'Une question par jour et ta série de jours.'], en: ['Daily challenge', 'One question a day and your streak.'] },
