@@ -2,6 +2,11 @@
 import '../styles/global.css';
 import Meta from '../components/Meta.astro';
 import FeedbackBox from '../components/FeedbackBox.astro';
+import { readFileSync, existsSync } from 'node:fs';
+import { homeStats } from '../data/stats.mjs';
+// chiffres écrits dans le HTML dès la construction (le script les traduit ensuite si besoin)
+const meta = existsSync('public/data/meta.json') ? JSON.parse(readFileSync('public/data/meta.json', 'utf8')) : null;
+const st = homeStats(meta, 'fr');
 ---
 <!doctype html>
 <html lang="fr">
@@ -22,6 +27,7 @@ import FeedbackBox from '../components/FeedbackBox.astro';
     </header>
 
     <nav class="cats" id="cats" aria-label="Catégories"></nav>
+    <p class="stats" id="stats"><b>{st.total}</b>{st.items.map(i => <span> · {i.label} <b>{i.n}</b></span>)} · <span>{st.dateIso ? <time datetime={st.dateIso}>{st.date}</time> : st.date}</span></p>
     <div class="subs" id="subs" role="group" aria-label="Sous-catégories"></div>
 
     <main class="layout">
@@ -52,7 +58,7 @@ import FeedbackBox from '../components/FeedbackBox.astro';
           <h2 data-i18n="avisTitle">Commentaires</h2>
           <p class="credit" data-i18n="avisLead">Votre avis aide à améliorer le site : une note, une idée, un problème d’affichage, une erreur dans une donnée… Tout est lu.</p>
           <FeedbackBox l="fr" />
-          <FeedbackBox l="en" />
+          <FeedbackBox l="en" hidden />
         </div>
         <div class="exp-bar"><p id="count" class="count" role="status" aria-live="polite"></p><button id="exportCsv" class="btn" type="button" data-i18n="exportCsv">Exporter ces résultats (CSV)</button></div>
         <ul id="grid" class="grid"></ul>

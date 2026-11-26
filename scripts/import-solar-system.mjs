@@ -1,6 +1,7 @@
 // Import Système solaire OpenData (api.le-systeme-solaire.net) : Soleil, planètes, planètes naines, lunes.
 // Nécessite SSOD_TOKEN dans .env (jeton gratuit : https://api.le-systeme-solaire.net/generatekey.html)
 import { loadEnv, getText, writeJson, slug } from './lib/common.mjs';
+import { reconcileDesignation } from './lib/designation.mjs';
 await loadEnv();
 
 const TOKEN = process.env.SSOD_TOKEN;
@@ -26,7 +27,7 @@ const GROUP = { mass: 'physical', radius: 'physical' };
 const P = (v, u, g, extra = {}) => (v == null || v === 0 && u !== 'K' && u !== '°' ? null : { v, u, g, ...extra });
 const prop = (props, k, p) => { if (p) props[k] = p; };
 
-const objects = [];
+const objects = [], corrections = [];
 for (const b of bodies) {
   const type = b.bodyType;
   let cat, sub;
@@ -56,12 +57,17 @@ for (const b of bodies) {
   prop(props, 'incl', P(b.inclination, '°', 'orbit'));
   for (const p of Object.values(props)) p.ref = { t: 'Système solaire OpenData', url: `https://api.le-systeme-solaire.net/rest/bodies/${b.id}` };
 
+  // désignation provisoire : noms et code catalogue rendus cohérents (fautes de frappe de la source, cf. lib/designation.mjs)
+  const dz = reconcileDesignation(b);
+  if (dz?.fixed.length) corrections.push({ ssodId: b.id, designation: dz.designation, fixed: dz.fixed });
+  const nameEn = dz?.designation ?? (b.englishName || b.name), nameFr = dz?.designation ?? b.name;
+
   const around = b.aroundPlanet?.planet;
   const parent = cat === 'star' ? null : (type === 'Moon' ? around : 'soleil');
   objects.push({
-    id: slug((b.englishName || b.name).replace(/^\(?\d+\)?\s*/, '')) || b.id, cat, sub,
-    name: b.englishName || b.name, nameFr: b.name, code: b.id.toUpperCase(),
-    aliases: [b.alternativeName].filter(Boolean),
+    id: slug(nameEn.replace(/^\(?\d+\)?\s*/, '')) || b.id, cat, sub,
+    name: nameEn, nameFr, code: dz?.code ?? b.id.toUpperCase(),
+    aliases: [b.alternativeName].filter(a => a && (!dz || a === dz.designation)), // on écarte un alias fautif (ex. « S/2005 U 1 »)
     tags: ['solar-system', sub],
     parent, moons: (b.moons || []).map(x => x.rel?.split('/').pop()),
     disc: b.discoveredBy ? { by: b.discoveredBy, date: b.discoveryDate || null } : null,
@@ -74,5 +80,6 @@ for (const o of objects) {
   o.parent = o.parent ? idOf[o.parent] ?? null : null;
   o.moons = o.moons.map(x => idOf[x] ?? null).filter(Boolean);
 }
-await writeJson('solar-system.json', { source: { ...SRC, fetched: today }, objects });
+if (corrections.length) console.log(`⚠ ${corrections.length} désignation(s) corrigée(s) :\n  ` + corrections.map(c => `${c.ssodId} : ${c.fixed.join(' ; ')}`).join('\n  '));
+await writeJson('solar-system.json', { source: { ...SRC, fetched: today }, corrections, objects });
 

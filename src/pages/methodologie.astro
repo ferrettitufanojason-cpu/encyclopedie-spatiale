@@ -1,6 +1,10 @@
 ---
 import '../styles/global.css';
 import Meta from '../components/Meta.astro';
+import { readFileSync, existsSync } from 'node:fs';
+// version des données écrite dans le HTML dès la construction (lisible sans JavaScript ; le script la met à jour ensuite)
+const metaFile = 'public/data/meta.json';
+const meta = existsSync(metaFile) ? JSON.parse(readFileSync(metaFile, 'utf8')) : {};
 ---
 <!doctype html>
 <html lang="fr">
@@ -37,7 +41,7 @@ import Meta from '../components/Meta.astro';
         </ul>
         <p>Les fichiers CSV regroupent : identifiant, nom (EN/FR), catégorie, sous-catégorie, code de catalogue, masse (M⊕), rayon (R⊕), distance (années-lumière), température (K), année et méthode de découverte, coordonnées, source, date de mise à jour et lien. Les incertitudes et références complètes sont dans le JSON de chaque fiche.</p>
         <h2>4. Citer</h2>
-        <p>Le bouton « Citer » de chaque fiche fournit une référence (texte et BibTeX) avec le lien permanent <code>/objet/&lt;identifiant&gt;</code>, la <b>version des données</b> (<span class="ver">…</span>) et la date de consultation. <b>Citez aussi la source primaire</b> indiquée sur la fiche (NASA Exoplanet Archive, SIMBAD, JPL…) : ce site est un agrégateur, pas une source primaire. Pour citer le projet entier, voir le fichier <code>CITATION.cff</code> à la racine du dépôt.</p>
+        <p>Le bouton « Citer » de chaque fiche fournit une référence (texte et BibTeX) avec le lien permanent <code>/objet/&lt;identifiant&gt;</code>, la <b>version des données</b> (<span class="ver">{meta.version ?? 'non disponible'}</span>) et la date de consultation. <b>Citez aussi la source primaire</b> indiquée sur la fiche (NASA Exoplanet Archive, SIMBAD, JPL…) : ce site est un agrégateur, pas une source primaire. Pour citer le projet entier, voir le fichier <code>CITATION.cff</code> à la racine du dépôt.</p>
         <h2>5. Valeurs calculées (et non mesurées)</h2>
         <ul>
           <li><b>Zone habitable des exoplanètes</b> : modèle conservateur de Kopparapu et al. (2013, ApJ 765, 131), à partir de la température effective et de la luminosité de l'étoile (valide pour 2 600 K ≤ T<sub>eff</sub> ≤ 7 200 K). « Dans la zone habitable » signifie seulement que le demi-grand axe est entre les bornes calculées ; ce n'est pas une affirmation d'habitabilité.</li>
@@ -64,7 +68,7 @@ import Meta from '../components/Meta.astro';
         <p>Navigation clavier complète, lien d'évitement, fiches en <code>&lt;dialog&gt;</code> modal, étiquettes ARIA, annonces vocales des résultats, <code>prefers-reduced-motion</code> respecté. Un test automatique axe-core (règles WCAG 2.1 A/AA, hors contraste) passe sur le HTML statique des pages (<code>npm test</code>). <b>Non audités automatiquement</b> : le contraste des couleurs et les vues construites dynamiquement (fiches, comparateur, direct) ; un audit manuel avec lecteur d'écran reste à faire. Pour signaler un obstacle : <i>issue</i> sur le dépôt.</p>
         <h2>10. Limites connues</h2>
         <ul><li>Le catalogue local contient environ 4 800 étoiles/galaxies ; la recherche SIMBAD en direct donne accès au reste.</li><li>Bras spiraux : non couverts. Astéroïdes : partie seulement. Missions : sélection.</li><li>Les flux vidéo de l'ISS sont noirs quand la station est dans l'ombre de la Terre.</li></ul>
-        <p class="credit">Version des données : <span class="ver">…</span> · construit le <span class="built">…</span> · commit <span class="commit">…</span></p>
+        <p class="credit">Version des données : <span class="ver">{meta.version ?? 'non disponible'}</span> · construit le <span class="built">{meta.built ?? 'non disponible'}</span> · commit <span class="commit">{meta.commit ?? 'non disponible'}</span></p>
       </section>
 
       <section lang="en" data-l="en" hidden>
@@ -86,7 +90,7 @@ import Meta from '../components/Meta.astro';
           <li>CSV (UTF-8, opens in Excel/LibreOffice): <span id="csv-links-en">…</span></li>
         </ul>
         <h2>4. Citing</h2>
-        <p>Each page’s “Cite” button provides a reference (text and BibTeX) with the permalink <code>/objet/&lt;id&gt;</code>, the <b>data version</b> (<span class="ver">…</span>) and the access date. <b>Please also cite the primary source</b> shown on the page (NASA Exoplanet Archive, SIMBAD, JPL…): this site is an aggregator, not a primary source.</p>
+        <p>Each page’s “Cite” button provides a reference (text and BibTeX) with the permalink <code>/objet/&lt;id&gt;</code>, the <b>data version</b> (<span class="ver">{meta.version ?? 'not available'}</span>) and the access date. <b>Please also cite the primary source</b> shown on the page (NASA Exoplanet Archive, SIMBAD, JPL…): this site is an aggregator, not a primary source.</p>
         <h2>5. Computed (not measured) values</h2>
         <ul>
           <li><b>Exoplanet habitable zone</b>: conservative model of Kopparapu et al. (2013, ApJ 765, 131) from the star’s effective temperature and luminosity (valid for 2,600–7,200 K). “In the habitable zone” only means the semi-major axis lies between the computed bounds; it is not a claim of habitability.</li>
@@ -109,7 +113,7 @@ import Meta from '../components/Meta.astro';
         <p>Full keyboard navigation, skip link, modal <code>&lt;dialog&gt;</code> pages, ARIA labels, spoken result announcements, <code>prefers-reduced-motion</code> respected. An automated axe-core test (WCAG 2.1 A/AA rules, excluding contrast) passes on the pages’ static HTML (<code>npm test</code>). <b>Not audited automatically</b>: colour contrast and dynamically built views (pages, comparator, live); a manual screen-reader audit is still to be done.</p>
         <h2>10. Known limits</h2>
         <ul><li>The local catalogue holds about 4,800 stars/galaxies; live SIMBAD search gives access to the rest.</li><li>Spiral arms: not covered. Asteroids: partial. Missions: a selection.</li><li>ISS video feeds are black while the station is in Earth’s shadow.</li></ul>
-        <p class="credit">Data version: <span class="ver">…</span> · built on <span class="built">…</span> · commit <span class="commit">…</span></p>
+        <p class="credit">Data version: <span class="ver">{meta.version ?? 'not available'}</span> · built on <span class="built">{meta.built ?? 'not available'}</span> · commit <span class="commit">{meta.commit ?? 'not available'}</span></p>
       </section>
     </main>
     <script>
@@ -129,7 +133,7 @@ import Meta from '../components/Meta.astro';
       fetch('/data/meta.json').then(r => r.json()).then(m => {
         document.querySelectorAll('.ver').forEach(n => n.textContent = m.version);
         document.querySelectorAll('.built').forEach(n => n.textContent = m.built);
-        document.querySelectorAll('.commit').forEach(n => n.textContent = m.commit ?? '—');
+        if (m.commit) document.querySelectorAll('.commit').forEach(n => n.textContent = m.commit);
         const rep = Object.fromEntries((m.importReport?.steps ?? []).map(s => [s.file, s]));
         for (const L of ['fr', 'en']) {
           const t = document.getElementById('src-' + L);

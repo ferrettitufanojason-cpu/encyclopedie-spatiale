@@ -1,14 +1,15 @@
 ---
 // Formulaire d'avis + avis publiés (une instance par langue ; le script est commun).
-interface Props { l: 'fr' | 'en' }
-const { l } = Astro.props;
+// hidden : instance masquée d'emblée (la page d'accueil n'affiche que la langue active, même sans JavaScript)
+interface Props { l: 'fr' | 'en'; hidden?: boolean }
+const { l, hidden = false } = Astro.props;
 const fr = l === 'fr';
 const cats = fr
   ? [['avis', 'Avis général'], ['idee', 'Idée d’amélioration'], ['probleme', 'Problème sur le site (bug, affichage…)'], ['erreur', 'Erreur dans une donnée ou un texte']]
   : [['avis', 'General feedback'], ['idee', 'Improvement idea'], ['probleme', 'Problem with the site (bug, display…)'], ['erreur', 'Error in a value or a text']];
 const id = (s: string) => `${s}-${l}`;
 ---
-<div class="fb-box" data-l={l}>
+<div class="fb-box" data-l={l} hidden={hidden}>
   <form class="fb-form" novalidate>
     <fieldset class="fb-stars">
       <legend>{fr ? 'Votre note' : 'Your rating'} <span aria-hidden="true">*</span></legend>
@@ -38,22 +39,23 @@ const id = (s: string) => `${s}-${l}`;
   </form>
   <section class="fb-public" aria-labelledby={id('pubh')}>
     <h2 id={id('pubh')}>{fr ? 'Ce que les visiteurs en pensent' : 'What visitors think'}</h2>
-    <div class="fb-summary"><p class="na">{fr ? 'Chargement…' : 'Loading…'}</p></div>
+    <div class="fb-summary"><p class="na">{fr ? 'Les avis publiés s’affichent ici (JavaScript doit être activé).' : 'Published feedback appears here (JavaScript must be enabled).'}</p></div>
     <ul class="fb-list"></ul>
   </section>
 </div>
 
 <script>
   const TXT = {
-    fr: { cats: { avis: 'Avis', idee: 'Idée', probleme: 'Problème', erreur: 'Erreur signalée' }, anon: 'Anonyme', none: 'Aucun avis publié pour l’instant : soyez le premier !', off: 'Les avis seront bientôt ouverts sur ce site.', avg: (a, n) => `${a.toLocaleString('fr')} / 5 sur ${n} avis`, sending: 'Envoi…', ok: 'Merci ! Votre avis est publié.', held: (r: string) => `Merci ! Votre message n’est pas publié car il contient : ${r}. Vous pouvez le réécrire sans.`, rs: { lien: 'un lien', 'e-mail': 'une adresse e-mail', 'numéro de téléphone': 'un numéro de téléphone', 'langage inapproprié': 'un mot inapproprié' } as Record<string, string>, report: 'Signaler', reportQ: 'Signaler cet avis comme inapproprié ? Il sera masqué s’il est signalé par plusieurs personnes.', reported: 'Signalé, merci.', needStar: 'Choisissez une note de 1 à 5 étoiles.', needText: 'Écrivez au moins quelques mots.', err: 'L’envoi a échoué, réessayez plus tard.', about: 'À propos de' },
-    en: { cats: { avis: 'Feedback', idee: 'Idea', probleme: 'Problem', erreur: 'Reported error' }, anon: 'Anonymous', none: 'No feedback published yet: be the first!', off: 'Feedback will open soon on this site.', avg: (a, n) => `${a.toLocaleString('en')} / 5 from ${n} review${n > 1 ? 's' : ''}`, sending: 'Sending…', ok: 'Thank you! Your feedback is published.', held: (r: string) => `Thank you! Your message is not published because it contains: ${r}. You can rewrite it without.`, rs: { lien: 'a link', 'e-mail': 'an e-mail address', 'numéro de téléphone': 'a phone number', 'langage inapproprié': 'inappropriate language' } as Record<string, string>, report: 'Report', reportQ: 'Report this review as inappropriate? It will be hidden if several people report it.', reported: 'Reported, thank you.', needStar: 'Choose a rating from 1 to 5 stars.', needText: 'Please write a few words.', err: 'Sending failed, please try again later.', about: 'About' },
+    fr: { loading: 'Chargement des avis…', loadErr: 'Les avis n’ont pas pu être chargés. Réessayez plus tard.', cats: { avis: 'Avis', idee: 'Idée', probleme: 'Problème', erreur: 'Erreur signalée' }, anon: 'Anonyme', none: 'Aucun avis publié pour l’instant : soyez le premier !', off: 'Les avis seront bientôt ouverts sur ce site.', avg: (a, n) => `${a.toLocaleString('fr')} / 5 sur ${n} avis`, sending: 'Envoi…', ok: 'Merci ! Votre avis est publié.', held: (r: string) => `Merci ! Votre message n’est pas publié car il contient : ${r}. Vous pouvez le réécrire sans.`, rs: { lien: 'un lien', 'e-mail': 'une adresse e-mail', 'numéro de téléphone': 'un numéro de téléphone', 'langage inapproprié': 'un mot inapproprié' } as Record<string, string>, report: 'Signaler', reportQ: 'Signaler cet avis comme inapproprié ? Il sera masqué s’il est signalé par plusieurs personnes.', reported: 'Signalé, merci.', needStar: 'Choisissez une note de 1 à 5 étoiles.', needText: 'Écrivez au moins quelques mots.', err: 'L’envoi a échoué, réessayez plus tard.', about: 'À propos de' },
+    en: { loading: 'Loading feedback…', loadErr: 'Feedback could not be loaded. Please try again later.', cats: { avis: 'Feedback', idee: 'Idea', probleme: 'Problem', erreur: 'Reported error' }, anon: 'Anonymous', none: 'No feedback published yet: be the first!', off: 'Feedback will open soon on this site.', avg: (a, n) => `${a.toLocaleString('en')} / 5 from ${n} review${n > 1 ? 's' : ''}`, sending: 'Sending…', ok: 'Thank you! Your feedback is published.', held: (r: string) => `Thank you! Your message is not published because it contains: ${r}. You can rewrite it without.`, rs: { lien: 'a link', 'e-mail': 'an e-mail address', 'numéro de téléphone': 'a phone number', 'langage inapproprié': 'inappropriate language' } as Record<string, string>, report: 'Report', reportQ: 'Report this review as inappropriate? It will be hidden if several people report it.', reported: 'Reported, thank you.', needStar: 'Choose a rating from 1 to 5 stars.', needText: 'Please write a few words.', err: 'Sending failed, please try again later.', about: 'About' },
   };
   const qs = new URLSearchParams(location.search);
   const aboutPage = (qs.get('page') ?? '').replace(/[^\w\-+./]/g, '').slice(0, 120);
   const mk = (tag: string, cls?: string, text?: string) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
   const stars = (r: number) => { const s = mk('span', 'fb-st'); s.setAttribute('aria-label', `${r} / 5`); s.textContent = '★'.repeat(r) + '☆'.repeat(5 - r); return s; };
   let cache: Promise<any> | null = null;
-  const load = () => (cache ??= fetch('/api/feedback').then(async r => ({ status: r.status, data: await r.json().catch(() => ({})) })).catch(() => ({ status: 0, data: {} })));
+  // délai maximal de 10 s : sans réponse, on affiche l'erreur au lieu de rester bloqué sur « Chargement »
+  const load = () => (cache ??= fetch('/api/feedback', { signal: AbortSignal.timeout(10000) }).then(async r => ({ status: r.status, data: await r.json().catch(() => ({})) })).catch(() => ({ status: 0, data: {} })));
 
   for (const box of document.querySelectorAll<HTMLElement>('.fb-box')) {
     const L = TXT[box.dataset.l as 'fr' | 'en'];
@@ -83,11 +85,13 @@ const id = (s: string) => `${s}-${l}`;
   // avis publiés (moyenne, répartition, liste avec bouton « Signaler »)
   function render(box: HTMLElement) {
     const L = TXT[box.dataset.l as 'fr' | 'en'], form = box.querySelector('form')!;
+    const sum = box.querySelector('.fb-summary')!, list = box.querySelector('.fb-list')!;
+    if (!sum.querySelector('.fb-avg')) sum.replaceChildren(mk('p', 'na', L.loading));
     load().then(({ status: st, data }) => {
-      const sum = box.querySelector('.fb-summary')!, list = box.querySelector('.fb-list')!;
       if (st === 503 || data.disabled) { sum.replaceChildren(mk('p', 'na', L.off)); form.querySelector('button')!.disabled = true; return; }
-      if (st !== 200) { sum.replaceChildren(mk('p', 'na', L.err)); return; }
+      if (st !== 200) { sum.replaceChildren(mk('p', 'na', L.loadErr)); return; }
       const s = data.stats;
+      if (!s || !Array.isArray(data.items)) { sum.replaceChildren(mk('p', 'na', L.loadErr)); return; }
       if (!s.count) { sum.replaceChildren(mk('p', 'na', L.none)); return; }
       const head = mk('p', 'fb-avg'); head.append(stars(Math.round(s.average)), ' ', mk('b', '', L.avg(s.average, s.count)));
       const dist = mk('div', 'fb-dist');

@@ -87,3 +87,20 @@ test('exports CSV présents et cohérents', opt, () => {
   const csv = readFileSync(join(PUB, 'export', 'encyclopedie-spatiale.csv'), 'utf8');
   assert.equal(csv.trim().split('\n').length - 1, index.length, 'lignes CSV ≠ objets');
 });
+
+// Désignations provisoires (« S/2023 S 51 ») : nom, nom français et code catalogue doivent concorder sur TOUT le catalogue.
+// Protège contre les fautes de frappe de la source (ex. « S/2005 U 1 » pour S/2025 U 1, code « S2020S51 » pour S/2023 S 51).
+test('désignations provisoires : name = name_fr et code catalogue cohérent (export CSV complet)', opt, () => {
+  const csv = readFileSync(join(PUB, 'export', 'encyclopedie-spatiale.csv'), 'utf8').replace(/^﻿/, '');
+  const PROV = /^S\/\d{4} [A-Z] \d+$/, norm = s => s.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const bad = [];
+  for (const line of csv.trim().split('\n').slice(1)) {
+    const [id, name, fr, , , code] = line.split(','); // pas de virgule dans ces champs pour les désignations
+    if (!PROV.test(name) && !PROV.test(fr)) continue;
+    if (name !== fr) bad.push(`${id} : name « ${name} » ≠ name_fr « ${fr} »`);
+    if (norm(code) !== norm(name)) bad.push(`${id} : code « ${code} » ≠ désignation « ${name} »`);
+    const year = Number(name.slice(2, 6));
+    if (year < 1900 || year > new Date().getFullYear()) bad.push(`${id} : année de désignation impossible (${name})`);
+  }
+  assert.deepEqual(bad, []);
+});

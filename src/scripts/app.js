@@ -2,6 +2,7 @@ import { T } from './i18n.js';
 import { scatter, bars, PALETTE } from './charts.js';
 import { srcOf, objPath } from '../../lib/sources.mjs';
 import { PROP_GLOSS } from '../data/glossary.mjs';
+import { homeStats } from '../data/stats.mjs';
 import { helio, orbitPoints, PLANET_IDS, VALID, dist as dist3, AU_KM, C_KMS } from '../../lib/planets.mjs';
 
 const $ = s => document.querySelector(s);
@@ -887,6 +888,14 @@ async function openCompare(push) {
 $('#cmpDlg').addEventListener('close', () => { if (new URLSearchParams(location.search).get('cmp')) { history.state?.cmp ? history.back() : history.replaceState(null, '', location.pathname); } });
 $('#cmpDlg').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.close(); });
 
+/* ---------- bandeau de l'accueil : objets par onglet + date des données (déjà présent dans le HTML, ici traduit) ---------- */
+function drawStats() {
+  if (!META) return;
+  const s = homeStats(META, lang), host = $('#stats');
+  host.replaceChildren(el('b', { text: s.total }), ...s.items.map(i => el('span', {}, ` · ${i.label} `, el('b', { text: i.n }))),
+    ' · ', el('span', {}, s.dateIso ? el('time', { datetime: s.dateIso, text: s.date }) : s.date));
+}
+
 /* ---------- langue & init ---------- */
 function applyLang() {
   document.documentElement.lang = lang;
@@ -894,7 +903,7 @@ function applyLang() {
   document.querySelectorAll('[data-i18n-ph]').forEach(n => { n.placeholder = t()[n.dataset.i18nPh]; });
   $('#lang').textContent = lang === 'fr' ? 'EN' : 'FR';
   document.title = t().title;
-  drawCats(); drawFilterOptions(); if (META) $('#foot').textContent = t().foot(META.total, META.built);
+  drawCats(); drawFilterOptions(); drawStats(); if (META) $('#foot').textContent = t().foot(META.total, META.dataDate ?? META.built);
 }
 $('#lang').addEventListener('click', () => {
   lang = lang === 'fr' ? 'en' : 'fr'; try { localStorage.setItem('lang', lang); } catch {}

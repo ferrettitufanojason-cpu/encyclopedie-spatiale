@@ -222,3 +222,7 @@ a.gl:hover, a.gl:focus-visible { color: var(--text); border-color: var(--acc); }
 .fb-report { margin-top: 6px; background: none; border: 0; padding: 0; color: var(--mute); font: inherit; font-size: 12px; cursor: pointer; text-decoration: underline; } .fb-report:disabled { cursor: default; text-decoration: none; }
 .chart-tip .tip-hint { color: #7ee2a8; font-style: normal; font-size: 12px; }
 @media (max-width: 700px) { .docmain table { display: block; max-width: 100%; overflow-x: auto; } }
+
+/* bandeau de l'accueil : objets par onglet et date des données */
+.stats { margin: 0; padding: 8px 16px 0; color: var(--mute); font-size: 13px; line-height: 1.5; }
+.stats b { color: var(--text); font-weight: 600; }

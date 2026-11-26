@@ -161,7 +161,12 @@ try { commit ??= (await import('node:child_process')).execSync('git rev-parse --
 const report = existsSync(join(DATA_DIR, 'import-report.json')) ? JSON.parse(await readFile(join(DATA_DIR, 'import-report.json'), 'utf8')) : null;
 const review = existsSync(join(ROOT, 'scripts', 'review.json')) ? JSON.parse(await readFile(join(ROOT, 'scripts', 'review.json'), 'utf8')) : { reviewers: [] };
 const counts = {}; for (const c of index) counts[c.k] = (counts[c.k] ?? 0) + 1;
-await writeFile(join(OUT, 'meta.json'), JSON.stringify({ built: today, version: today.replace(/-/g, '.'), commit, total: index.length, counts, newExoplanets: index.filter(c => c.nw).length, sources, importReport: report, review, exports: Object.keys(byCat) }));
+// comptes par onglet du site (même regroupement que groupOf() dans src/scripts/app.js) et date du dernier import des données
+const EVENT_SUBS = new Set(['meteor-shower', 'opposition', 'elongation', 'conjunction', 'solar-eclipse', 'lunar-eclipse', 'gravitational-wave']);
+const groupOf = c => (EVENT_SUBS.has(c.s) ? 'event' : c.s === 'mission' ? 'mission' : c.k === 'other' ? 'region' : c.k === 'exoplanet' ? 'planet' : c.k);
+const groups = {}; for (const c of index) groups[groupOf(c)] = (groups[groupOf(c)] ?? 0) + 1;
+const dataDate = report?.date?.slice(0, 10) ?? null;
+await writeFile(join(OUT, 'meta.json'), JSON.stringify({ built: today, version: today.replace(/-/g, '.'), commit, total: index.length, counts, groups, dataDate, newExoplanets: index.filter(c => c.nw).length, sources, importReport: report, review, exports: Object.keys(byCat) }));
 // ---- plan du site et robots.txt (adresses absolues : SITE_URL, ou l'adresse de production fournie par Vercel) ----
 const PAGES = ['/', '/methodologie/', '/glossaire/', '/parcours/', '/avis/', '/mentions-legales/'];
 const xmlEsc = x => x.replace(/&/g, '&amp;');

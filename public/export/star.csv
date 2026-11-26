@@ -1,5 +1,5 @@
 ﻿id,name,name_fr,category,subcategory,catalog_code,mass_earth_masses,radius_earth_radii,distance_light_years,temperature_K,discovery_year,discovery_method,ra_deg,dec_deg,source,last_update,url
-sun,Sun,Le Soleil,star,sun,SOLEIL,333000,109.2,,0,,,,,ssod,2026-11-25,https://encyclopedie-spatiale.example/objet/sun
+sun,Sun,Le Soleil,star,sun,SOLEIL,333000,109.2,,0,,,,,ssod,2026-11-26,https://encyclopedie-spatiale.example/objet/sun
 2mass-j04414489+2301513,2MASS J04414489+2301513,,star,spectral-M,2MASS J04414489+2301513,6326,25.3,392.8,2936,,,70.43707110527,23.030941059859998,simbad,2026-10-09,https://encyclopedie-spatiale.example/objet/2mass-j04414489%2B2301513
 corot-12,CoRoT-12,,star,spectral-G,CoRoT-12,358900,121.7,3674,5675,,,100.76567929756001,-1.29642890732,simbad,2026-05-28,https://encyclopedie-spatiale.example/objet/corot-12
 corot-13,CoRoT-13,,star,spectral-G,CoRoT-13,362900,110.2,3747,5945,,,102.72113606905002,-5.08644188886,simbad,2026-01-29,https://encyclopedie-spatiale.example/objet/corot-13
