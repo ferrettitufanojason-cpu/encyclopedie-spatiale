@@ -1,0 +1,10 @@
+---
+import GameShell from '../../components/GameShell.astro';
+---
+<GameShell titleFr="L’ordre des planètes" titleEn="Order of the planets" path="/jeux/ordre-des-planetes/" description="Jeu : range les huit planètes du Système solaire depuis le Soleil, avec un indice tiré des vraies distances en cas d'erreur."
+  introFr="Glisse les planètes (ou utilise les flèches ▲ ▼) pour les ranger de la plus proche à la plus lointaine du Soleil. En cas d’erreur, un indice tiré des vraies distances t’aide."
+  introEn="Drag the planets (or use the ▲ ▼ arrows) to order them from closest to farthest from the Sun. If you make a mistake, a clue based on the real distances helps you." />
+<script>
+  import { mount } from '../../scripts/games/order.js';
+  mount(document.getElementById('game')!);
+</script>
