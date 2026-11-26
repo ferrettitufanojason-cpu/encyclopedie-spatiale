@@ -84,8 +84,9 @@ L'action `.github/workflows/weekly-update.yml` s'exécute chaque lundi (et à la
 - *Étoiles* : 4 641 (types spectraux O–M, naines brunes et blanches, étoiles à neutrons, pulsars, magnétars, trous noirs).
 - *Régions* : 159 (galaxies, amas de galaxies, nébuleuses, amas ouverts et globulaires).
 - *Petits corps* : 4 994 (astéroïdes, comètes, objets de Kuiper, interstellaires).
-- *Autres* : 88 constellations, 39 missions et sondes dont l'ISS, 720 événements (268 ondes gravitationnelles, 224 éclipses solaires, 228 éclipses lunaires).
-- *En direct* : ISS (position + vidéo), **agenda du ciel des 12 prochains mois**, APOD, EPIC, rovers, recherche SIMBAD.
+- *Événements* (onglet dédié, filtre « À venir / Passés ») : **agenda du ciel des 12 prochains mois** en tête, puis 268 ondes gravitationnelles, 224 éclipses solaires, 228 éclipses lunaires, et les événements à venir ci-dessous.
+- *Autres* : 88 constellations, 39 missions et sondes dont l'ISS.
+- *En direct* : ISS (position + vidéo), APOD, EPIC, rovers, recherche SIMBAD.
 - *Événements à venir* : maxima des pluies de météores (calendrier officiel IMO, année en cours et suivante), oppositions des planètes, plus grandes élongations de Mercure et Vénus, rapprochements de planètes (calculés au pas d'un jour avec les éphémérides **JPL Horizons**), éclipses.
 - *Graphiques interactifs* : masse–rayon des exoplanètes (les valeurs **estimées** par la NASA via une relation masse-rayon sont séparées des valeurs mesurées et masquées par défaut), diagramme de Hertzsprung-Russell (magnitude absolue calculée, sans correction d'extinction), découvertes d'exoplanètes par année et par méthode ; survol, clic vers la fiche, zoom par sélection, légende filtrante, export PNG/CSV.
 

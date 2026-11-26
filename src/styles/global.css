@@ -170,3 +170,5 @@ a { color: var(--acc); }
   .props th { width: 44%; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+.ev-agenda { margin-bottom: 8px; } .ev-agenda .when { padding: 0 0 6px; } .ev-agenda .ev-all { margin-top: 18px; }
+.filters.ev-mode fieldset { display: none; }

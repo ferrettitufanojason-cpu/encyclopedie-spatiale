@@ -20,11 +20,12 @@ if (!['fr', 'en'].includes(lang)) lang = 'fr';
 const t = () => T[lang];
 const norm = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
-const TOP = ['planet', 'star', 'region', 'smallbody', 'other', 'charts', 'live'];
-const groupOf = k => (k === 'exoplanet' ? 'planet' : k === 'planet' ? 'planet' : k === 'star' ? 'star' : k);
+const TOP = ['planet', 'star', 'region', 'smallbody', 'event', 'other', 'charts', 'live'];
+const EVENT_SUBS = new Set(['meteor-shower', 'opposition', 'elongation', 'conjunction', 'solar-eclipse', 'lunar-eclipse', 'gravitational-wave']);
+const groupOf = c => (EVENT_SUBS.has(c.s) ? 'event' : c.k === 'exoplanet' ? 'planet' : c.k);
 const subOf = c => (c.k === 'exoplanet' ? 'exoplanet' : c.s);
 
-const state = { q: '', cat: 'planet', sub: '', type: '', method: '', hz: false, sort: 'rel',
+const state = { q: '', cat: 'planet', sub: '', when: '', type: '', method: '', hz: false, sort: 'rel',
   m: [null, null], r: [null, null], d: [null, null], q2: [null, null], y: [null, null] };
 let ALL = [], META = null, VIEW = [], shown = 0;
 const PAGE = 48;
@@ -118,10 +119,12 @@ function apply() {
   if (state.cat === 'live') { showCharts(false); showLive(true); drawSimbadBox(); return; }
   if (state.cat === 'charts') { showLive(false); showCharts(true); drawSimbadBox(); return; }
   showLive(false); showCharts(false);
+  const nowIso = new Date().toISOString().slice(0, 10);
   const toks = norm(state.q).split(/\s+/).filter(Boolean);
   VIEW = ALL.filter(c => {
-    if (groupOf(c.k) !== state.cat) return false;
+    if (groupOf(c) !== state.cat) return false;
     if (state.sub && subOf(c) !== state.sub) return false;
+    if (state.cat === 'event' && state.when && (state.when === 'up') !== (c.dt != null && c.dt >= nowIso)) return false;
     if (state.type && !(c.k === 'exoplanet' && c.s === state.type)) return false;
     if (state.method && c.md !== state.method) return false;
     if (state.hz && c.hz !== 1) return false;
@@ -129,7 +132,6 @@ function apply() {
     if (toks.length) { const h = c._h ?? (c._h = norm(`${c.n} ${c.nf ?? ''} ${c.c} ${c.h ?? ''} ${c.x ?? ''}`)); for (const k of toks) if (!h.includes(k)) return false; }
     return true;
   });
-  const nowIso = new Date().toISOString().slice(0, 10);
   const S = { rel: (a, b) => (b.ss ?? 0) - (a.ss ?? 0) || (a.dt && b.dt ? ((a.dt >= nowIso) !== (b.dt >= nowIso) ? (a.dt >= nowIso ? -1 : 1) : a.dt >= nowIso ? a.dt.localeCompare(b.dt) : b.dt.localeCompare(a.dt)) : 0) || (a.ss ? (b.m ?? 0) - (a.m ?? 0) : a.n.localeCompare(b.n, 'en', { numeric: true })),
     name: (a, b) => a.n.localeCompare(b.n, 'en', { numeric: true }),
     dist: (a, b) => (a.d ?? 1e18) - (b.d ?? 1e18), mass: (a, b) => (b.m ?? -1) - (a.m ?? -1),
@@ -139,6 +141,8 @@ function apply() {
   $('#count').textContent = t().results(VIEW.length);
   drawSubs();
   $('#exoOnly').hidden = !(state.cat === 'planet' && (state.sub === 'exoplanet' || !state.sub));
+  $('#filters').classList.toggle('ev-mode', state.cat === 'event'); // masse, rayon… n'ont pas de sens pour un événement
+  drawEvAgenda();
   drawSimbadBox();
 }
 function more() {
@@ -150,15 +154,15 @@ new IntersectionObserver(es => { if (es[0].isIntersecting && shown < VIEW.length
 
 /* ---------- navigation catégories ---------- */
 function drawCats() {
-  const counts = {}; for (const c of ALL) counts[groupOf(c.k)] = (counts[groupOf(c.k)] ?? 0) + 1;
+  const counts = {}; for (const c of ALL) counts[groupOf(c)] = (counts[groupOf(c)] ?? 0) + 1;
   counts.live = 1; counts.charts = 1;
   $('#cats').replaceChildren(...TOP.map(k => el('button', { type: 'button', 'aria-pressed': String(state.cat === k), disabled: !counts[k],
-    onclick: () => { state.cat = k; state.sub = ''; state.type = ''; apply(); drawCats(); } },
+    onclick: () => { state.cat = k; state.sub = ''; state.type = ''; state.when = ''; apply(); drawCats(); } },
     t().cat[k], el('em', { text: k === 'live' ? '●' : k === 'charts' ? '3' : counts[k] ? counts[k].toLocaleString(lang) : t().soon }))));
 }
 function drawSubs() {
   const counts = {};
-  for (const c of ALL) if (groupOf(c.k) === state.cat) counts[subOf(c)] = (counts[subOf(c)] ?? 0) + 1;
+  for (const c of ALL) if (groupOf(c) === state.cat) counts[subOf(c)] = (counts[subOf(c)] ?? 0) + 1;
   const SUBORDER = ['sun', 'spectral-O', 'spectral-B', 'spectral-A', 'spectral-F', 'spectral-G', 'spectral-K', 'spectral-M', 'other-star', 'brown-dwarf', 'white-dwarf', 'neutron-star', 'pulsar', 'magnetar', 'black-hole',
     'galaxy', 'galaxy-cluster', 'nebula', 'open-cluster', 'globular-cluster', 'main-belt', 'near-earth', 'trojan', 'other-asteroid', 'kuiper', 'comet', 'interstellar', 'mission', 'meteor-shower', 'opposition', 'elongation', 'conjunction', 'solar-eclipse', 'lunar-eclipse', 'gravitational-wave'];
   const keys = Object.keys(counts).sort((a, b) => (SUBORDER.indexOf(a) + 1 || 99) - (SUBORDER.indexOf(b) + 1 || 99));
@@ -483,19 +487,6 @@ async function mountLive() {
   const issHost = section(T_.issLive); issHost.querySelector('h3').remove();
   mountIss(issHost, { inFiche: false });
   issHost.append(el('p', {}, el('a', { href: '?o=mission-international-space-station', onclick: e => { e.preventDefault(); openObj('mission-international-space-station', true); }, text: T_.issFiche })));
-  // Agenda du ciel (12 prochains mois)
-  const ICON = { 'solar-eclipse': '🌑', 'lunar-eclipse': '🌕', 'meteor-shower': '☄', opposition: '🪐', elongation: '✦', conjunction: '⚭' };
-  const t0 = new Date().toISOString().slice(0, 10), t1 = new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10);
-  const items = ALL.filter(c => c.dt && c.dt >= t0 && c.dt <= t1 && ICON[c.s] && (c.s !== 'meteor-shower' || (c.zh >= 10 && !/^Dayt/.test(c.n)))).sort((a, b) => a.dt.localeCompare(b.dt));
-  const byMonth = new Map();
-  for (const c of items) { const k = c.dt.slice(0, 7); (byMonth.get(k) ?? byMonth.set(k, []).get(k)).push(c); }
-  section(T_.agendaTitle, el('p', { class: 'credit', text: T_.agendaNote }),
-    items.length ? el('div', { class: 'agenda' }, [...byMonth].map(([m, list]) => el('div', { class: 'ag-month' },
-      el('h4', { text: new Date(m + '-15T12:00:00Z').toLocaleDateString(lang, { month: 'long', year: 'numeric', timeZone: 'UTC' }) }),
-      el('ul', {}, list.map(c => el('li', {}, el('span', { class: 'ag-day', text: new Date(c.dt + 'T12:00:00Z').toLocaleDateString(lang, { day: 'numeric', month: 'short', timeZone: 'UTC' }) }),
-        el('span', { class: 'ag-ico', 'aria-hidden': 'true', text: ICON[c.s] }),
-        el('a', { href: `?o=${c.i}`, onclick: e => { e.preventDefault(); openObj(c.i, true); }, text: (lang === 'fr' && c.nf ? c.nf : c.n).split(' — ')[0] }),
-        el('small', { text: t().subOne[c.s] ?? '' }))))))) : el('p', { class: 'na', text: T_.agendaEmpty }));
   // APOD
   const ap = section(T_.apodTitle, el('p', { class: 'na', text: T_.loading }));
   getJson('/api/apod').then(a => {
@@ -524,6 +515,30 @@ async function mountLive() {
           el('img', { src: i.small ?? i.medium, alt: `${r.name} — ${i.camera}`, loading: 'lazy' }), el('small', { text: `${i.camera.replace(/_/g, ' ')}` })))),
         el('p', { class: 'credit' }, `${T_.imgCredit} : NASA/JPL-Caltech · `, el('a', { href: r.page, target: '_blank', rel: 'noopener', text: T_.source + ' : ' + r.name }))]));
   }).catch(() => rv.append(el('p', { class: 'na', text: T_.liveErr })));
+}
+/* ---------- onglet « Événements » : agenda des 12 prochains mois + choix à venir / passés ---------- */
+const EV_ICON = { 'solar-eclipse': '🌑', 'lunar-eclipse': '🌕', 'meteor-shower': '☄', opposition: '🪐', elongation: '✦', conjunction: '⚭' };
+function drawEvAgenda() {
+  const host = $('#evAgenda'), T_ = t();
+  host.hidden = state.cat !== 'event';
+  if (host.hidden) { host.replaceChildren(); return; }
+  const wb = (k, label) => el('button', { type: 'button', 'aria-pressed': String(state.when === k), onclick: () => { state.when = k; apply(); } }, label);
+  host.replaceChildren(el('h2', { text: T_.cat.event }), el('p', { class: 'credit', text: T_.evIntro }),
+    el('div', { class: 'subs when', role: 'group', 'aria-label': T_.whenLabel }, wb('', T_.whenAll), wb('up', T_.whenUp), wb('past', T_.whenPast)));
+  if (state.when === 'past' || state.q || (state.sub && !EV_ICON[state.sub])) return;
+  const t0 = new Date().toISOString().slice(0, 10), t1 = new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10);
+  const items = ALL.filter(c => c.dt && c.dt >= t0 && c.dt <= t1 && EV_ICON[c.s] && (!state.sub || c.s === state.sub)
+    && (c.s !== 'meteor-shower' || (c.zh >= 10 && !/^Dayt/.test(c.n)))).sort((a, b) => a.dt.localeCompare(b.dt));
+  const byMonth = new Map();
+  for (const c of items) { const k = c.dt.slice(0, 7); (byMonth.get(k) ?? byMonth.set(k, []).get(k)).push(c); }
+  host.append(el('section', { class: 'live-sec' }, el('h3', { text: T_.agendaTitle }), el('p', { class: 'credit', text: T_.agendaNote }),
+    items.length ? el('div', { class: 'agenda' }, [...byMonth].map(([m, list]) => el('div', { class: 'ag-month' },
+      el('h4', { text: new Date(m + '-15T12:00:00Z').toLocaleDateString(lang, { month: 'long', year: 'numeric', timeZone: 'UTC' }) }),
+      el('ul', {}, list.map(c => el('li', {}, el('span', { class: 'ag-day', text: new Date(c.dt + 'T12:00:00Z').toLocaleDateString(lang, { day: 'numeric', month: 'short', timeZone: 'UTC' }) }),
+        el('span', { class: 'ag-ico', 'aria-hidden': 'true', text: EV_ICON[c.s] }),
+        el('a', { href: `?o=${c.i}`, onclick: e => { e.preventDefault(); openObj(c.i, true); }, text: (lang === 'fr' && c.nf ? c.nf : c.n).split(' — ')[0] }),
+        el('small', { text: t().subOne[c.s] ?? '' }))))))) : el('p', { class: 'na', text: T_.agendaEmpty })),
+    el('h3', { class: 'ev-all', text: T_.evAllTitle }));
 }
 function showLive(on) {
   $('#live').hidden = !on; ['#filters', '#grid', '.exp-bar', '#subs', '#sentinel'].forEach(s => { const n = $(s); if (n) n.hidden = on; });
