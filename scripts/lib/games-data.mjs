@@ -46,7 +46,8 @@ export function buildGamesData(objects, images, built) {
   const missions = withDesc(MISSION_GOALS.map(t => t.id)).map(m => ({ ...m, launch: byId.get(m.i).props.launch?.t ?? byId.get(m.i).launchDate ?? null }));
 
   // « Vie d'une étoile » : vrais exemples de chaque fin de vie présents dans l'encyclopédie
-  const remnants = objects.filter(o => ['white-dwarf', 'neutron-star', 'pulsar', 'magnetar', 'black-hole'].includes(o.sub))
+  // les trous noirs supermassifs (ex. Sagittarius A*) ne proviennent pas de la mort d'une étoile : écartés
+  const remnants = objects.filter(o => ['brown-dwarf', 'white-dwarf', 'neutron-star', 'pulsar', 'magnetar', 'black-hole'].includes(o.sub) && !o.tags?.includes('supermassive'))
     .map(o => [o.id, o.name, o.sub === 'pulsar' || o.sub === 'magnetar' ? 'neutron-star' : o.sub, ly(o) == null ? null : Math.round(ly(o))]);
 
   // « Zoom sur l'univers » : chaque étape est une valeur de l'encyclopédie (rien n'est saisi à la main) ; étape absente si la donnée manque

@@ -1,0 +1,10 @@
+---
+import GameShell from '../../components/GameShell.astro';
+---
+<GameShell titleFr="Trous noirs : vrai ou faux ?" titleEn="Black holes: true or false?" path="/jeux/trous-noirs-vrai-faux/" description="Jeu : vrai ou faux sur les trous noirs, avec une explication à chaque réponse."
+  introFr="Vrai ou faux ? Des affirmations sur les trous noirs, avec une explication après chaque réponse. Certaines sont tirées des fiches de vrais trous noirs."
+  introEn="True or false? Statements about black holes, with an explanation after each answer. Some come from the pages of real black holes." />
+<script>
+  import { mount } from '../../scripts/games/bh.js';
+  mount(document.getElementById('game')!);
+</script>

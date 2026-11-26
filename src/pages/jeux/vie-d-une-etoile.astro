@@ -1,0 +1,10 @@
+---
+import GameShell from '../../components/GameShell.astro';
+---
+<GameShell titleFr="Vie d’une étoile" titleEn="Life of a star" path="/jeux/vie-d-une-etoile/" description="Jeu : choisis la masse d'une étoile et découvre sa fin : naine blanche, supernova, étoile à neutrons ou trou noir, avec de vrais exemples."
+  introFr="Fais glisser le curseur pour choisir la masse d’une étoile, et découvre comment elle finira : naine blanche, supernova, étoile à neutrons ou trou noir. De vrais exemples de l’encyclopédie illustrent chaque cas."
+  introEn="Move the slider to choose a star’s mass and find out how it will end: white dwarf, supernova, neutron star or black hole. Real examples from the encyclopedia illustrate each case." />
+<script>
+  import { mount } from '../../scripts/games/star.js';
+  mount(document.getElementById('game')!);
+</script>

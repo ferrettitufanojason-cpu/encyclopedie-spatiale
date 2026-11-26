@@ -287,3 +287,18 @@ a.gm-card:hover, a.gm-card:focus-visible { border-color: var(--acc); transform: 
 .gm-match img { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; flex: none; }
 .gm-match select, .gm-select { width: 100%; padding: 10px; background: var(--bg2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; font: inherit; }
 .gm-match-ex { margin: 0; font-size: 14px; color: #cfd9f0; }
+.gm-star input[type=range] { width: 100%; max-width: 620px; accent-color: var(--acc); height: 32px; }
+.gm-scale { position: relative; height: 18px; max-width: 620px; margin: 0 8px; color: var(--mute); font-size: 12px; }
+.gm-scale span { position: absolute; transform: translateX(-50%); }
+.gm-fate { margin: 12px 0; padding: 12px 14px; border-radius: var(--r); border: 1px solid var(--line); background: var(--bg2); max-width: 720px; }
+.gm-fate.f-white-dwarf { border-color: #cad7ff; } .gm-fate.f-neutron-star { border-color: var(--acc2); } .gm-fate.f-black-hole { border-color: #ff7b7b; } .gm-fate.f-brown-dwarf { border-color: #c38b5f; }
+.gm-zoom { position: relative; width: min(100%, 320px); aspect-ratio: 1; margin: 8px auto; display: grid; place-items: center; }
+.gm-ring { position: absolute; border-radius: 50%; border: 2px solid var(--acc); aspect-ratio: 1; }
+.gm-ring.outer { width: 96%; } .gm-ring.inner { width: var(--s); border-color: var(--warn); min-width: 3px; }
+.gm-ring.inner.anim { animation: gm-shrink .9s ease-out; }
+@keyframes gm-shrink { from { width: 96%; } to { width: var(--s); } }
+@media (prefers-reduced-motion: reduce) { .gm-ring.inner.anim { animation: none; } }
+.gm-zimg { width: 38%; aspect-ratio: 1; object-fit: cover; border-radius: 50%; opacity: .85; }
+.gm-dots { list-style: none; display: flex; gap: 6px; justify-content: center; padding: 0; }
+.gm-dots li { width: 10px; height: 10px; border-radius: 50%; background: var(--line); } .gm-dots li.seen { background: #6ea8ff66; } .gm-dots li.on { background: var(--acc); }
+.gm-zinfo { max-width: 720px; margin: 0 auto; } .gm-zinfo p { margin: 6px 0; }

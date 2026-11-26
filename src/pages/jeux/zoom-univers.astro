@@ -1,0 +1,10 @@
+---
+import GameShell from '../../components/GameShell.astro';
+---
+<GameShell titleFr="Zoom sur l’univers" titleEn="Zoom through the universe" path="/jeux/zoom-univers/" description="Jeu : de la Terre à l'objet le plus lointain de l'encyclopédie, les ordres de grandeur des distances de l'Univers."
+  introFr="De la Terre jusqu’à l’objet le plus lointain de l’encyclopédie, étape par étape. Chaque distance vient d’une fiche ; utilise les boutons ou les flèches du clavier."
+  introEn="From Earth to the farthest object in the encyclopedia, step by step. Each distance comes from an object page; use the buttons or the arrow keys." />
+<script>
+  import { mount } from '../../scripts/games/zoom.js';
+  mount(document.getElementById('game')!);
+</script>

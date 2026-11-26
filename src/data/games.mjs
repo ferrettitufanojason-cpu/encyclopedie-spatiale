@@ -8,9 +8,9 @@ export const GAME_SECTIONS = [
     { slug: 'lunes-mysterieuses', ready: true, fr: ['Les lunes mystérieuses', 'Associe chaque lune à sa particularité.'], en: ['Mysterious moons', 'Match each moon with what makes it special.'] },
   ] },
   { id: 'etoiles-univers', icon: '✨', fr: 'Étoiles et univers', en: 'Stars and universe', games: [
-    { slug: 'vie-d-une-etoile', fr: ['Vie d’une étoile', 'Choisis une masse et découvre la naissance et la fin de l’étoile.'], en: ['Life of a star', 'Pick a mass and discover how the star is born and ends.'] },
-    { slug: 'zoom-univers', fr: ['Zoom sur l’univers', 'De la Terre à l’univers, avec les ordres de grandeur.'], en: ['Zoom through the universe', 'From Earth to the universe, with orders of magnitude.'] },
-    { slug: 'trous-noirs-vrai-faux', fr: ['Trous noirs : vrai ou faux ?', 'Trie les affirmations, avec explication.'], en: ['Black holes: true or false?', 'Sort the statements, with explanations.'] },
+    { slug: 'vie-d-une-etoile', ready: true, fr: ['Vie d’une étoile', 'Choisis une masse et découvre la naissance et la fin de l’étoile.'], en: ['Life of a star', 'Pick a mass and discover how the star is born and ends.'] },
+    { slug: 'zoom-univers', ready: true, fr: ['Zoom sur l’univers', 'De la Terre à l’univers, avec les ordres de grandeur.'], en: ['Zoom through the universe', 'From Earth to the universe, with orders of magnitude.'] },
+    { slug: 'trous-noirs-vrai-faux', ready: true, fr: ['Trous noirs : vrai ou faux ?', 'Trie les affirmations, avec explication.'], en: ['Black holes: true or false?', 'Sort the statements, with explanations.'] },
   ] },
   { id: 'exoplanetes', icon: '🌍', fr: 'Exoplanètes', en: 'Exoplanets', games: [
     { slug: 'habitable-ou-pas', ready: true, fr: ['Habitable ou pas ?', 'Une vraie exoplanète : est-elle dans la zone habitable de son étoile ?'], en: ['Habitable or not?', 'A real exoplanet: is it in its star’s habitable zone?'] },
