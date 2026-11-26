@@ -132,7 +132,7 @@ Variables d'environnement :
 ## Accessibilité et responsive
 
 Navigation clavier (cartes = liens, fiches dans `<dialog>`, focus visible), lien d'évitement, étiquettes ARIA, annonces `aria-live` (résultats, ISS), respect de `prefers-reduced-motion`, contrastes élevés sur fond sombre, mise en page adaptée mobile (filtres repliables, lecteur vidéo empilé).
-Un test automatique **axe-core** (WCAG 2.1 A/AA, hors contraste) passe sur le HTML statique de 6 pages (accueil, méthodologie, parcours, glossaire, mentions légales, 404). **Non audités automatiquement** : le contraste, et les vues construites dynamiquement (fiches, comparateur, direct). Un audit manuel avec lecteur d'écran reste à faire.
+Un test automatique **axe-core** (WCAG 2.1 A/AA, hors contraste) passe sur le HTML statique de 7 pages (accueil, méthodologie, parcours, glossaire, avis, mentions légales, 404). **Non audités automatiquement** : le contraste, et les vues construites dynamiquement (fiches, comparateur, direct). Un audit manuel avec lecteur d'écran reste à faire.
 
 ## Données ouvertes, citation, qualité (pour l'enseignement et la recherche)
 
