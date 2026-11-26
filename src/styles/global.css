@@ -322,3 +322,5 @@ a.gm-card:hover, a.gm-card:focus-visible { border-color: var(--acc); transform: 
 .gm-duel-setup { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; max-width: 560px; }
 .gm-duel-res { display: grid; gap: 10px; padding-left: 22px; } .gm-duel-res li { padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); } .gm-duel-res p { margin: 4px 0; }
 .gm-colh { font-size: 15px; margin: 12px 0 6px; color: #cfd9f0; }
+.gm-card em.gm-level { margin-top: auto; padding-top: 6px; font-size: 12px; font-style: normal; } p.gm-level { margin: 4px 0 0; font-size: 14px; }
+.gm-level { color: var(--mute); } .gm-level.lv1 { color: var(--ok); } .gm-level.lv2 { color: var(--warn); } .gm-level.lv3 { color: #ff9b9b; }

@@ -30,3 +30,20 @@ export const GAME_SECTIONS = [
     { slug: 'duel', ready: true, fr: ['Duel', 'Deux joueurs sur le même écran, mêmes questions.'], en: ['Duel', 'Two players on the same screen, same questions.'] },
   ] },
 ];
+
+// Niveau de difficulté indicatif (1 facile, 2 moyen, 3 expert ; 0 = mélange de tous les niveaux). Simple repère :
+// tous les jeux restent ouverts à tous, rien n'est à débloquer. Dans chaque rubrique, les jeux sont rangés du plus facile au plus difficile.
+export const GAME_LEVEL = {
+  'ordre-des-planetes': 1, 'le-plus-grand': 1, 'devine-la-planete': 2, 'lunes-mysterieuses': 2,
+  'zoom-univers': 1, 'trous-noirs-vrai-faux': 2, 'vie-d-une-etoile': 2,
+  'chasseur-d-exoplanetes': 2, 'habitable-ou-pas': 3,
+  'relie-les-etoiles': 1, 'ciel-de-ce-soir': 3,
+  'choisis-ta-destination': 2, 'mission-objectif': 3,
+  'defi-du-jour': 0, 'duel': 0,
+};
+export const LEVELS = {
+  0: { fr: 'Tous niveaux', en: 'All levels', stars: '' },
+  1: { fr: 'Facile', en: 'Easy', stars: '★☆☆' },
+  2: { fr: 'Moyen', en: 'Medium', stars: '★★☆' },
+  3: { fr: 'Expert', en: 'Expert', stars: '★★★' },
+};

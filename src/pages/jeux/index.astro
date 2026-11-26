@@ -1,14 +1,18 @@
 ---
 import Doc from '../../layouts/Doc.astro';
-import { GAME_SECTIONS } from '../../data/games.mjs';
-const body = (l: 'fr' | 'en') => GAME_SECTIONS.map(s => ({ ...s, title: s[l], games: s.games.map(g => ({ ...g, t: g[l][0], d: g[l][1] })) }));
+import { GAME_SECTIONS, GAME_LEVEL, LEVELS } from '../../data/games.mjs';
+// dans chaque rubrique : du plus facile au plus difficile ; « tous niveaux » et la collection à la fin
+const rank = (slug: string) => { const v = GAME_LEVEL[slug as keyof typeof GAME_LEVEL]; return v === undefined ? 9 : v === 0 ? 8 : v; };
+const body = (l: 'fr' | 'en') => GAME_SECTIONS.map(s => ({ ...s, title: s[l], games: [...s.games].sort((a, b) => rank(a.slug) - rank(b.slug)).map(g => ({ ...g, t: g[l][0], d: g[l][1], lv: GAME_LEVEL[g.slug as keyof typeof GAME_LEVEL] })) }));
 ---
 <Doc titleFr="Jeux" titleEn="Games" description="Apprendre l'espace en s'amusant : ordre des planètes, devinettes, exoplanètes habitables… Des jeux libres d'accès construits à partir des vraies données de l'encyclopédie." path="/jeux/">
   <Fragment slot="fr">
     <p class="lead">Apprendre l’espace en s’amusant. Tous les jeux sont ouverts dès le départ, sans compte ; les questions viennent des vraies données de l’encyclopédie. Après chaque réponse : une explication et un lien vers la fiche.</p>
+    <p class="credit">Dans chaque rubrique, les jeux sont rangés du plus facile au plus difficile : ★☆☆ facile, ★★☆ moyen, ★★★ expert. C’est un simple repère : tout le monde peut jouer à tout. Le bouton « Simple / Détaillé » rend aussi les textes plus ou moins précis.</p>
   </Fragment>
   <Fragment slot="en">
     <p class="lead">Learn about space while having fun. Every game is open from the start, no account needed; questions come from the encyclopedia’s real data. After each answer: an explanation and a link to the object’s page.</p>
+    <p class="credit">In each section, games go from easiest to hardest: ★☆☆ easy, ★★☆ medium, ★★★ expert. It is only a guide: anyone can play anything. The “Simple / Detailed” switch also makes the texts more or less precise.</p>
   </Fragment>
   <div class="gm-bar" id="gm-bar"></div>
   {(['fr', 'en'] as const).map(l => (
@@ -19,7 +23,7 @@ const body = (l: 'fr' | 'en') => GAME_SECTIONS.map(s => ({ ...s, title: s[l], ga
           <ul class="gm-cards">
             {s.games.map(g => (
               <li>{g.ready
-                ? <a class="gm-card" href={`/jeux/${g.slug}/`}><b>{g.t}</b><span>{g.d}</span></a>
+                ? <a class="gm-card" href={`/jeux/${g.slug}/`}><b>{g.t}</b><span>{g.d}</span>{g.lv !== undefined && <em class={`gm-level lv${g.lv}`}>{LEVELS[g.lv as 0 | 1 | 2 | 3].stars && <span aria-hidden="true">{LEVELS[g.lv as 0 | 1 | 2 | 3].stars} </span>}{l === 'fr' ? 'Niveau : ' : 'Level: '}{LEVELS[g.lv as 0 | 1 | 2 | 3][l]}</em>}</a>
                 : <div class="gm-card soon" aria-disabled="true"><b>{g.t}</b><span>{g.d}</span><em>{l === 'fr' ? 'Bientôt' : 'Coming soon'}</em></div>}</li>
             ))}
           </ul>

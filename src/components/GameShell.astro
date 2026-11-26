@@ -1,17 +1,22 @@
 ---
 // Gabarit d'une page de jeu : en-tête du site, présentation FR/EN, barre (style de texte, points), zone de jeu remplie par le script de la page.
 import Doc from '../layouts/Doc.astro';
+import { GAME_LEVEL, LEVELS } from '../data/games.mjs';
 interface Props { titleFr: string; titleEn: string; description: string; path: string; introFr: string; introEn: string }
 const { titleFr, titleEn, description, path, introFr, introEn } = Astro.props;
+const lv = GAME_LEVEL[path.split('/').filter(Boolean).pop() as keyof typeof GAME_LEVEL];
+const level = lv === undefined ? null : LEVELS[lv as 0 | 1 | 2 | 3];
 ---
 <Doc titleFr={titleFr} titleEn={titleEn} description={description} path={path}>
   <Fragment slot="fr">
     <p class="gm-crumb"><a href="/jeux/">← Tous les jeux</a></p>
     <p class="lead">{introFr}</p>
+    {level && <p class={`gm-level lv${lv}`}>{level.stars && <span aria-hidden="true">{level.stars} </span>}Niveau : {level.fr}</p>}
   </Fragment>
   <Fragment slot="en">
     <p class="gm-crumb"><a href="/jeux/">← All games</a></p>
     <p class="lead">{introEn}</p>
+    {level && <p class={`gm-level lv${lv}`}>{level.stars && <span aria-hidden="true">{level.stars} </span>}Level: {level.en}</p>}
   </Fragment>
   <div class="gm-bar" id="gm-bar"></div>
   <div class="game" id="game"><p class="na">Chargement du jeu… / Loading the game…</p></div>
