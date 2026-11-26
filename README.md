@@ -130,6 +130,7 @@ Variables d'environnement :
 
 ## Accessibilité et responsive
 
+Vérifié sur 19 pages et onglets × 4 formats (téléphone portrait 375 px et paysage, tablette portrait 768 px et paysage) : aucun débordement horizontal ; fiches et comparateur défilent dans la hauteur. **Tactile** : sur les graphiques, un premier toucher affiche le détail d’un point, un second ouvre la fiche, et des boutons « Zoom + / Zoom − » remplacent le zoom par rectangle ; la carte des planètes et les étoiles des avis se touchent du doigt.
 Navigation clavier (cartes = liens, fiches dans `<dialog>`, focus visible), lien d'évitement, étiquettes ARIA, annonces `aria-live` (résultats, ISS), respect de `prefers-reduced-motion`, contrastes élevés sur fond sombre, mise en page adaptée mobile (filtres repliables, lecteur vidéo empilé).
 Un test automatique **axe-core** (WCAG 2.1 A/AA, hors contraste) passe sur le HTML statique de 7 pages (accueil, méthodologie, parcours, glossaire, avis, mentions légales, 404). **Non audités automatiquement** : le contraste, et les vues construites dynamiquement (fiches, comparateur, direct). Un audit manuel avec lecteur d'écran reste à faire.
 

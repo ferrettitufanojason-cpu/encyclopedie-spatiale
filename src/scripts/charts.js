@@ -64,21 +64,34 @@ export function scatter(host, cfg) {
     if (drag?.w) { g.fillStyle = '#6ea8ff22'; g.strokeStyle = '#6ea8ff'; g.fillRect(drag.x0, drag.y0, drag.w, drag.h); g.strokeRect(drag.x0, drag.y0, drag.w, drag.h); }
     g.restore();
   }
-  function nearest(mx, my) {
-    let best = null, bd = 100; for (const p of visible()) { const d = (px(p.x) - mx) ** 2 + (py(p.y) - my) ** 2; if (d < bd) { bd = d; best = p; } } return best;
+  function nearest(mx, my, r2 = 100) {
+    let best = null, bd = r2; for (const p of visible()) { const d = (px(p.x) - mx) ** 2 + (py(p.y) - my) ** 2; if (d < bd) { bd = d; best = p; } } return best;
   }
   const pos = e => { const r = canvas.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
-  canvas.addEventListener('mousemove', e => {
+  const showTip = (p, mx, my, touch) => {
+    if (!p) { tip.hidden = true; return; }
+    tip.hidden = false; tip.innerHTML = cfg.tip(p) + (touch && cfg.onPick ? `<br><em class="tip-hint">${cfg.tapHint ?? ''}</em>` : '');
+    tip.style.left = Math.max(4, Math.min(mx + 12, W - 220)) + 'px'; tip.style.top = (touch ? Math.max(4, my - 90) : my + 12) + 'px';
+  };
+  // souris : survol = info-bulle, clic = fiche, glisser = zoom sur un rectangle
+  // tactile : 1er toucher = info-bulle, 2e toucher sur le même point = fiche (le glisser reste le défilement de la page)
+  canvas.addEventListener('pointermove', e => {
+    if (e.pointerType === 'touch') return;
     const [mx, my] = pos(e);
     if (drag) { drag.w = mx - drag.x0; drag.h = my - drag.y0; draw(); return; }
     hover = nearest(mx, my); canvas.style.cursor = hover ? 'pointer' : 'crosshair';
-    if (hover) { tip.hidden = false; tip.innerHTML = cfg.tip(hover); tip.style.left = Math.min(mx + 12, W - 220) + 'px'; tip.style.top = (my + 12) + 'px'; } else tip.hidden = true;
-    draw();
+    showTip(hover, mx, my, false); draw();
   });
-  canvas.addEventListener('mouseleave', () => { hover = null; tip.hidden = true; draw(); });
-  canvas.addEventListener('mousedown', e => { const [x, y] = pos(e); drag = { x0: x, y0: y, w: 0, h: 0 }; });
-  addEventListener('mouseup', e => {
-    if (!drag) return; const d = drag; drag = null;
+  canvas.addEventListener('pointerleave', e => { if (e.pointerType !== 'touch') { hover = null; tip.hidden = true; draw(); } });
+  canvas.addEventListener('pointerdown', e => { if (e.pointerType === 'touch') return; const [x, y] = pos(e); drag = { x0: x, y0: y, w: 0, h: 0 }; });
+  canvas.addEventListener('pointerup', e => {
+    if (e.pointerType !== 'touch') return;
+    const [mx, my] = pos(e), p = nearest(mx, my, 24 * 24);
+    if (p && p === hover) { cfg.onPick?.(p.id); return; }
+    hover = p; showTip(p, mx, my, true); draw();
+  });
+  addEventListener('pointerup', e => {
+    if (e.pointerType === 'touch' || !drag) return; const d = drag; drag = null;
     if (Math.abs(d.w) > 8 && Math.abs(d.h) > 8) { // zoom sur la zone sélectionnée
       const x1 = Math.min(d.x0, d.x0 + d.w), x2 = Math.max(d.x0, d.x0 + d.w), y1 = Math.min(d.y0, d.y0 + d.h), y2 = Math.max(d.y0, d.y0 + d.h);
       const L = W - M.l - M.r, Hh = H - M.t - M.b;
@@ -99,9 +112,15 @@ export function scatter(host, cfg) {
     }));
   }
   drawLegend();
-  new ResizeObserver(() => draw()).observe(wrap);
+  new ResizeObserver(() => draw()).observe(wrap); draw(); // premier dessin sans attendre un redimensionnement
   return {
     redraw: draw, reset() { view = null; draw(); }, setLog(axis, on) { ax[axis].log = on; view = null; draw(); },
+    // zoom par boutons (utile au doigt) : autour du point sélectionné s'il y en a un, sinon du centre
+    zoom(f) {
+      if (!ex || !ey) return;
+      const one = (a, e, c) => { const lo = T(a, e[0]), hi = T(a, e[1]), m = c != null ? T(a, c) : (lo + hi) / 2, h = (hi - lo) / 2 / f; const back = v => (a.log ? 10 ** v : v); return [back(m - h), back(m + h)]; };
+      view = { x: one(ax.x, ex, hover?.x), y: one(ax.y, ey, hover?.y) }; draw(); cfg.onZoom?.(true);
+    },
     png() { const a = document.createElement('a'); a.href = canvas.toDataURL('image/png'); a.download = (cfg.file ?? 'graphique') + '.png'; a.click(); },
     visible,
   };
@@ -133,12 +152,15 @@ export function bars(host, cfg) {
     });
     g.fillStyle = '#cfd9f0'; g.font = '12px system-ui'; g.save(); g.translate(14, M.t + (H - M.t - M.b) / 2); g.rotate(-Math.PI / 2); g.fillText(cfg.yLabel, 0, 0); g.restore();
   }
-  canvas.addEventListener('mousemove', e => {
+  // souris : survol ; tactile : toucher une barre (avec un peu de marge, les barres sont fines sur téléphone)
+  const at = (e, slack) => {
     const r = canvas.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
-    const h = rects.find(q => mx >= q.x && mx <= q.x + q.w && my >= q.y && my <= q.y + q.h);
-    if (h) { tip.hidden = false; tip.innerHTML = cfg.tip(h.c, h.s, h.v); tip.style.left = Math.min(mx + 12, W - 200) + 'px'; tip.style.top = (my + 12) + 'px'; } else tip.hidden = true;
-  });
-  canvas.addEventListener('mouseleave', () => { tip.hidden = true; });
+    const h = rects.find(q => mx >= q.x - slack && mx <= q.x + q.w + slack && my >= q.y && my <= q.y + q.h);
+    if (h) { tip.hidden = false; tip.innerHTML = cfg.tip(h.c, h.s, h.v); tip.style.left = Math.max(4, Math.min(mx + 12, W - 200)) + 'px'; tip.style.top = (e.pointerType === 'touch' ? Math.max(4, my - 70) : my + 12) + 'px'; } else tip.hidden = true;
+  };
+  canvas.addEventListener('pointermove', e => { if (e.pointerType !== 'touch') at(e, 0); });
+  canvas.addEventListener('pointerup', e => { if (e.pointerType === 'touch') at(e, 6); });
+  canvas.addEventListener('pointerleave', e => { if (e.pointerType !== 'touch') tip.hidden = true; });
   function drawLegend() {
     legend.replaceChildren(...cfg.series.map(s => {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'lg'; b.setAttribute('aria-pressed', String(!hidden.has(s.key)));
@@ -147,6 +169,6 @@ export function bars(host, cfg) {
       return b;
     }));
   }
-  drawLegend(); new ResizeObserver(() => draw()).observe(wrap);
+  drawLegend(); new ResizeObserver(() => draw()).observe(wrap); draw();
   return { redraw: draw, png() { const a = document.createElement('a'); a.href = canvas.toDataURL('image/png'); a.download = (cfg.file ?? 'graphique') + '.png'; a.click(); } };
 }

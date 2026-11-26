@@ -669,11 +669,11 @@ function mountCharts() {
     const solar = ALL.filter(c => c.k === 'planet' && ['terrestrial', 'gas-giant', 'ice-giant'].includes(c.s) && c.m > 0 && c.r > 0).map(c => ({ x: c.m, y: c.r, label: nm(c) }));
     const { tools, body } = card(T_.chMR, T_.chMRText, T_.chMRSrc);
     const ch = scatter(body, { points: ex.map(c => ({ x: c.m, y: c.r, s: ser(c), id: c.i, c })), series, overlay: solar, file: 'masse-rayon-exoplanetes', hidden: ['calc'],
-      x: { label: T_.chMass, log: true }, y: { label: T_.chRadius, log: true }, ariaLabel: T_.chMR, onPick: pick,
+      x: { label: T_.chMass, log: true }, y: { label: T_.chRadius, log: true }, ariaLabel: T_.chMR, onPick: pick, tapHint: T_.chTap,
       tip: p => `<b>${nm(p.c)}</b><br>${T_.p.mass} : ${f(p.c.m)} M⊕<br>${T_.p.radius} : ${f(p.c.r)} R⊕<br>${T_.method[p.c.md] ?? p.c.md ?? ''} · ${p.c.y ?? ''}` });
     let lx = true, ly = true;
     tools.append(btn(T_.chLogX, e => { lx = !lx; ch.setLog('x', lx); e.target.setAttribute('aria-pressed', String(lx)); }, true), btn(T_.chLogY, e => { ly = !ly; ch.setLog('y', ly); e.target.setAttribute('aria-pressed', String(ly)); }, true),
-      btn(T_.chReset, () => ch.reset()), btn('PNG', () => ch.png()), btn('CSV', () => csvDl('masse-rayon-exoplanetes', ['id', 'name', 'mass_earth', 'radius_earth', 'method', 'year', 'estimated_by_mass_radius_relation'], ch.visible().map(p => [p.id, p.c.n, p.c.m, p.c.r, p.c.md, p.c.y, p.c.ec ? 'yes' : 'no']))));
+      btn(T_.chZoomIn, () => ch.zoom(2)), btn(T_.chZoomOut, () => ch.zoom(0.5)), btn(T_.chReset, () => ch.reset()), btn('PNG', () => ch.png()), btn('CSV', () => csvDl('masse-rayon-exoplanetes', ['id', 'name', 'mass_earth', 'radius_earth', 'method', 'year', 'estimated_by_mass_radius_relation'], ch.visible().map(p => [p.id, p.c.n, p.c.m, p.c.r, p.c.md, p.c.y, p.c.ec ? 'yes' : 'no']))));
   }
   // 2. Diagramme de Hertzsprung-Russell
   {
@@ -684,9 +684,9 @@ function mountCharts() {
     const { tools, body } = card(T_.chHR, T_.chHRText, T_.chHRSrc);
     const ch = scatter(body, { points: st.map(c => ({ x: c.te, y: c.mv, s: ORDER.includes(c.s) ? c.s : 'other-star', id: c.i, c })), series, file: 'diagramme-hr',
       overlay: [{ x: 5772, y: 4.83, label: lang === 'fr' ? 'Soleil' : 'Sun' }],
-      x: { label: T_.chTeff, log: true, reverse: true }, y: { label: T_.chMv, reverse: true }, ariaLabel: T_.chHR, onPick: pick,
+      x: { label: T_.chTeff, log: true, reverse: true }, y: { label: T_.chMv, reverse: true }, ariaLabel: T_.chHR, onPick: pick, tapHint: T_.chTap,
       tip: p => `<b>${nm(p.c)}</b><br>T<sub>eff</sub> : ${f(p.c.te)} K<br>M<sub>V</sub> : ${f(p.c.mv)}<br>${T_.subOne[p.c.s] ?? ''}${p.c.d ? ` · ${f(p.c.d)} ${T_.ly}` : ''}` });
-    tools.append(btn(T_.chReset, () => ch.reset()), btn('PNG', () => ch.png()), btn('CSV', () => csvDl('diagramme-hr', ['id', 'name', 'teff_K', 'abs_mag_V', 'class', 'distance_ly'], ch.visible().map(p => [p.id, p.c.n, p.c.te, p.c.mv, p.c.s, p.c.d]))));
+    tools.append(btn(T_.chZoomIn, () => ch.zoom(2)), btn(T_.chZoomOut, () => ch.zoom(0.5)), btn(T_.chReset, () => ch.reset()), btn('PNG', () => ch.png()), btn('CSV', () => csvDl('diagramme-hr', ['id', 'name', 'teff_K', 'abs_mag_V', 'class', 'distance_ly'], ch.visible().map(p => [p.id, p.c.n, p.c.te, p.c.mv, p.c.s, p.c.d]))));
   }
   // 3. Découvertes d'exoplanètes par année et par méthode
   {
