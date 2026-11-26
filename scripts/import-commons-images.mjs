@@ -17,10 +17,14 @@ const jobs = [
   ...cons.map(c => ({ id: c.id, file: `${c.name} IAU.svg`, svg: true, chart: true })),
 ];
 
-async function api(params, tries = 5) {
+// Politique de Wikimedia : un robot doit s'identifier avec un moyen de contact (ici l'adresse publique du dépôt),
+// sinon il est fortement limité, surtout depuis les serveurs d'intégration continue.
+const cfg = (await import('../site.config.mjs')).default;
+const UA = `EncyclopedieSpatiale/1.0 (${cfg.repo ?? 'https://github.com'}; import hebdomadaire des images libres) Node.js`;
+async function api(params, tries = 6) {
   for (let t = 0; t < tries; t++) {
-    const r = await fetch('https://commons.wikimedia.org/w/api.php?' + new URLSearchParams({ format: 'json', ...params }), { headers: { 'User-Agent': 'encyclopedie-spatiale-import/0.1' } });
-    if (r.status === 429) { await sleep(6000 * (t + 1)); continue; }
+    const r = await fetch('https://commons.wikimedia.org/w/api.php?' + new URLSearchParams({ format: 'json', maxlag: '5', ...params }), { headers: { 'User-Agent': UA, 'Api-User-Agent': UA } });
+    if (r.status === 429 || r.status === 503) { await sleep(Math.max(Number(r.headers.get('retry-after')) || 0, 6 * (t + 1)) * 1000); continue; }
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     return r.json();
   }

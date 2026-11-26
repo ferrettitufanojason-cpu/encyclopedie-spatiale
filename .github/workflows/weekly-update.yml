@@ -23,8 +23,8 @@ jobs:
     env:
       SSOD_TOKEN: ${{ secrets.SSOD_TOKEN }}        # jeton Système solaire OpenData (gratuit)
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -49,4 +49,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Données : mise à jour hebdomadaire ($(date -u +%Y-%m-%d))"
+          # si quelqu'un a modifié le dépôt pendant l'import, on se remet à jour avant d'envoyer (les données ne touchent que data/)
+          git pull --rebase origin main
           git push
