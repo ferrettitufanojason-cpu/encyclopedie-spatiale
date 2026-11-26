@@ -4,7 +4,7 @@ title: "Encyclopédie spatiale"
 type: software
 abstract: "Encyclopédie spatiale interactive agrégeant des données officielles (NASA, JPL, CDS, UAI, GWOSC) pour la vulgarisation et l'enseignement de l'astrophysique."
 license: MIT
-repository-code: "https://github.com/OWNER/encyclopedie-spatiale"
+repository-code: "https://github.com/ferrettitufanojason-cpu/encyclopedie-spatiale"
 authors:
   - name: "Encyclopédie spatiale contributors"
 keywords: [astronomie, exoplanètes, astrophysique, vulgarisation, données ouvertes]

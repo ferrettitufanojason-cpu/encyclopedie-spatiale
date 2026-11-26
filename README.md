@@ -51,7 +51,7 @@ Variables d'environnement :
 
 1. **GitHub** : créer un dépôt (vide), puis depuis ce dossier :
    `git remote add origin https://github.com/<compte>/encyclopedie-spatiale.git` et `git push -u origin main`.
-   Renseigner ensuite l'adresse du dépôt dans `site.config.mjs` (`repo`) et dans `CITATION.cff` (remplacer `OWNER`).
+   L'adresse du dépôt est renseignée dans `site.config.mjs` (`repo`) et dans `CITATION.cff`.
 2. **Vercel** : « Add New Project », choisir ce dépôt. `vercel.json` règle tout (framework Astro, `npm run build`, fonctions `api/`, réécriture `/objet/:id`).
 3. Dans *Settings → Environment Variables* du projet Vercel : ajouter `NASA_API_KEY` (utilisée par les fonctions « En direct »). Facultatif : `SITE_URL` si vous utilisez un nom de domaine personnalisé (sinon l'adresse de production Vercel est utilisée pour le plan du site et les aperçus de partage).
 4. Dans GitHub *Settings → Secrets and variables → Actions* : ajouter `SSOD_TOKEN` (nécessaire aux imports hebdomadaires).
