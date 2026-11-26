@@ -136,7 +136,7 @@ for (const o of objects) {
   }
   index.push(card);
   csvRows.push([o.id, o.name, o.nameFr ?? '', o.cat === 'exoplanet' ? 'exoplanet' : o.cat, o.sub, o.code, card.m ?? '', card.r ?? '', card.d ?? '', card.q ?? '', o.disc?.year ?? '', o.disc?.method ?? '', o.ra ?? '', o.dec ?? '',
-    o.src, o.updated ?? '', `${SITE}/?o=${encodeURIComponent(o.id)}`, o.cat]);
+    o.src, o.updated ?? '', `${SITE}/objet/${encodeURIComponent(o.id)}`, o.cat]);
   const { parent, moons, ...detail } = o;
   await writeFile(join(OUT, 'o', `${o.id}.json`), JSON.stringify({ ...detail, image: img }));
 }
@@ -162,4 +162,12 @@ const report = existsSync(join(DATA_DIR, 'import-report.json')) ? JSON.parse(awa
 const review = existsSync(join(ROOT, 'scripts', 'review.json')) ? JSON.parse(await readFile(join(ROOT, 'scripts', 'review.json'), 'utf8')) : { reviewers: [] };
 const counts = {}; for (const c of index) counts[c.k] = (counts[c.k] ?? 0) + 1;
 await writeFile(join(OUT, 'meta.json'), JSON.stringify({ built: today, version: today.replace(/-/g, '.'), commit, total: index.length, counts, newExoplanets: index.filter(c => c.nw).length, sources, importReport: report, review, exports: Object.keys(byCat) }));
+// ---- plan du site et robots.txt (adresses absolues : SITE_URL, ou l'adresse de production fournie par Vercel) ----
+const PAGES = ['/', '/methodologie/', '/glossaire/', '/parcours/', '/mentions-legales/'];
+const xmlEsc = x => x.replace(/&/g, '&amp;');
+const urls = [...PAGES.map(u => SITE + u), ...index.map(c => `${SITE}/objet/${encodeURIComponent(c.i)}`)];
+await writeFile(join(ROOT, 'public', 'sitemap.xml'), '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+  + urls.map(u => `<url><loc>${xmlEsc(u)}</loc><lastmod>${today}</lastmod></url>`).join('\n') + '\n</urlset>\n');
+await writeFile(join(ROOT, 'public', 'robots.txt'), `User-agent: *\nAllow: /\nDisallow: /api/\n\nSitemap: ${SITE}/sitemap.xml\n`);
+if (SITE.endsWith('.example')) console.warn('⚠ SITE_URL non défini : le plan du site utilise une adresse provisoire (normal en local ; sur Vercel, l’adresse de production est utilisée).');
 console.log(`✔ public/data : ${index.length} objets, ${sources.length} source(s) ; exports CSV : ${Object.keys(byCat).length + 1}`);

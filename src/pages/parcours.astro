@@ -1,0 +1,32 @@
+---
+// Parcours pédagogiques : construits à partir des fiches (public/data/o/*.json, générées avant `astro build`).
+import { readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import Doc from '../layouts/Doc.astro';
+import ParcoursBody from '../components/ParcoursBody.astro';
+import { PARCOURS } from '../data/parcours.mjs';
+import { T } from '../scripts/i18n.js';
+
+const DATA = join(process.cwd(), 'public', 'data');
+const cache = new Map();
+const get = id => {
+  if (!cache.has(id)) { const f = join(DATA, 'o', `${id}.json`); cache.set(id, existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : null); }
+  const o = cache.get(id); if (!o) throw new Error(`Parcours : fiche introuvable « ${id} »`); return o;
+};
+const index = JSON.parse(readFileSync(join(DATA, 'index.json'), 'utf8'));
+const kindOf = (o, l) => T[l].subOne?.[o.sub] ?? T[l].exotype?.[o.sub] ?? T[l].sub?.[o.sub] ?? '';
+const build = l => PARCOURS.map(p => ({
+  id: p.id, level: p.level[l], ...p[l], extra: p.extra && { href: p.extra.href, text: p.extra[l] },
+  steps: p.steps.map(id => { const o = get(id); return { id, name: l === 'fr' ? o.nameFr ?? o.name : o.name, kind: kindOf(o, l), img: o.image?.thumb ?? o.image?.url ?? null, alt: o.image?.alt ?? o.name }; }),
+  quiz: p.quiz.map(q => ({ q: q[l], a: q.answer(get, l, index) })),
+}));
+const P = { fr: build('fr'), en: build('en') };
+const L = {
+  fr: { lead: 'Des suites de fiches à consulter dans l’ordre, avec des questions pour vérifier ce qu’on a retenu. Les réponses chiffrées sont calculées à partir des données des fiches (sources officielles) à chaque mise à jour du site.', steps: 'Étapes', quiz: 'Questions', show: 'Voir la réponse', level: 'Niveau', note: 'Textes de vulgarisation rédigés pour ce site, non relus par un spécialiste. Les valeurs proviennent des fiches et de leurs sources.' },
+  en: { lead: 'Sequences of object pages to read in order, with questions to check what you learned. Numerical answers are computed from the pages’ data (official sources) each time the site is updated.', steps: 'Steps', quiz: 'Questions', show: 'Show answer', level: 'Level', note: 'Popular-science texts written for this site, not reviewed by a specialist. Values come from the object pages and their sources.' },
+};
+---
+<Doc titleFr="Parcours pédagogiques" titleEn="Learning paths" description="Parcours pour la classe ou l'autoformation : le Système solaire, la détection des exoplanètes, la vie des étoiles, observer le ciel. Fiches dans l'ordre et questions avec réponses calculées à partir des données officielles." path="/parcours/">
+  <Fragment slot="fr"><ParcoursBody l="fr" P={P} L={L} /></Fragment>
+  <Fragment slot="en"><ParcoursBody l="en" P={P} L={L} /></Fragment>
+</Doc>

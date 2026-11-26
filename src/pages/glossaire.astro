@@ -1,0 +1,28 @@
+---
+import Doc from '../layouts/Doc.astro';
+import { GLOSSARY } from '../data/glossary.mjs';
+const byLang = l => [...GLOSSARY].sort((a, b) => a[l][0].localeCompare(b[l][0], l));
+---
+<Doc titleFr="Glossaire" titleEn="Glossary" description="Les mots de l'astronomie expliqués simplement : unité astronomique, parsec, magnitude, type spectral, transit, zone habitable, opposition, ZHR, onde gravitationnelle…" path="/glossaire/">
+  <Fragment slot="fr">
+    <p class="lead">Les mots utilisés dans les fiches, expliqués simplement. Dans une fiche, le petit <span class="gl">?</span> à côté d'une valeur renvoie ici.</p>
+    <nav class="gl-index" aria-label="Index du glossaire">{byLang('fr').map(g => <a href={`#${g.id}`}>{g.fr[0]}</a>)}</nav>
+    <dl class="gloss">
+      {byLang('fr').map(g => <><dt id={g.id}><a href={`#${g.id}`}>{g.fr[0]}</a></dt><dd>{g.fr[1]}</dd></>)}
+    </dl>
+    <p class="credit">Définitions de vulgarisation rédigées pour ce site, non relues par un spécialiste. Pour un usage scientifique, reportez-vous aux définitions de l'Union astronomique internationale.</p>
+  </Fragment>
+  <Fragment slot="en">
+    <p class="lead">The words used on the object pages, explained simply. On an object page, the small <span class="gl">?</span> next to a value links here.</p>
+    <nav class="gl-index" aria-label="Glossary index">{byLang('en').map(g => <a href={`#${g.id}`}>{g.en[0]}</a>)}</nav>
+    <dl class="gloss">
+      {byLang('en').map(g => <><dt id={`${g.id}-en`}><a href={`#${g.id}-en`}>{g.en[0]}</a></dt><dd>{g.en[1]}</dd></>)}
+    </dl>
+    <p class="credit">Popular-science definitions written for this site, not reviewed by a specialist. For scientific use, refer to the International Astronomical Union’s definitions.</p>
+  </Fragment>
+</Doc>
+<script>
+  // en anglais, les ancres #id renvoient vers #id-en
+  const go = () => { const h = location.hash.slice(1); if (h && document.documentElement.lang === 'en' && !h.endsWith('-en')) document.getElementById(h + '-en')?.scrollIntoView(); else if (h) document.getElementById(h)?.scrollIntoView(); };
+  document.addEventListener('langchange', go); addEventListener('load', go);
+</script>

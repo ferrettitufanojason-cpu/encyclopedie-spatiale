@@ -1,0 +1,29 @@
+---
+import { objPath } from '../../lib/sources.mjs';
+const { l, P, L } = Astro.props;
+---
+      <p class="lead">{L[l].lead}</p>
+      <nav class="gl-index" aria-label={L[l].steps}>{P[l].map(p => <a href={`#${p.id}`}>{p.title}</a>)}</nav>
+      {P[l].map((p, i) => (
+        <article class="pc" id={l === 'fr' ? p.id : `${p.id}-en`}>
+          <h2>{i + 1}. {p.title}</h2>
+          <p class="credit">{L[l].level} : {p.level}</p>
+          <p>{p.intro}</p>
+          <h3>{L[l].steps}</h3>
+          <ol class="pc-steps">
+            {p.steps.map(s => (
+              <li><a href={objPath(s.id)}>
+                {s.img ? <img src={s.img} alt="" loading="lazy" width="56" height="56" /> : <span class="pc-noimg" aria-hidden="true"></span>}
+                <span><b>{s.name}</b><small>{s.kind}</small></span>
+              </a></li>
+            ))}
+          </ol>
+          {p.extra && <p><a class="btn" href={p.extra.href}>{p.extra.text}</a></p>}
+          <h3>{L[l].quiz}</h3>
+          {p.quiz.map(q => (
+            <details class="pc-q"><summary>{q.q}</summary><p>{q.a}</p></details>
+          ))}
+        </article>
+      ))}
+      <p class="credit">{L[l].note}</p>
+    

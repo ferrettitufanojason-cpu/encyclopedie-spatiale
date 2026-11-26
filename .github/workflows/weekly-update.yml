@@ -1,7 +1,9 @@
 name: Mise à jour hebdomadaire des données
 
-# Chaque lundi : relance TOUS les imports (NASA, JPL, SIMBAD…), construit le site pour vérifier que tout est cohérent,
-# puis déclenche un nouveau déploiement Vercel (qui refait lui-même l'import avec ses propres variables d'environnement).
+# Chaque lundi : relance TOUS les imports (NASA, JPL, SIMBAD, IMO…), construit le site et lance les tests.
+# Si tout passe, les nouvelles données (dossier data/) sont enregistrées dans le dépôt : ce commit déclenche
+# automatiquement le déploiement Vercel, qui se contente de construire le site à partir de ces données
+# (aucun téléchargement pendant le déploiement : plus rapide, et une source en panne ne casse pas le site).
 on:
   schedule:
     - cron: '17 4 * * 1'   # lundi 04:17 UTC
@@ -11,13 +13,15 @@ concurrency:
   group: weekly-update
   cancel-in-progress: false
 
+permissions:
+  contents: write          # pour enregistrer les nouvelles données dans le dépôt
+
 jobs:
   update:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
       SSOD_TOKEN: ${{ secrets.SSOD_TOKEN }}        # jeton Système solaire OpenData (gratuit)
-      NASA_API_KEY: ${{ secrets.NASA_API_KEY }}    # clé NASA (utile aux fonctions /api, pas aux imports)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,10 +41,12 @@ jobs:
           echo '### Rapport d import' >> "$GITHUB_STEP_SUMMARY"
           if [ -f data/import-report.json ]; then node -e "const r=require('./data/import-report.json');console.log(r.steps.map(s=>(s.ok?'- ✅ ':'- ❌ ')+s.step+' ('+s.seconds+' s)').join('\n'))" >> "$GITHUB_STEP_SUMMARY"; fi
           if [ -f public/data/meta.json ]; then node -e "const m=require('./public/data/meta.json');console.log('\n**'+m.total+' objets**')" >> "$GITHUB_STEP_SUMMARY"; fi
-      - name: Redéploiement Vercel (Deploy Hook)
+      - name: Enregistrement des nouvelles données (déclenche le déploiement Vercel)
         if: success()
-        env:
-          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
         run: |
-          if [ -z "$HOOK" ]; then echo "VERCEL_DEPLOY_HOOK absent : pas de redéploiement."; exit 0; fi
-          curl -fsS -X POST "$HOOK"
+          git add data/
+          if git diff --cached --quiet; then echo "Aucune donnée modifiée cette semaine."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Données : mise à jour hebdomadaire ($(date -u +%Y-%m-%d))"
+          git push

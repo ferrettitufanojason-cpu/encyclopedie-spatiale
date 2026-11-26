@@ -1,0 +1,30 @@
+---
+import Doc from '../layouts/Doc.astro';
+import cfg from '../../site.config.mjs';
+const issues = cfg.repo ? `${cfg.repo.replace(/\/$/, '')}/issues` : null;
+---
+<Doc titleFr="Mentions légales" titleEn="Legal notice" description="Mentions légales, hébergement, propriété intellectuelle et données personnelles de l'Encyclopédie spatiale." path="/mentions-legales/" frOnly>
+  <Fragment slot="fr">
+    <h2>Éditeur</h2>
+    <p>Ce site est édité à titre <b>non professionnel</b> par un particulier. Conformément à la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN), l'éditeur non professionnel peut ne communiquer au public que l'identité de son hébergeur ; ses coordonnées ont été transmises à celui-ci.</p>
+    <p>Contact : {issues ? <a href={issues}>ouvrir un ticket sur le dépôt du projet</a> : 'via le dépôt public du projet (lien ajouté à la mise en ligne)'}.</p>
+
+    <h2>Hébergeur</h2>
+    <p>Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis — <a href="https://vercel.com">vercel.com</a>.</p>
+
+    <h2>Propriété intellectuelle</h2>
+    <ul>
+      <li><b>Code du site</b> : licence MIT (fichier <code>LICENSE</code> du dépôt).</li>
+      <li><b>Données</b> : elles proviennent de sources officielles (NASA, JPL, CDS/SIMBAD, UAI, IMO, GWOSC…) et restent soumises à leurs conditions ; chaque fiche indique sa source. Voir la <a href="/methodologie/">page Méthodologie</a> (section licences).</li>
+      <li><b>Images</b> : chaque image porte son crédit et sa licence (domaine public NASA, Creative Commons sur Wikimedia Commons, relevés du ciel DSS2…). Elles ne sont pas la propriété de l'éditeur.</li>
+      <li><b>Textes de vulgarisation</b> : rédigés pour ce site ; ils font partie du dépôt et relèvent donc de la même licence MIT que le code, sauf mention contraire.</li>
+    </ul>
+
+    <h2>Données personnelles et cookies</h2>
+    <p>Le site ne dépose <b>aucun cookie</b>, n'utilise <b>aucun outil de mesure d'audience</b> ni de publicité, et ne collecte aucune donnée personnelle. Le choix de langue est enregistré uniquement dans votre navigateur (<code>localStorage</code>).</p>
+    <p>Comme tout hébergeur, Vercel conserve des journaux techniques (dont l'adresse IP) pour assurer le fonctionnement et la sécurité du service. Les images et vidéos affichées sont chargées depuis leurs sources (NASA, Wikimedia, CDS, YouTube en mode « nocookie » et seulement après un clic) : leur affichage transmet votre adresse IP à ces services.</p>
+
+    <h2>Responsabilité</h2>
+    <p>Le site a une vocation de vulgarisation et d'enseignement. Les valeurs sont reprises des sources officielles avec leurs références, mais peuvent évoluer ou contenir des erreurs : pour un travail de recherche, citez et vérifiez la source d'origine indiquée sur chaque fiche. Les textes de vulgarisation n'ont pas encore été relus par un spécialiste.</p>
+  </Fragment>
+</Doc>

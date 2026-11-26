@@ -1,6 +1,6 @@
 name: CI
 
-# À chaque push / pull request : contrôles rapides (syntaxe des scripts, tests ISS et accessibilité du HTML construit à partir d'un jeu de données minimal).
+# À chaque push / pull request : syntaxe, construction complète du site à partir des données enregistrées (data/), puis tous les tests.
 on:
   push:
   pull_request:
@@ -19,5 +19,7 @@ jobs:
       - name: Syntaxe des scripts et du client
         run: |
           for f in scripts/*.mjs scripts/lib/*.mjs lib/*.mjs api/*.js tests/*.mjs src/scripts/*.js; do node --check "$f"; done
-      - name: Tests de la position de l'ISS (éphéméride NASA)
-        run: node --test tests/iss.test.mjs
+      - name: Construction du site
+        run: npm run build
+      - name: Tests (données, ISS, accessibilité)
+        run: npm test

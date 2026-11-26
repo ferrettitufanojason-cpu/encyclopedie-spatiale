@@ -1,0 +1,50 @@
+---
+// Mise en page des pages de documentation (glossaire, parcours, mentions légales, 404) : même en-tête que la méthodologie,
+// contenu français et anglais (slots « fr » et « en »), langue mémorisée comme sur le reste du site.
+import '../styles/global.css';
+import Meta from '../components/Meta.astro';
+interface Props { titleFr: string; titleEn: string; description: string; path?: string; noindex?: boolean; frOnly?: boolean }
+const { titleFr, titleEn, description, path, noindex = false, frOnly = false } = Astro.props;
+---
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <Meta title={`${titleFr} — Encyclopédie spatiale`} description={description} path={path} noindex={noindex} />
+  </head>
+  <body class="doc" data-title-fr={titleFr} data-title-en={titleEn}>
+    <a class="skip" href="#main">Aller au contenu</a>
+    <header class="top">
+      <a class="btn" href="/" id="back">← Encyclopédie</a>
+      <h1 style="font-size:18px;margin:0;flex:1" id="h1">{titleFr}</h1>
+      {!frOnly && <button id="lang" class="btn" type="button" aria-label="Language">EN</button>}
+    </header>
+    <main id="main" class="docmain">
+      <section lang="fr" data-l="fr"><slot name="fr" /></section>
+      {!frOnly && <section lang="en" data-l="en" hidden><slot name="en" /></section>}
+    </main>
+    <footer class="docfoot">
+      <a href="/">Encyclopédie</a> · <a href="/parcours/">Parcours</a> · <a href="/glossaire/">Glossaire</a> · <a href="/methodologie/">Méthodologie</a> · <a href="/mentions-legales/">Mentions légales</a>
+    </footer>
+    <script>
+      let lang = 'fr'; try { lang = localStorage.getItem('lang') || 'fr'; } catch {}
+      if (!['fr', 'en'].includes(lang)) lang = 'fr';
+      const btn = document.getElementById('lang');
+      if (!btn) lang = 'fr';
+      const apply = () => {
+        const fr = lang === 'fr', b = document.body;
+        document.documentElement.lang = lang;
+        document.querySelectorAll('section[data-l]').forEach(s => { (s as HTMLElement).hidden = (s as HTMLElement).dataset.l !== lang; });
+        if (btn) btn.textContent = fr ? 'EN' : 'FR';
+        const title = fr ? b.dataset.titleFr : b.dataset.titleEn;
+        document.getElementById('h1')!.textContent = title ?? '';
+        document.getElementById('back')!.textContent = fr ? '← Encyclopédie' : '← Encyclopedia';
+        document.title = `${title} — ${fr ? 'Encyclopédie spatiale' : 'Space Encyclopedia'}`;
+        document.dispatchEvent(new CustomEvent('langchange', { detail: lang }));
+      };
+      btn?.addEventListener('click', () => { lang = lang === 'fr' ? 'en' : 'fr'; try { localStorage.setItem('lang', lang); } catch {} apply(); });
+      apply();
+    </script>
+  </body>
+</html>

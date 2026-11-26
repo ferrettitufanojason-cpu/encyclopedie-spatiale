@@ -1,0 +1,75 @@
+{
+ "date": "2026-11-25T21:34:11.957Z",
+ "steps": [
+  {
+   "step": "Système solaire OpenData",
+   "file": "import-solar-system.mjs",
+   "required": true,
+   "ok": true,
+   "seconds": 0
+  },
+  {
+   "step": "NASA Exoplanet Archive",
+   "file": "import-exoplanets.mjs",
+   "required": true,
+   "ok": true,
+   "seconds": 7
+  },
+  {
+   "step": "Constellations UAI",
+   "file": "import-constellations.mjs",
+   "required": true,
+   "ok": true,
+   "seconds": 1
+  },
+  {
+   "step": "SIMBAD (étoiles, galaxies, nébuleuses…)",
+   "file": "import-simbad.mjs",
+   "required": false,
+   "ok": true,
+   "seconds": 13
+  },
+  {
+   "step": "JPL Small-Body Database",
+   "file": "import-sbdb.mjs",
+   "required": false,
+   "ok": true,
+   "seconds": 14
+  },
+  {
+   "step": "NASA NSSDCA (missions)",
+   "file": "import-missions.mjs",
+   "required": false,
+   "ok": true,
+   "seconds": 118
+  },
+  {
+   "step": "NASA Science (missions, repli)",
+   "file": "import-missions-nasa-science.mjs",
+   "required": false,
+   "ok": true,
+   "seconds": 0
+  },
+  {
+   "step": "NASA — ISS (faits)",
+   "file": "import-iss.mjs",
+   "required": false,
+   "ok": true,
+   "seconds": 0
+  },
+  {
+   "step": "NASA Image Library",
+   "file": "import-images.mjs",
+   "required": false,
+   "ok": true,
+   "seconds": 1
+  },
+  {
+   "step": "Wikimedia Commons (images libres)",
+   "file": "import-commons-images.mjs",
+   "required": false,
+   "ok": true,
+   "seconds": 39
+  }
+ ]
+}

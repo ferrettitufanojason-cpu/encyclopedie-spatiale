@@ -8,5 +8,6 @@ public/data/
 .vercel/
 *.log
 .DS_Store
-data/
 .cache/
+public/sitemap.xml
+public/robots.txt

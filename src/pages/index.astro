@@ -1,14 +1,13 @@
 ---
 import '../styles/global.css';
+import Meta from '../components/Meta.astro';
 ---
 <!doctype html>
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Encyclopédie spatiale</title>
-    <meta name="description" content="Encyclopédie spatiale interactive : planètes, exoplanètes, étoiles, galaxies, petits corps et missions, avec sources officielles." />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <Meta title="Encyclopédie spatiale" description="Encyclopédie spatiale interactive : planètes, exoplanètes, étoiles, galaxies, petits corps, missions et événements du ciel, avec sources officielles (NASA, JPL, SIMBAD, UAI)." path="/" />
   </head>
   <body>
     <a class="skip" href="#grid" data-i18n="skip">Aller au contenu</a>
@@ -63,7 +62,7 @@ import '../styles/global.css';
     </dialog>
     <div id="cmpTray" class="cmp-tray" hidden role="region" aria-label="Comparateur"></div>
 
-    <footer class="foot"><span id="foot"></span> · <a href="/methodologie/" data-i18n="methodo">Méthodologie</a> · <a href="/export/encyclopedie-spatiale.csv" data-i18n="exportAll">Données ouvertes (CSV)</a></footer>
+    <footer class="foot"><span id="foot"></span> · <a href="/parcours/" data-i18n="paths">Parcours</a> · <a href="/glossaire/" data-i18n="glossary">Glossaire</a> · <a href="/methodologie/" data-i18n="methodo">Méthodologie</a> · <a href="/export/encyclopedie-spatiale.csv" data-i18n="exportAll">Données ouvertes (CSV)</a> · <a href="/mentions-legales/" data-i18n="legal">Mentions légales</a></footer>
     <script>import '../scripts/app.js';</script>
   </body>
 </html>

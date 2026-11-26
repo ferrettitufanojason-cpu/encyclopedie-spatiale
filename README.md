@@ -1,8 +1,9 @@
 # Encyclopédie spatiale
 
 Encyclopédie spatiale interactive façon « fiche + collection », pour la vulgarisation et les universités d'astrophysique.
-Une grille de cartes (image, nom, code de catalogue, tags), une fiche détaillée par objet (URL partageable `?o=<id>`),
-recherche, filtres, comparateur de 2 à 3 objets à l'échelle, interface français / anglais, et une section « En direct » (ISS, image du jour NASA, Terre vue de DSCOVR, rovers martiens, recherche SIMBAD).
+Une grille de cartes (image, nom, code de catalogue, tags), une fiche détaillée par objet (**page réelle `/objet/<id>`**, indexable et citable),
+recherche, filtres, comparateur de 2 à 3 objets à l'échelle, interface français / anglais, une section « En direct » (ISS, image du jour NASA, Terre vue de DSCOVR, rovers martiens, recherche SIMBAD),
+4 graphiques interactifs, des **parcours pédagogiques** (`/parcours/`) et un **glossaire** (`/glossaire/`).
 
 Le site compte **17 608 objets** (données du 25 novembre 2026), mis à jour automatiquement chaque semaine (voir « Mises à jour automatiques »). Chaque valeur affichée porte sa **source, son lien et sa date de mise à jour** ; une donnée absente de la source est affichée « non disponible » (rien n'est deviné).
 
@@ -14,12 +15,14 @@ Le contenu est quasi entièrement statique (des milliers de fiches générées �
 
 ```
 scripts/        imports (API officielles) -> normalisation -> data/*.json
-  import-all.mjs        orchestrateur (utilisé par Vercel et par l'action GitHub)
+  import-all.mjs        orchestrateur (utilisé par l'action GitHub hebdomadaire)
   build-site-data.mjs   data/*.json -> public/data/index.json (cartes, léger) + public/data/o/<id>.json (fiches)
-data/           JSON normalisés (généré, non versionné)
+data/           JSON normalisés (générés par les imports, VERSIONNÉS : le déploiement ne télécharge rien)
 public/sky/     vues du ciel (DSS2) des étoiles et régions : versionnées (66 Mo), car coûteuses à regénérer
-src/            site Astro (une page, scripts client sans framework)
-api/ + lib/     fonctions serverless Vercel : ISS, APOD, EPIC, rovers, SIMBAD, flux vidéo
+src/            site Astro (accueil, méthodologie, parcours, glossaire, mentions légales, 404 ; scripts client sans framework)
+  data/                 glossaire et parcours (réponses calculées à partir des fiches au moment du build)
+api/ + lib/     fonctions serverless Vercel : ISS, APOD, EPIC, rovers, SIMBAD, flux vidéo, pages /objet/<id>
+site.config.mjs adresse du dépôt GitHub (contact affiché dans les mentions légales)
 ```
 
 Le site lit uniquement `/data` (jamais les API directement), sauf pour la section « En direct » et la recherche SIMBAD, qui passent par nos fonctions serveur.
@@ -46,14 +49,14 @@ Variables d'environnement :
 
 ## Déploiement (Vercel, gratuit)
 
-1. Pousser le dépôt sur GitHub, puis « Add New Project » sur Vercel et choisir ce dépôt. `vercel.json` règle tout (framework Astro, `npm run build:all`, fonctions `api/`).
-2. Dans *Settings → Environment Variables* du projet Vercel : ajouter `SSOD_TOKEN` et `NASA_API_KEY`.
-3. *Settings → Git → Deploy Hooks* : créer un hook (ex. « weekly »), copier son URL.
-4. Dans GitHub *Settings → Secrets and variables → Actions* : ajouter `SSOD_TOKEN`, `NASA_API_KEY` et `VERCEL_DEPLOY_HOOK` (l'URL du hook).
+1. **GitHub** : créer un dépôt (vide), puis depuis ce dossier :
+   `git remote add origin https://github.com/<compte>/encyclopedie-spatiale.git` et `git push -u origin main`.
+   Renseigner ensuite l'adresse du dépôt dans `site.config.mjs` (`repo`) et dans `CITATION.cff` (remplacer `OWNER`).
+2. **Vercel** : « Add New Project », choisir ce dépôt. `vercel.json` règle tout (framework Astro, `npm run build`, fonctions `api/`, réécriture `/objet/:id`).
+3. Dans *Settings → Environment Variables* du projet Vercel : ajouter `NASA_API_KEY` (utilisée par les fonctions « En direct »). Facultatif : `SITE_URL` si vous utilisez un nom de domaine personnalisé (sinon l'adresse de production Vercel est utilisée pour le plan du site et les aperçus de partage).
+4. Dans GitHub *Settings → Secrets and variables → Actions* : ajouter `SSOD_TOKEN` (nécessaire aux imports hebdomadaires).
 
-L'action `.github/workflows/weekly-update.yml` s'exécute chaque lundi (et à la demande) : elle relance tous les imports, construit le site pour vérifier la cohérence (une source requise indisponible = échec = on garde l'ancien déploiement), puis appelle le hook pour redéployer.
-
-> Le build Vercel refait l'import complet (≈ 10 à 15 min, bien en deçà de la limite de 45 min).
+**Comment se font les mises à jour** : l'action `.github/workflows/weekly-update.yml` s'exécute chaque lundi (et à la demande depuis l'onglet *Actions*). Elle relance tous les imports, construit le site et lance les tests ; si tout passe, elle **enregistre les nouvelles données (`data/`) dans le dépôt**. Ce commit déclenche automatiquement un déploiement Vercel, qui se contente de construire le site à partir de `data/` (≈ 1 min, aucun téléchargement) : une source en panne ne peut donc pas casser le site en ligne, et l'historique des données est conservé dans Git.
 
 ## Sources officielles (liste exacte)
 
@@ -82,20 +85,25 @@ L'action `.github/workflows/weekly-update.yml` s'exécute chaque lundi (et à la
 **Couvert**
 - *Planètes* : 8 planètes, 5 planètes naines, 479 lunes, **toutes** les exoplanètes confirmées (6 473).
 - *Étoiles* : 4 641 (types spectraux O–M, naines brunes et blanches, étoiles à neutrons, pulsars, magnétars, trous noirs).
-- *Régions* : 159 (galaxies, amas de galaxies, nébuleuses, amas ouverts et globulaires).
+- *Régions du ciel* : 159 objets du ciel profond (galaxies, amas de galaxies, nébuleuses, amas ouverts et globulaires), les 88 constellations et 2 autres objets (M 40, NGC 6994).
 - *Petits corps* : 4 994 (astéroïdes, comètes, objets de Kuiper, interstellaires).
 - *Événements* (onglet dédié, filtre « À venir / Passés ») : **agenda du ciel des 12 prochains mois** en tête, puis 268 ondes gravitationnelles, 224 éclipses solaires, 228 éclipses lunaires, et les événements à venir ci-dessous.
-- *Autres* : 88 constellations, 39 missions et sondes dont l'ISS.
+- *Missions* : 39 missions et sondes, dont l'ISS.
 - *En direct* : ISS (position + vidéo), APOD, EPIC, rovers, recherche SIMBAD.
 - *Événements à venir* : maxima des pluies de météores (calendrier officiel IMO, année en cours et suivante), oppositions des planètes, plus grandes élongations de Mercure et Vénus, rapprochements de planètes (calculés au pas d'un jour avec les éphémérides **JPL Horizons**), éclipses.
-- *Graphiques interactifs* : masse–rayon des exoplanètes (les valeurs **estimées** par la NASA via une relation masse-rayon sont séparées des valeurs mesurées et masquées par défaut), diagramme de Hertzsprung-Russell (magnitude absolue calculée, sans correction d'extinction), découvertes d'exoplanètes par année et par méthode ; survol, clic vers la fiche, zoom par sélection, légende filtrante, export PNG/CSV.
+- *Graphiques interactifs* : masse–rayon des exoplanètes (les valeurs **estimées** par la NASA via une relation masse-rayon sont séparées des valeurs mesurées et masquées par défaut), diagramme de Hertzsprung-Russell (magnitude absolue calculée, sans correction d'extinction), découvertes d'exoplanètes par année et par méthode, **échelle des distances** (de la Lune à 3C 273, avec le temps de trajet de la lumière, et répartition du catalogue par distance) ; survol, clic vers la fiche, zoom par sélection, légende filtrante, export PNG/CSV.
+
+- *Parcours pédagogiques* (`/parcours/`) : 4 parcours (Système solaire, détection des exoplanètes, vie des étoiles, ciel à l'œil nu), fiches dans l'ordre et questions dont les réponses chiffrées sont **calculées à partir des fiches** à chaque build (aucun chiffre écrit à la main).
+- *Glossaire* (`/glossaire/`, FR/EN) : une cinquantaine de termes ; un « ? » à côté des valeurs des fiches renvoie à la bonne définition.
+- *Pages par objet* : chaque fiche a une adresse `/objet/<id>` qui renvoie une vraie page (titre, description, valeurs avec sources lisibles sans JavaScript, aperçu de partage), listée dans `/sitemap.xml`. Les anciens liens `?o=<id>` fonctionnent toujours.
+- *Mentions légales* (`/mentions-legales/`), page 404, `robots.txt`, image d'aperçu des partages (`public/og.png`).
 
 **Non couvert ou partiel (à dire clairement)**
 - Les étoiles et galaxies **ne sont pas toutes** importées (des milliards) : le catalogue local en contient ~4 800 ; le reste passe par la recherche SIMBAD en direct (bouton qui apparaît sous la barre de recherche).
 - **Bras spiraux** : non importés (aucune source officielle structurée trouvée).
 - Astéroïdes : seulement ceux ≥ 50 km, dangereux ou visités (≈ 1,4 million existent) ; comètes : seulement numérotées + célèbres ; Kuiper : seulement les objets numérotés.
 - Missions : 39 sur la centaine de grandes missions. Manquent notamment Gaia, Rosetta, Mars Express, Herschel, Planck, Hayabusa2 (sites ESA/JAXA injoignables), Sputnik 1, Vostok 1 ; le catalogue NSSDCA renvoie une erreur pour une partie des missions NASA (le script les réessaie à chaque import).
-- Événements : seulement les ondes gravitationnelles confirmées (probabilité astrophysique ≥ 0,9) et les éclipses 2001-2100 ; pas de météores, comètes à venir ni conjonctions.
+- Événements : ondes gravitationnelles confirmées (probabilité astrophysique ≥ 0,9), éclipses 2001-2100, pluies de météores (année en cours et suivante) et phénomènes planétaires sur deux ans ; pas de passages de comètes.
 - Magnétars SGR 1806-20, SGR 1900+14, SGR 1935+2154, SGR 0526-66, TON 618 et Abell 2744 : introuvables dans SIMBAD sous ces identifiants.
 - 548 étoiles hôtes d'exoplanètes sur 4 865 n'ont pas été retrouvées dans SIMBAD (leurs fiches de planètes existent, mais pas celle de l'étoile).
 - **Images** : seules **19 exoplanètes** sur 6 473 ont une illustration d'artiste (pas de photo possible) ; les autres affichent « Pas d'image disponible ». Aucune image générique ou générée n'est utilisée.
@@ -118,16 +126,16 @@ L'action `.github/workflows/weekly-update.yml` s'exécute chaque lundi (et à la
 ## Accessibilité et responsive
 
 Navigation clavier (cartes = liens, fiches dans `<dialog>`, focus visible), lien d'évitement, étiquettes ARIA, annonces `aria-live` (résultats, ISS), respect de `prefers-reduced-motion`, contrastes élevés sur fond sombre, mise en page adaptée mobile (filtres repliables, lecteur vidéo empilé).
-Un test automatique **axe-core** (WCAG 2.1 A/AA, hors contraste) passe sur le HTML statique des pages (`npm test`). **Non audités automatiquement** : le contraste, et les vues construites dynamiquement (fiches, comparateur, direct). Un audit manuel avec lecteur d'écran reste à faire.
+Un test automatique **axe-core** (WCAG 2.1 A/AA, hors contraste) passe sur le HTML statique de 6 pages (accueil, méthodologie, parcours, glossaire, mentions légales, 404). **Non audités automatiquement** : le contraste, et les vues construites dynamiquement (fiches, comparateur, direct). Un audit manuel avec lecteur d'écran reste à faire.
 
 ## Données ouvertes, citation, qualité (pour l'enseignement et la recherche)
 
 - **Page « Méthodologie et données »** (`/methodologie/`, FR/EN) : sources et dates d'import, valeurs calculées et hypothèses, politique éditoriale, licences, confidentialité, limites.
 - **Exports** : CSV global et par catégorie (`/export/*.csv`), JSON public (`/data/index.json`, `/data/o/<id>.json`, `/data/meta.json`), bouton « Exporter ces résultats (CSV) » sur la grille filtrée.
-- **Citation** : bouton « Citer » sur chaque fiche (texte + BibTeX, lien permanent `?o=<id>`, **version des données** `AAAA.MM.JJ`, date de consultation) ; `CITATION.cff` pour le projet.
+- **Citation** : bouton « Citer » sur chaque fiche (texte + BibTeX, lien permanent `/objet/<id>`, **version des données** `AAAA.MM.JJ`, date de consultation) ; `CITATION.cff` pour le projet.
 - **Provenance** : chaque donnée est rattachée à sa source ; les valeurs calculées sont signalées ; les textes de vulgarisation sont distingués des données.
 - **Relecture scientifique** : *aucun relecteur à ce jour*. Les **données** viennent de sources officielles (NASA, JPL, CDS…), mais les **textes de vulgarisation** et les **méthodes de calcul** sont de la rédaction de ce projet et n'ont pas été validés par un expert ; la fiche l'affiche. Pour nommer un relecteur : `scripts/review.json` (son nom et la date apparaissent alors sur les fiches).
-- **Tests automatiques** (`npm test`, 12 tests) : unicité des identifiants, valeurs finies et sourcées, plausibilité physique (excentricité < 1, masses et rayons réalistes…), crédits et licences des images, cohérence des descriptions, couverture minimale, exports CSV, position et jour/nuit de l'ISS, accessibilité statique. Ils tournent dans l'action hebdomadaire **avant** tout redéploiement.
+- **Tests automatiques** (`npm test`, 20 tests) : unicité des identifiants, valeurs finies et sourcées, plausibilité physique (excentricité < 1, masses et rayons réalistes…), crédits et licences des images, cohérence des descriptions, couverture minimale, exports CSV, position et jour/nuit de l'ISS, pages `/objet/<id>` (titre, adresse canonique, 404, valeurs estimées signalées), glossaire, parcours sans valeur manquante, plan du site, accessibilité statique de 6 pages. Ils tournent dans l'action hebdomadaire **avant** tout redéploiement.
 - **Licences** : code sous MIT (`LICENSE`) ; données et images sous la licence de leur source (`DATA-LICENSES.md`).
 
 ## Mises à jour automatiques
@@ -141,5 +149,5 @@ Une nouvelle exoplanète apparaît donc sans intervention (sans image ni descrip
 ## Limites connues
 
 - Les flux vidéo de l'ISS sont noirs quand la station est dans l'ombre de la Terre (≈ 35 min par orbite) ; seul le flux Sen permet de revenir en arrière.
-- Les appels `/api/*` ont été testés en local (`npm run preview`) ; le comportement sur Vercel est à confirmer au premier déploiement.
+- Les appels `/api/*` et les pages `/objet/<id>` ont été testés en local (`npm run preview`, qui reproduit la réécriture de Vercel) ; le comportement sur Vercel est à confirmer au premier déploiement. Les pages `/objet/<id>` lisent les fichiers statiques du déploiement : si la « Deployment Protection » de Vercel est activée sur les prévisualisations, elles n'y fonctionneront pas (la production n'est pas concernée).
 - `public/sky/` (66 Mo) est versionné ; les images du ciel ne sont pas régénérées par l'action hebdomadaire.

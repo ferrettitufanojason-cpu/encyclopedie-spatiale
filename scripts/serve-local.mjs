@@ -9,6 +9,7 @@ import { ROOT, loadEnv } from './lib/common.mjs';
 import { issNow } from '../lib/iss.mjs';
 import { apod, epic, rovers, simbadLookup } from '../lib/nasa.mjs';
 import { issStreams } from '../lib/iss-tv.mjs';
+import { renderObjectPage } from '../lib/objet-page.mjs';
 
 await loadEnv();
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.png': 'image/png' };
@@ -22,9 +23,15 @@ createServer(async (req, res) => {
     catch (e) { res.writeHead(502, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: String(e.message).replace(/api_key=[^&\s]+/g, 'api_key=***') })); }
     return;
   }
+  const om = url.pathname.match(/^\/objet\/([^/]+)\/?$/);
+  if (om) { // comme la réécriture /objet/:id -> /api/objet de vercel.json
+    const getText = async f => { const q = join(ROOT, 'dist', normalize(f).replace(/^([/\\])+/, '')); return existsSync(q) ? readFile(q, 'utf8') : null; };
+    const { status, html } = await renderObjectPage(om[1], getText, `http://localhost:${PORT}`);
+    res.writeHead(status, { 'Content-Type': 'text/html; charset=utf-8' }); res.end(html); return;
+  }
   let p = join(ROOT, 'dist', normalize(decodeURIComponent(url.pathname)).replace(/^([/\\])+/, ''));
   if (existsSync(p) && statSync(p).isDirectory()) p = join(p, 'index.html');
-  if (!existsSync(p)) { res.writeHead(404); res.end('404'); return; }
+  if (!existsSync(p)) { const nf = join(ROOT, 'dist', '404.html'); res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' }); res.end(existsSync(nf) ? await readFile(nf) : '404'); return; }
   res.writeHead(200, { 'Content-Type': TYPES[extname(p)] ?? 'application/octet-stream' });
   res.end(await readFile(p));
 }).listen(PORT, () => console.log(`http://localhost:${PORT}`));

@@ -1,5 +1,7 @@
 import { T } from './i18n.js';
 import { scatter, bars, PALETTE } from './charts.js';
+import { srcOf, objPath } from '../../lib/sources.mjs';
+import { PROP_GLOSS } from '../data/glossary.mjs';
 
 const $ = s => document.querySelector(s);
 const el = (tag, attrs = {}, ...kids) => {
@@ -20,9 +22,12 @@ if (!['fr', 'en'].includes(lang)) lang = 'fr';
 const t = () => T[lang];
 const norm = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
-const TOP = ['planet', 'star', 'region', 'smallbody', 'event', 'other', 'charts', 'live'];
+// catalogues, puis outils (affichés à droite)
+const TOP = ['planet', 'star', 'region', 'smallbody', 'mission', 'event', 'charts', 'live'];
+const TOOLS = new Set(['charts', 'live']);
+const CHARTS_N = 4;
 const EVENT_SUBS = new Set(['meteor-shower', 'opposition', 'elongation', 'conjunction', 'solar-eclipse', 'lunar-eclipse', 'gravitational-wave']);
-const groupOf = c => (EVENT_SUBS.has(c.s) ? 'event' : c.k === 'exoplanet' ? 'planet' : c.k);
+const groupOf = c => (EVENT_SUBS.has(c.s) ? 'event' : c.s === 'mission' ? 'mission' : c.k === 'other' ? 'region' : c.k === 'exoplanet' ? 'planet' : c.k);
 const subOf = c => (c.k === 'exoplanet' ? 'exoplanet' : c.s);
 
 const state = { q: '', cat: 'planet', sub: '', when: '', type: '', method: '', hz: false, sort: 'rel',
@@ -54,21 +59,8 @@ function fmtProp(key, p) {
   if (key === 'dist') s += ` (${fmt(p.v * 3.26156)} ${T_.ly})`;
   return s;
 }
-const srcOf = (o, p) => {
-  const s = p?.s ?? o.src;
-  if (s === 'nea') return { name: 'NASA Exoplanet Archive', url: `https://exoplanetarchive.ipac.caltech.edu/overview/${encodeURIComponent(o.hostNames?.[0] ?? o.name)}` };
-  if (s === 'simbad') return { name: 'SIMBAD (CDS)', url: `https://simbad.cds.unistra.fr/simbad/sim-id?Ident=${encodeURIComponent(o.simbadId ?? o.name)}` };
-  if (s === 'sbdb') return { name: 'JPL Small-Body Database', url: `https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=${encodeURIComponent(o.sbdbId ?? o.name)}` };
-  if (s === 'nasaiss') return { name: 'NASA — ISS Facts and Figures', url: 'https://www.nasa.gov/international-space-station/space-station-facts-and-figures/' };
-  if (s === 'imo') return { name: 'International Meteor Organization (calendrier officiel)', url: `https://www.imo.net/files/meteor-shower/cal${o.imoYear ?? ''}.pdf` };
-  if (s === 'horizons') return { name: 'JPL Horizons (NASA/JPL)', url: 'https://ssd.jpl.nasa.gov/horizons/' };
-  if (s === 'gwosc') return { name: 'GWOSC (LIGO/Virgo/KAGRA)', url: o.gwUrl ?? 'https://gwosc.org/eventapi/' };
-  if (s === 'nasaecl') return { name: 'NASA GSFC Eclipse Web Site (F. Espenak)', url: o.lunar ? 'https://eclipse.gsfc.nasa.gov/lunar.html' : 'https://eclipse.gsfc.nasa.gov/solar.html' };
-  if (s === 'nasasci') return { name: 'NASA Science', url: `https://science.nasa.gov/mission/${o.mslug}/` };
-  if (s === 'nssdca') return { name: 'NASA NSSDCA', url: `https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=${encodeURIComponent(o.code)}` };
-  if (s === 'iau') return { name: 'Union astronomique internationale', url: 'https://www.iau.org/public/themes/constellations/' };
-  return { name: 'Système solaire OpenData', url: `https://api.le-systeme-solaire.net/rest/bodies/${o.ssodId}` };
-};
+// adresse de la fiche : /objet/<id> (page réelle) ; les anciens liens ?o=<id> restent acceptés
+const curObj = () => { const m = location.pathname.match(/^\/objet\/([^/]+)/); return m ? decodeURIComponent(m[1]) : new URLSearchParams(location.search).get('o'); };
 
 /* ---------- schéma d'orbite (calculé à partir des éléments orbitaux, pas une photo) ---------- */
 const PLANET_A = [0.387, 0.723, 1, 1.524, 5.203, 9.537, 19.19, 30.07]; // demi-grands axes (UA) des 8 planètes
@@ -107,7 +99,7 @@ function card(c) {
     c.nw ? el('span', { class: 'badge-new', text: t().newBadge.toUpperCase() }) : null,
     c.il === 2 ? el('span', { class: 'crosshair', 'aria-hidden': 'true' }) : null);
   const name = lang === 'fr' && c.nf ? c.nf : c.n;
-  const a = el('a', { class: 'card', href: `?o=${c.i}`, 'data-id': c.i }, pic,
+  const a = el('a', { class: 'card', href: objPath(c.i), 'data-id': c.i }, pic,
     el('div', { class: 'body' }, el('h2', { text: name }), el('span', { class: 'code', text: c.c }), el('div', { class: 'tags' }, cardTags(c))));
   a.addEventListener('click', e => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button) return; e.preventDefault(); openObj(c.i, true); });
   return el('li', { class: 'has-cmp' }, a, cmpToggle(c.i, lang === 'fr' && c.nf ? c.nf : c.n));
@@ -156,9 +148,9 @@ new IntersectionObserver(es => { if (es[0].isIntersecting && shown < VIEW.length
 function drawCats() {
   const counts = {}; for (const c of ALL) counts[groupOf(c)] = (counts[groupOf(c)] ?? 0) + 1;
   counts.live = 1; counts.charts = 1;
-  $('#cats').replaceChildren(...TOP.map(k => el('button', { type: 'button', 'aria-pressed': String(state.cat === k), disabled: !counts[k],
+  $('#cats').replaceChildren(...TOP.map(k => el('button', { type: 'button', class: TOOLS.has(k) ? 'tool' : null, 'aria-pressed': String(state.cat === k), disabled: !counts[k],
     onclick: () => { state.cat = k; state.sub = ''; state.type = ''; state.when = ''; apply(); drawCats(); } },
-    t().cat[k], el('em', { text: k === 'live' ? '●' : k === 'charts' ? '3' : counts[k] ? counts[k].toLocaleString(lang) : t().soon }))));
+    t().cat[k], el('em', { text: k === 'live' ? '●' : k === 'charts' ? String(CHARTS_N) : counts[k] ? counts[k].toLocaleString(lang) : t().soon }))));
 }
 function drawSubs() {
   const counts = {};
@@ -301,7 +293,8 @@ function propsTable(o) {
         : el('span', { class: 'src' }, p.calc ? el('span', { class: 'calc', text: `${p.calcNote === 'masses' ? T_.massNote : p.calcNote === 'horizons' ? T_.hzCalcNote : T_.plxNote} ` }) : '', `${T_.source} : `, el('a', { href: ps.url, target: '_blank', rel: 'noopener', text: ps.name }),
           p.ref ? [` · ${T_.ref} `, p.ref.url ? el('a', { href: p.ref.url, target: '_blank', rel: 'noopener', text: p.ref.t }) : p.ref.t] : '',
           ` · ${T_.updated} ${o.updated}`, p.note ? ` · ${typeof p.note === 'object' ? p.note[lang] : p.note}` : '');
-      return el('tr', {}, el('th', { scope: 'row', text: T_.p[k] ?? k }), el('td', {}, el('span', { class: 'val', text: fmtProp(k, p) }), srcLine));
+      const gl = PROP_GLOSS[k];
+      return el('tr', {}, el('th', { scope: 'row' }, T_.p[k] ?? k, gl ? el('a', { class: 'gl', href: `/glossaire/#${gl}${lang === 'en' ? '-en' : ''}`, title: T_.glossary, 'aria-label': `${T_.glossary} : ${T_.p[k] ?? k}`, text: '?' }) : null), el('td', {}, el('span', { class: 'val', text: fmtProp(k, p) }), srcLine));
     });
     frag.push(el('h3', { text: gLabel(g) }), el('table', { class: 'props' }, el('tbody', {}, rows)));
   }
@@ -318,7 +311,7 @@ async function openObj(id, push) {
   const dlg = $('#dlg'), body = $('#dlgBody');
   body.replaceChildren(el('p', { text: t().loading }));
   if (!dlg.open) dlg.showModal();
-  if (push) history.pushState({ o: id }, '', `?o=${id}`);
+  if (push) history.pushState({ o: id }, '', objPath(id));
   let o;
   try { o = await (await fetch(`/data/o/${encodeURIComponent(id)}.json`)).json(); }
   catch { body.replaceChildren(el('p', { text: t().err }), el('button', { class: 'btn', onclick: () => dlg.close(), text: t().close })); return; }
@@ -334,7 +327,7 @@ async function openObj(id, push) {
   const title = lang === 'fr' && o.nameFr ? o.nameFr : o.name;
   const tags = (o.tags ?? []).filter(x => x !== o.otype && !['star', 'region', 'other', 'planet', 'smallbody'].includes(x) && (!/^[A-Z]{2,4}$/.test(x) || T_.tag[x])).map(x => el('span', { class: 'tag' + (x === 'habitable-zone' ? ' hz' : ''), text: tagLabel(x) }));
   const rel = o.related.map(r => r.id
-    ? el('a', { href: `?o=${r.id}`, onclick: e => { e.preventDefault(); openObj(r.id, true); } }, r.name, el('small', { text: T_.rel[r.rel] }))
+    ? el('a', { href: objPath(r.id), onclick: e => { e.preventDefault(); openObj(r.id, true); } }, r.name, el('small', { text: T_.rel[r.rel] }))
     : el('span', {}, r.name, el('small', { text: T_.rel[r.rel] })));
   const disc = o.disc?.year ? [`${o.disc.year}`, o.disc.method && ` · ${T_.method[o.disc.method] ?? o.disc.method}`, o.disc.facility && ` · ${o.disc.facility}`].filter(Boolean).join('') : null;
   body.replaceChildren(
@@ -486,7 +479,7 @@ async function mountLive() {
   const tvHost = el('div', { class: 'live-sec' }); host.append(tvHost); mountIssTv(tvHost);
   const issHost = section(T_.issLive); issHost.querySelector('h3').remove();
   mountIss(issHost, { inFiche: false });
-  issHost.append(el('p', {}, el('a', { href: '?o=mission-international-space-station', onclick: e => { e.preventDefault(); openObj('mission-international-space-station', true); }, text: T_.issFiche })));
+  issHost.append(el('p', {}, el('a', { href: objPath('mission-international-space-station'), onclick: e => { e.preventDefault(); openObj('mission-international-space-station', true); }, text: T_.issFiche })));
   // APOD
   const ap = section(T_.apodTitle, el('p', { class: 'na', text: T_.loading }));
   getJson('/api/apod').then(a => {
@@ -536,7 +529,7 @@ function drawEvAgenda() {
       el('h4', { text: new Date(m + '-15T12:00:00Z').toLocaleDateString(lang, { month: 'long', year: 'numeric', timeZone: 'UTC' }) }),
       el('ul', {}, list.map(c => el('li', {}, el('span', { class: 'ag-day', text: new Date(c.dt + 'T12:00:00Z').toLocaleDateString(lang, { day: 'numeric', month: 'short', timeZone: 'UTC' }) }),
         el('span', { class: 'ag-ico', 'aria-hidden': 'true', text: EV_ICON[c.s] }),
-        el('a', { href: `?o=${c.i}`, onclick: e => { e.preventDefault(); openObj(c.i, true); }, text: (lang === 'fr' && c.nf ? c.nf : c.n).split(' — ')[0] }),
+        el('a', { href: objPath(c.i), onclick: e => { e.preventDefault(); openObj(c.i, true); }, text: (lang === 'fr' && c.nf ? c.nf : c.n).split(' — ')[0] }),
         el('small', { text: t().subOne[c.s] ?? '' }))))))) : el('p', { class: 'na', text: T_.agendaEmpty })),
     el('h3', { class: 'ev-all', text: T_.evAllTitle }));
 }
@@ -609,6 +602,52 @@ function mountCharts() {
     const ch = bars(body, { cats, series, yLabel: T_.chCount, file: 'decouvertes-par-an', ariaLabel: T_.chDisc, tip: (c, s, v) => `<b>${c}</b><br>${s.label} : ${v}` });
     tools.append(btn('PNG', () => ch.png()), btn('CSV', () => csvDl('decouvertes-par-an', ['year', ...series.map(s => s.label)], cats.map((c, i) => [c, ...series.map(s => s.values[i])]))));
   }
+  // 4. Échelle des distances : de la Lune aux quasars (valeurs des fiches, échelle logarithmique)
+  {
+    const { tools, body } = card(T_.chScale, T_.chScaleText, T_.chScaleSrc);
+    const KM_LY = 9.4607304725808e12, KM_AU = 149597870.7, C_KMS = 299792.458;
+    // [id, référence de la distance] — système solaire : demi-grand axe lu dans la fiche ; au-delà : distance de la carte (années-lumière)
+    const STEPS = [['moon', 'earth'], ['sun', 'earthSun'], ['mars', 'sun'], ['jupiter', 'sun'], ['neptune', 'sun'], ['pluto', 'sun'], ['proxima-cen', 'sun'], ['sirius-a', 'sun'], ['vega', 'sun'],
+      ['pleiades', 'sun'], ['betelgeuse', 'sun'], ['orion-nebula', 'sun'], ['crab-pulsar', 'sun'], ['omega-centauri', 'sun'], ['large-magellanic-cloud', 'sun'], ['andromeda-galaxy', 'sun'],
+      ['whirlpool-galaxy', 'sun'], ['virgo-a-m87', 'sun'], ['3c-273', 'sun']];
+    const byId = new Map(ALL.map(c => [c.i, c]));
+    const n0 = v => v.toLocaleString(lang, { maximumSignificantDigits: 3 });
+    const big = v => (v >= 1e9 ? `${n0(v / 1e9)} ${T_.billion}` : v >= 1e6 ? `${n0(v / 1e6)} ${T_.million}` : n0(v));
+    // « 2,5 millions d’années-lumière » / « 2.5 million light-years »
+    const unit = (v, u) => `${big(v)} ${v >= 1e6 && lang === 'fr' ? 'd’' + u : u}`;
+    const fmtDist = km => (km < 0.1 * KM_AU ? `${big(km)} km` : km < 0.05 * KM_LY ? `${n0(km / KM_AU)} ${T_.au}` : unit(km / KM_LY, T_.lyLong));
+    const fmtLight = km => { const s = km / C_KMS, y = s / (86400 * 365.25); return s < 60 ? `${n0(s)} s` : s < 3600 ? `${n0(s / 60)} min` : s < 86400 ? `${n0(s / 3600)} h` : y < 1 ? `${n0(s / 86400)} ${T_.days}` : unit(y, y >= 1e6 ? T_.yearsLong : T_.years); };
+    const list = el('ol', { class: 'scale' }); body.append(list);
+    const rows = [];
+    const smaKm = async id => { try { const o = await (await fetch(`/data/o/${id}.json`)).json(); const p = o.props.sma; return p ? (p.u === 'km' ? p.v : p.u === 'UA' ? p.v * KM_AU : null) : null; } catch { return null; } };
+    (async () => {
+      for (const [id, ref] of STEPS) {
+        const c = byId.get(id); if (!c) continue;
+        const km = ref === 'earth' || ref === 'earthSun' || (ref === 'sun' && c.d == null) ? await smaKm(ref === 'earthSun' ? 'earth' : id) : c.d * KM_LY;
+        if (km) rows.push({ c, km, ref });
+      }
+      const lo = Math.log10(rows[0].km), hi = Math.log10(rows.at(-1).km);
+      list.replaceChildren(...rows.map((r, i) => {
+        const w = 4 + 96 * (Math.log10(r.km) - lo) / (hi - lo), prev = rows[i - 1];
+        return el('li', {},
+          el('div', { class: 'sc-head' }, el('a', { href: objPath(r.c.i), onclick: e => { e.preventDefault(); pick(r.c.i); }, text: nm(r.c) }),
+            el('span', { class: 'sc-ref', text: T_.scRef[r.ref] }), el('b', { text: fmtDist(r.km) })),
+          el('div', { class: 'sc-bar', style: `width:${w.toFixed(1)}%`, 'aria-hidden': 'true' }),
+          el('div', { class: 'sc-meta', text: `${T_.scLight} ${fmtLight(r.km)}${prev ? ` · ${T_.scTimes(n0(r.km / prev.km))}` : ''}` }));
+      }));
+      tools.append(btn('CSV', () => csvDl('echelle-des-distances', ['id', 'name', 'distance_km', 'distance_au', 'distance_ly', 'light_travel_time_s', 'measured_from'],
+        rows.map(r => [r.c.i, r.c.n, r.km, r.km / KM_AU, r.km / KM_LY, r.km / C_KMS, r.ref === 'earth' || r.ref === 'earthSun' ? 'Earth' : 'Sun']))));
+    })();
+    // répartition de tout le catalogue par tranche de distance (puissances de 10 en années-lumière)
+    const withD = ALL.filter(c => c.d > 0 && ['exoplanet', 'star', 'region'].includes(c.k));
+    const dec = c => Math.max(0, Math.min(9, Math.floor(Math.log10(c.d))));
+    const cats = Array.from({ length: 10 }, (_, i) => (i === 0 ? `< 10` : i === 9 ? `≥ 10⁹` : `10${'⁰¹²³⁴⁵⁶⁷⁸⁹'[i]}–10${'⁰¹²³⁴⁵⁶⁷⁸⁹'[i + 1]}`));
+    const series = [['star', T_.cat.star, PALETTE[1]], ['exoplanet', T_.exoShort, PALETTE[0]], ['region', T_.cat.region, PALETTE[2]]].map(([k, label, color]) =>
+      ({ key: k, label, color, values: cats.map((_, i) => withD.filter(c => c.k === k && dec(c) === i).length) }));
+    body.append(el('h4', { class: 'sc-h', text: T_.scHist }));
+    const hb = el('div'); body.append(hb);
+    bars(hb, { cats, series, yLabel: T_.scCount, file: 'distances-catalogue', ariaLabel: T_.scHist, tip: (c, s, v) => `<b>${c} ${T_.ly}</b><br>${s.label} : ${v}` });
+  }
 }
 
 /* ---------- recherche SIMBAD en direct (pour les objets absents du catalogue local) ---------- */
@@ -631,7 +670,7 @@ async function runSimbad(q) {
       img ? el('div', { class: 'sb-pic' }, el('img', { src: img, alt: `${T_.skyBadge} ${r.main_id}`, loading: 'lazy' }), el('span', { class: 'crosshair', 'aria-hidden': 'true' })) : '',
       el('div', {}, el('h3', { text: r.main_id }), el('p', { class: 'credit', text: [r.otype_label ?? r.otype, r.sp_type && `${T_.p.sptype} ${r.sp_type}`, r.vmag && `V = ${r.vmag}`, r.distance_pc && `${f(r.distance_pc * 3.26156)} ${T_.ly}`].filter(Boolean).join(' · ') }),
         el('p', { class: 'credit', text: `RA ${r.ra}°, Dec ${r.dec}° (ICRS)` }), el('p', { class: 'credit', text: r.ids.slice(0, 8).join(' · ') }),
-        el('p', {}, local ? el('a', { href: `?o=${local.i}`, onclick: e => { e.preventDefault(); openObj(local.i, true); }, text: T_.simbadLocal }) : '', local ? ' · ' : '',
+        el('p', {}, local ? el('a', { href: objPath(local.i), onclick: e => { e.preventDefault(); openObj(local.i, true); }, text: T_.simbadLocal }) : '', local ? ' · ' : '',
           el('a', { href: r.url, target: '_blank', rel: 'noopener', text: T_.simbadOpen })),
         el('p', { class: 'credit', text: T_.simbadSrc }))));
   } catch { box.replaceChildren(el('p', { class: 'na', text: T_.liveErr })); }
@@ -641,11 +680,12 @@ $('#dlg').addEventListener('close', () => {
   stopIss();
   $('#dlgBody').querySelectorAll('iframe').forEach(f => f.remove()); // coupe la vidéo en direct à la fermeture de la fiche
   document.title = t().title;
-  if (new URLSearchParams(location.search).get('o')) { history.state?.o ? history.back() : history.replaceState(null, '', location.pathname); }
+  document.getElementById('ssr')?.remove(); // contenu pré-rendu de la page /objet/<id> (pour les moteurs de recherche)
+  if (curObj()) { history.state?.o ? history.back() : history.replaceState(null, '', '/'); }
 });
 $('#dlg').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.close(); });
 addEventListener('popstate', () => {
-  const sp = new URLSearchParams(location.search), id = sp.get('o'), c = sp.get('cmp');
+  const sp = new URLSearchParams(location.search), id = curObj(), c = sp.get('cmp');
   if (c) { cmpSet(c.split(',').filter(Boolean)); openCompare(false); return; }
   if ($('#cmpDlg').open) $('#cmpDlg').close();
   if (id) openObj(id, false); else if ($('#dlg').open) { $('#dlg').close(); }
@@ -655,14 +695,14 @@ addEventListener('popstate', () => {
 function downloadCsv() {
   const cell = v => { const s = String(v ?? ''); return /[",\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   const head = ['id', 'name', 'name_fr', 'category', 'subcategory', 'catalog_code', 'mass_earth_masses', 'radius_earth_radii', 'distance_light_years', 'temperature_K', 'discovery_year', 'discovery_method', 'url'];
-  const rows = VIEW.map(c => [c.i, c.n, c.nf ?? '', c.k, c.s, c.c, c.m ?? '', c.r ?? '', c.d ?? '', c.q ?? '', c.y ?? '', c.md ?? '', `${location.origin}/?o=${c.i}`]);
+  const rows = VIEW.map(c => [c.i, c.n, c.nf ?? '', c.k, c.s, c.c, c.m ?? '', c.r ?? '', c.d ?? '', c.q ?? '', c.y ?? '', c.md ?? '', `${location.origin}${objPath(c.i)}`]);
   const csv = String.fromCharCode(0xfeff) + [head, ...rows].map(r => r.map(cell).join(',')).join('\n') + '\n';
   const a = el('a', { href: URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })), download: `encyclopedie-spatiale-${state.cat}-${new Date().toISOString().slice(0, 10)}.csv` });
   document.body.append(a); a.click(); a.remove();
 }
 function citeBox(o, title) {
   const T_ = t(), ver = META?.version ?? '', today = new Date().toISOString().slice(0, 10);
-  const url = `${location.origin}/?o=${o.id}`, year = today.slice(0, 4), src = srcOf(o).name;
+  const url = `${location.origin}${objPath(o.id)}`, year = today.slice(0, 4), src = srcOf(o).name;
   const text = `${T_.siteName} (${year}). ${title}${o.code ? ` [${o.code}]` : ''}. ${T_.siteName}, version ${ver}. ${url} (${T_.accessed} ${today}). ${lang === 'fr' ? 'Données : ' : 'Data: '}${src}.`;
   const key = `encyclopedie_spatiale_${o.id}`.replace(/[^A-Za-z0-9_]/g, '_');
   const bib = `@misc{${key},\n  title = {${title}${o.code ? ` [${o.code}]` : ''}},\n  author = {{${T_.siteName}}},\n  year = {${year}},\n  howpublished = {\\url{${url}}},\n  note = {Version ${ver}; ${T_.accessed} ${today}; data: ${src}}\n}`;
@@ -713,7 +753,7 @@ function sizeSvg(items, log) {
 async function openCompare(push) {
   const dlg = $('#cmpDlg'), body = $('#cmpBody'), T_ = t();
   if (cmp.length < 2) return;
-  if (push) history.pushState({ cmp }, '', `?cmp=${cmp.join(',')}`);
+  if (push) history.pushState({ cmp }, '', `/?cmp=${cmp.join(',')}`);
   body.replaceChildren(el('p', { text: T_.loading }));
   if (!dlg.open) dlg.showModal();
   let objs;
@@ -733,7 +773,7 @@ async function openCompare(push) {
   drawSizes();
   const rows = CMP_ROWS.filter(k => objs.some(o => o.props[k]));
   const table = el('table', { class: 'props cmp-table' },
-    el('thead', {}, el('tr', {}, el('th', { scope: 'col', text: '' }), ...objs.map(o => el('th', { scope: 'col' }, el('a', { href: `?o=${o.id}`, onclick: e => { e.preventDefault(); dlg.close(); openObj(o.id, true); }, text: cmpNames.get(o.id) }), el('div', { class: 'credit', text: o.code }))))),
+    el('thead', {}, el('tr', {}, el('th', { scope: 'col', text: '' }), ...objs.map(o => el('th', { scope: 'col' }, el('a', { href: objPath(o.id), onclick: e => { e.preventDefault(); dlg.close(); openObj(o.id, true); }, text: cmpNames.get(o.id) }), el('div', { class: 'credit', text: o.code }))))),
     el('tbody', {}, rows.map(k => el('tr', {}, el('th', { scope: 'row', text: T_.p[k] ?? k }),
       ...objs.map(o => el('td', { class: o.props[k] ? '' : 'na', text: o.props[k] ? fmtProp(k, o.props[k]) : T_.na }))))));
   const pics = el('div', { class: 'cmp-pics' }, objs.map(o => el('div', { class: 'cmp-pic' }, o.image ? el('img', { src: o.image.thumb ?? o.image.url, alt: o.name, loading: 'lazy' }) : orb(o.sub))));
@@ -744,7 +784,7 @@ async function openCompare(push) {
     el('label', { class: 'chk' }, el('input', { type: 'checkbox', onchange: e => { log = e.target.checked; drawSizes(); } }), el('span', { text: ' ' + T_.cmpLogLabel })),
     sizes, el('h3', { class: 'cmp-h', text: T_.sec.props }), el('div', { class: 'cmp-scroll' }, table),
     el('p', { class: 'credit', text: T_.cmpSrc }),
-    el('p', {}, el('a', { href: `?cmp=${cmp.join(',')}`, onclick: async e => { e.preventDefault(); try { await navigator.clipboard.writeText(location.href); e.target.textContent = T_.cmpCopied; } catch { /* presse-papiers indisponible */ } }, text: T_.cmpShare })));
+    el('p', {}, el('a', { href: `/?cmp=${cmp.join(',')}`, onclick: async e => { e.preventDefault(); try { await navigator.clipboard.writeText(location.href); e.target.textContent = T_.cmpCopied; } catch { /* presse-papiers indisponible */ } }, text: T_.cmpShare })));
 }
 $('#cmpDlg').addEventListener('close', () => { if (new URLSearchParams(location.search).get('cmp')) { history.state?.cmp ? history.back() : history.replaceState(null, '', location.pathname); } });
 $('#cmpDlg').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.close(); });
@@ -761,7 +801,7 @@ function applyLang() {
 $('#lang').addEventListener('click', () => {
   lang = lang === 'fr' ? 'en' : 'fr'; try { localStorage.setItem('lang', lang); } catch {}
   applyLang(); apply(); drawTray();
-  const id = new URLSearchParams(location.search).get('o'); if ($('#dlg').open && id) openObj(id, false);
+  const id = curObj(); if ($('#dlg').open && id) openObj(id, false);
   if ($('#cmpDlg').open) openCompare(false);
 });
 
@@ -789,7 +829,9 @@ try {
   const [idx, meta] = await Promise.all([fetch('/data/index.json').then(r => r.json()), fetch('/data/meta.json').then(r => r.json())]);
   ALL = idx; META = meta;
 } catch { $('#count').textContent = t().err; }
+const askedCat = new URLSearchParams(location.search).get('cat'); // ?cat=event, ?cat=charts… (liens des parcours)
+if (TOP.includes(askedCat)) state.cat = askedCat;
 applyLang(); apply();
-const first = new URLSearchParams(location.search).get('o'), firstCmp = new URLSearchParams(location.search).get('cmp');
+const first = curObj(), firstCmp = new URLSearchParams(location.search).get('cmp');
 if (firstCmp) { cmpSet(firstCmp.split(',').filter(Boolean)); openCompare(false); }
 else if (first) openObj(first, false);

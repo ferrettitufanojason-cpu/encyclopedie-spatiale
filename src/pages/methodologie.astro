@@ -1,14 +1,13 @@
 ---
 import '../styles/global.css';
+import Meta from '../components/Meta.astro';
 ---
 <!doctype html>
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Méthodologie et données — Encyclopédie spatiale</title>
-    <meta name="description" content="Sources, méthodes de calcul, politique éditoriale, licences, exports ouverts et citation de l'Encyclopédie spatiale." />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <Meta title="Méthodologie et données — Encyclopédie spatiale" description="Sources, méthodes de calcul, politique éditoriale, licences, exports ouverts et citation de l'Encyclopédie spatiale." path="/methodologie/" />
   </head>
   <body class="doc">
     <a class="skip" href="#main">Aller au contenu</a>
@@ -38,7 +37,7 @@ import '../styles/global.css';
         </ul>
         <p>Les fichiers CSV regroupent : identifiant, nom (EN/FR), catégorie, sous-catégorie, code de catalogue, masse (M⊕), rayon (R⊕), distance (années-lumière), température (K), année et méthode de découverte, coordonnées, source, date de mise à jour et lien. Les incertitudes et références complètes sont dans le JSON de chaque fiche.</p>
         <h2>4. Citer</h2>
-        <p>Le bouton « Citer » de chaque fiche fournit une référence (texte et BibTeX) avec le lien permanent <code>?o=&lt;identifiant&gt;</code>, la <b>version des données</b> (<span class="ver">…</span>) et la date de consultation. <b>Citez aussi la source primaire</b> indiquée sur la fiche (NASA Exoplanet Archive, SIMBAD, JPL…) : ce site est un agrégateur, pas une source primaire. Pour citer le projet entier, voir le fichier <code>CITATION.cff</code> à la racine du dépôt.</p>
+        <p>Le bouton « Citer » de chaque fiche fournit une référence (texte et BibTeX) avec le lien permanent <code>/objet/&lt;identifiant&gt;</code>, la <b>version des données</b> (<span class="ver">…</span>) et la date de consultation. <b>Citez aussi la source primaire</b> indiquée sur la fiche (NASA Exoplanet Archive, SIMBAD, JPL…) : ce site est un agrégateur, pas une source primaire. Pour citer le projet entier, voir le fichier <code>CITATION.cff</code> à la racine du dépôt.</p>
         <h2>5. Valeurs calculées (et non mesurées)</h2>
         <ul>
           <li><b>Zone habitable des exoplanètes</b> : modèle conservateur de Kopparapu et al. (2013, ApJ 765, 131), à partir de la température effective et de la luminosité de l'étoile (valide pour 2 600 K ≤ T<sub>eff</sub> ≤ 7 200 K). « Dans la zone habitable » signifie seulement que le demi-grand axe est entre les bornes calculées ; ce n'est pas une affirmation d'habitabilité.</li>
@@ -86,7 +85,7 @@ import '../styles/global.css';
           <li>CSV (UTF-8, opens in Excel/LibreOffice): <span id="csv-links-en">…</span></li>
         </ul>
         <h2>4. Citing</h2>
-        <p>Each page’s “Cite” button provides a reference (text and BibTeX) with the permalink <code>?o=&lt;id&gt;</code>, the <b>data version</b> (<span class="ver">…</span>) and the access date. <b>Please also cite the primary source</b> shown on the page (NASA Exoplanet Archive, SIMBAD, JPL…): this site is an aggregator, not a primary source.</p>
+        <p>Each page’s “Cite” button provides a reference (text and BibTeX) with the permalink <code>/objet/&lt;id&gt;</code>, the <b>data version</b> (<span class="ver">…</span>) and the access date. <b>Please also cite the primary source</b> shown on the page (NASA Exoplanet Archive, SIMBAD, JPL…): this site is an aggregator, not a primary source.</p>
         <h2>5. Computed (not measured) values</h2>
         <ul>
           <li><b>Exoplanet habitable zone</b>: conservative model of Kopparapu et al. (2013, ApJ 765, 131) from the star’s effective temperature and luminosity (valid for 2,600–7,200 K). “In the habitable zone” only means the semi-major axis lies between the computed bounds; it is not a claim of habitability.</li>

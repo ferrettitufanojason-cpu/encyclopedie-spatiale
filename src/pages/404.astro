@@ -1,0 +1,19 @@
+---
+import Doc from '../layouts/Doc.astro';
+---
+<Doc titleFr="Page introuvable" titleEn="Page not found" description="Cette page n'existe pas ou a été déplacée." noindex>
+  <Fragment slot="fr">
+    <p class="lead">Cette page n'existe pas, ou l'objet demandé n'est plus dans le catalogue (il a pu être renommé ou retiré par sa source officielle).</p>
+    <ul>
+      <li><a href="/">Retourner à l'encyclopédie</a> et utiliser la recherche (nom, code de catalogue…)</li>
+      <li><a href="/parcours/">Suivre un parcours</a> ou consulter le <a href="/glossaire/">glossaire</a></li>
+    </ul>
+  </Fragment>
+  <Fragment slot="en">
+    <p class="lead">This page does not exist, or the requested object is no longer in the catalogue (it may have been renamed or removed by its official source).</p>
+    <ul>
+      <li><a href="/">Back to the encyclopedia</a> and use the search (name, catalogue code…)</li>
+      <li><a href="/parcours/">Follow a learning path</a> or read the <a href="/glossaire/">glossary</a></li>
+    </ul>
+  </Fragment>
+</Doc>
