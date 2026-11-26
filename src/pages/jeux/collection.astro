@@ -1,0 +1,10 @@
+---
+import GameShell from '../../components/GameShell.astro';
+---
+<GameShell titleFr="Ma collection" titleEn="My collection" path="/jeux/collection/" description="Les objets débloqués dans les jeux de l'Encyclopédie spatiale et les badges obtenus, enregistrés uniquement dans le navigateur."
+  introFr="Chaque bonne réponse débloque la fiche de l’objet concerné. Tes badges et ta collection sont enregistrés uniquement dans ce navigateur."
+  introEn="Every right answer unlocks the page of the object involved. Your badges and collection are stored only in this browser." />
+<script>
+  import { mount } from '../../scripts/games/collection.js';
+  mount(document.getElementById('game')!);
+</script>
