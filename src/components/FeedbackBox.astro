@@ -31,8 +31,8 @@ const id = (s: string) => `${s}-${l}`;
     <input id={id('name')} name="name" type="text" maxlength="40" autocomplete="off" />
     <div class="fb-hp" aria-hidden="true"><label for={id('web')}>Site web</label><input id={id('web')} name="website" type="text" tabindex="-1" autocomplete="off" /></div>
     <p class="fb-privacy">{fr
-      ? '🔒 N’écrivez ni votre nom complet, ni votre adresse, ni votre e-mail, ni le nom de votre école. Les messages sont lus avant d’être publiés.'
-      : '🔒 Do not write your full name, address, e-mail or school name. Messages are read before being published.'}</p>
+      ? '🔒 N’écrivez ni votre nom complet, ni votre adresse, ni votre e-mail, ni le nom de votre école. Les messages sont publiés automatiquement, sauf s’ils contiennent un lien, une adresse e-mail, un numéro de téléphone ou un gros mot.'
+      : '🔒 Do not write your full name, address, e-mail or school name. Messages are published automatically, unless they contain a link, an e-mail address, a phone number or a swear word.'}</p>
     <button class="btn fb-send" type="submit">{fr ? 'Envoyer mon avis' : 'Send my feedback'}</button>
     <p class="fb-status" role="status" aria-live="polite"></p>
   </form>
@@ -45,8 +45,8 @@ const id = (s: string) => `${s}-${l}`;
 
 <script>
   const TXT = {
-    fr: { cats: { avis: 'Avis', idee: 'Idée', probleme: 'Problème', erreur: 'Erreur signalée' }, anon: 'Anonyme', none: 'Aucun avis publié pour l’instant : soyez le premier !', off: 'Les avis seront bientôt ouverts sur ce site.', avg: (a, n) => `${a.toLocaleString('fr')} / 5 sur ${n} avis`, sending: 'Envoi…', ok: 'Merci ! Votre avis a bien été reçu ; il sera publié après relecture.', needStar: 'Choisissez une note de 1 à 5 étoiles.', needText: 'Écrivez au moins quelques mots.', err: 'L’envoi a échoué, réessayez plus tard.', about: 'À propos de' },
-    en: { cats: { avis: 'Feedback', idee: 'Idea', probleme: 'Problem', erreur: 'Reported error' }, anon: 'Anonymous', none: 'No feedback published yet: be the first!', off: 'Feedback will open soon on this site.', avg: (a, n) => `${a.toLocaleString('en')} / 5 from ${n} review${n > 1 ? 's' : ''}`, sending: 'Sending…', ok: 'Thank you! Your feedback was received; it will be published after review.', needStar: 'Choose a rating from 1 to 5 stars.', needText: 'Please write a few words.', err: 'Sending failed, please try again later.', about: 'About' },
+    fr: { cats: { avis: 'Avis', idee: 'Idée', probleme: 'Problème', erreur: 'Erreur signalée' }, anon: 'Anonyme', none: 'Aucun avis publié pour l’instant : soyez le premier !', off: 'Les avis seront bientôt ouverts sur ce site.', avg: (a, n) => `${a.toLocaleString('fr')} / 5 sur ${n} avis`, sending: 'Envoi…', ok: 'Merci ! Votre avis est publié.', held: (r: string) => `Merci ! Votre message n’est pas publié car il contient : ${r}. Vous pouvez le réécrire sans.`, rs: { lien: 'un lien', 'e-mail': 'une adresse e-mail', 'numéro de téléphone': 'un numéro de téléphone', 'langage inapproprié': 'un mot inapproprié' } as Record<string, string>, report: 'Signaler', reportQ: 'Signaler cet avis comme inapproprié ? Il sera masqué s’il est signalé par plusieurs personnes.', reported: 'Signalé, merci.', needStar: 'Choisissez une note de 1 à 5 étoiles.', needText: 'Écrivez au moins quelques mots.', err: 'L’envoi a échoué, réessayez plus tard.', about: 'À propos de' },
+    en: { cats: { avis: 'Feedback', idee: 'Idea', probleme: 'Problem', erreur: 'Reported error' }, anon: 'Anonymous', none: 'No feedback published yet: be the first!', off: 'Feedback will open soon on this site.', avg: (a, n) => `${a.toLocaleString('en')} / 5 from ${n} review${n > 1 ? 's' : ''}`, sending: 'Sending…', ok: 'Thank you! Your feedback is published.', held: (r: string) => `Thank you! Your message is not published because it contains: ${r}. You can rewrite it without.`, rs: { lien: 'a link', 'e-mail': 'an e-mail address', 'numéro de téléphone': 'a phone number', 'langage inapproprié': 'inappropriate language' } as Record<string, string>, report: 'Report', reportQ: 'Report this review as inappropriate? It will be hidden if several people report it.', reported: 'Reported, thank you.', needStar: 'Choose a rating from 1 to 5 stars.', needText: 'Please write a few words.', err: 'Sending failed, please try again later.', about: 'About' },
   };
   const qs = new URLSearchParams(location.search);
   const aboutPage = (qs.get('page') ?? '').replace(/[^\w\-+./]/g, '').slice(0, 120);
@@ -72,11 +72,17 @@ const id = (s: string) => `${s}-${l}`;
         const r = await fetch('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ rating, category: fd.get('category'), text: fd.get('text'), name: fd.get('name'), website: fd.get('website'), page: aboutPage, lang: box.dataset.l }) });
         const d = await r.json().catch(() => ({}));
-        if (r.ok) { form.reset(); count.textContent = '0 / 1500'; status.textContent = L.ok; } else status.textContent = d.error ?? L.err;
+        if (r.ok && d.published === false) status.textContent = L.held((d.reasons ?? []).map((x: string) => L.rs[x] ?? x).join(', '));
+        else if (r.ok) { form.reset(); count.textContent = '0 / 1500'; status.textContent = L.ok; cache = null; document.querySelectorAll<HTMLElement>('.fb-box').forEach(render); }
+        else status.textContent = d.error ?? L.err;
       } catch { status.textContent = L.err; }
       btn.disabled = false;
     });
-    // avis publiés
+    render(box);
+  }
+  // avis publiés (moyenne, répartition, liste avec bouton « Signaler »)
+  function render(box: HTMLElement) {
+    const L = TXT[box.dataset.l as 'fr' | 'en'], form = box.querySelector('form')!;
     load().then(({ status: st, data }) => {
       const sum = box.querySelector('.fb-summary')!, list = box.querySelector('.fb-list')!;
       if (st === 503 || data.disabled) { sum.replaceChildren(mk('p', 'na', L.off)); form.querySelector('button')!.disabled = true; return; }
@@ -92,6 +98,14 @@ const id = (s: string) => `${s}-${l}`;
         top.append(stars(it.rating), mk('span', 'tag', L.cats[it.category as keyof typeof L.cats] ?? it.category), mk('b', '', it.name || L.anon), mk('small', 'credit', new Date(it.date + 'T12:00:00Z').toLocaleDateString(box.dataset.l, { dateStyle: 'long', timeZone: 'UTC' })));
         li.append(top, mk('p', '', it.text));
         if (it.page) { const p = mk('p', 'credit', `${L.about} : `), a = mk('a', '', it.page) as HTMLAnchorElement; a.href = it.page.startsWith('/') ? it.page : `/objet/${it.page}`; p.append(a); li.append(p); }
+        const rep = mk('button', 'fb-report', `⚑ ${L.report}`) as HTMLButtonElement; rep.type = 'button';
+        rep.onclick = async () => {
+          if (!confirm(L.reportQ)) return;
+          rep.disabled = true;
+          try { await fetch('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'report', id: it.id }) }); } catch {}
+          rep.textContent = L.reported;
+        };
+        li.append(rep);
         return li;
       }));
     });

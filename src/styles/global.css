@@ -219,3 +219,4 @@ a.gl:hover, a.gl:focus-visible { color: var(--text); border-color: var(--acc); }
 .fb-list { list-style: none; padding: 0; display: grid; gap: 10px; } .fb-item { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--bg2); }
 .fb-item p { margin: 6px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; } .fb-top { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
 .fb-actions { display: flex; gap: 8px; }
+.fb-report { margin-top: 6px; background: none; border: 0; padding: 0; color: var(--mute); font: inherit; font-size: 12px; cursor: pointer; text-decoration: underline; } .fb-report:disabled { cursor: default; text-decoration: none; }
