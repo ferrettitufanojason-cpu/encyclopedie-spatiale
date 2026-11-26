@@ -6,6 +6,7 @@ import { readFile, writeFile, mkdir, rm, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT, DATA_DIR } from './lib/common.mjs';
+import { buildGamesData } from './lib/games-data.mjs';
 
 const OUT = join(ROOT, 'public', 'data');
 await rm(OUT, { recursive: true, force: true });
@@ -143,6 +144,8 @@ for (const o of objects) {
 const today = new Date().toISOString().slice(0, 10);
 if (existsSync(join(DATA_DIR, 'land-path.json'))) await writeFile(join(OUT, 'land.json'), await readFile(join(DATA_DIR, 'land-path.json')));
 await writeFile(join(OUT, 'index.json'), JSON.stringify(index));
+// données compactes des jeux (/jeux/) : planètes et exoplanètes avec zone habitable calculée
+await writeFile(join(OUT, 'jeux.json'), JSON.stringify(buildGamesData(objects, images, today)));
 
 // ---- exports ouverts (CSV UTF-8 avec BOM pour Excel) : un fichier global + un par catégorie ----
 const EXP = join(ROOT, 'public', 'export');
@@ -168,7 +171,7 @@ const groups = {}; for (const c of index) groups[groupOf(c)] = (groups[groupOf(c
 const dataDate = report?.date?.slice(0, 10) ?? null;
 await writeFile(join(OUT, 'meta.json'), JSON.stringify({ built: today, version: today.replace(/-/g, '.'), commit, total: index.length, counts, groups, dataDate, newExoplanets: index.filter(c => c.nw).length, sources, importReport: report, review, exports: Object.keys(byCat) }));
 // ---- plan du site et robots.txt (adresses absolues : SITE_URL, ou l'adresse de production fournie par Vercel) ----
-const PAGES = ['/', '/methodologie/', '/glossaire/', '/parcours/', '/avis/', '/mentions-legales/'];
+const PAGES = ['/', '/jeux/', '/jeux/ordre-des-planetes/', '/jeux/devine-la-planete/', '/jeux/habitable-ou-pas/', '/jeux/collection/', '/methodologie/', '/glossaire/', '/parcours/', '/avis/', '/mentions-legales/'];
 const xmlEsc = x => x.replace(/&/g, '&amp;');
 const urls = [...PAGES.map(u => SITE + u), ...index.map(c => `${SITE}/objet/${encodeURIComponent(c.i)}`)];
 await writeFile(join(ROOT, 'public', 'sitemap.xml'), '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'

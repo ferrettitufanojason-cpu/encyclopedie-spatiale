@@ -1,0 +1,20 @@
+---
+// Gabarit d'une page de jeu : en-tête du site, présentation FR/EN, barre (style de texte, points), zone de jeu remplie par le script de la page.
+import Doc from '../layouts/Doc.astro';
+interface Props { titleFr: string; titleEn: string; description: string; path: string; introFr: string; introEn: string }
+const { titleFr, titleEn, description, path, introFr, introEn } = Astro.props;
+---
+<Doc titleFr={titleFr} titleEn={titleEn} description={description} path={path}>
+  <Fragment slot="fr">
+    <p class="gm-crumb"><a href="/jeux/">← Tous les jeux</a></p>
+    <p class="lead">{introFr}</p>
+  </Fragment>
+  <Fragment slot="en">
+    <p class="gm-crumb"><a href="/jeux/">← All games</a></p>
+    <p class="lead">{introEn}</p>
+  </Fragment>
+  <div class="gm-bar" id="gm-bar"></div>
+  <div class="game" id="game"><p class="na">Chargement du jeu… / Loading the game…</p></div>
+  <noscript><p class="na">Les jeux ont besoin de JavaScript. / The games need JavaScript.</p></noscript>
+  <p class="credit gm-note">Jeu construit à partir des données officielles du site (voir la <a href="/methodologie/#jeux">méthodologie</a>). Textes pédagogiques non relus par un expert. Ta progression reste dans ce navigateur : rien n’est envoyé. · Game built from the site’s official data. Teaching texts not reviewed by an expert. Your progress stays in this browser: nothing is sent.</p>
+</Doc>

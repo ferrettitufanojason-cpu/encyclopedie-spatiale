@@ -23,9 +23,10 @@ const { titleFr, titleEn, description, path, noindex = false, frOnly = false } =
     <main id="main" class="docmain">
       <section lang="fr" data-l="fr"><slot name="fr" /></section>
       {!frOnly && <section lang="en" data-l="en" hidden><slot name="en" /></section>}
+      <slot />
     </main>
     <footer class="docfoot">
-      <a href="/">Encyclopédie</a> · <a href="/parcours/">Parcours</a> · <a href="/glossaire/">Glossaire</a> · <a href="/methodologie/">Méthodologie</a> · <a href="/avis/">Donner mon avis</a> · <a href="/mentions-legales/">Mentions légales</a>
+      <a href="/">Encyclopédie</a> · <a href="/jeux/">Jeux</a> · <a href="/parcours/">Parcours</a> · <a href="/glossaire/">Glossaire</a> · <a href="/methodologie/">Méthodologie</a> · <a href="/avis/">Donner mon avis</a> · <a href="/mentions-legales/">Mentions légales</a>
     </footer>
     <script>
       let lang = 'fr'; try { lang = localStorage.getItem('lang') || 'fr'; } catch {}
