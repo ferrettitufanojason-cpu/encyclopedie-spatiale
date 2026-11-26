@@ -1,0 +1,10 @@
+---
+import GameShell from '../../components/GameShell.astro';
+---
+<GameShell titleFr="Relie les étoiles" titleEn="Join the stars" path="/jeux/relie-les-etoiles/" description="Jeu : relie les étoiles de vraies constellations (Orion, Grande Ourse…), à leur position réelle, puis compare avec la carte officielle de l'UAI."
+  introFr="Les étoiles les plus brillantes d’une constellation, à leur vraie place dans le ciel. Relie-les pour dessiner ta figure, puis compare-la avec la carte officielle de l’Union astronomique internationale."
+  introEn="The brightest stars of a constellation, in their true place in the sky. Connect them to draw your figure, then compare it with the International Astronomical Union’s official chart." />
+<script>
+  import { mount } from '../../scripts/games/constellation.js';
+  mount(document.getElementById('game')!);
+</script>

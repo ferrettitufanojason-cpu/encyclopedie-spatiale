@@ -1,0 +1,10 @@
+---
+import GameShell from '../../components/GameShell.astro';
+---
+<GameShell titleFr="Le ciel de ce soir" titleEn="Tonight’s sky" path="/jeux/ciel-de-ce-soir/" description="Jeu : les prochains événements du ciel (étoiles filantes, éclipses, planètes) tirés des données du site, avec une question pour chacun."
+  introFr="Les prochains rendez-vous du ciel : pluies d’étoiles filantes, éclipses, planètes bien visibles… Chaque événement vient des données du site et a sa question."
+  introEn="Upcoming sky events: meteor showers, eclipses, well-placed planets… Each event comes from the site’s data and has its own question." />
+<script>
+  import { mount } from '../../scripts/games/sky.js';
+  mount(document.getElementById('game')!);
+</script>

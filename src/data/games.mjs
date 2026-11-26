@@ -17,8 +17,8 @@ export const GAME_SECTIONS = [
     { slug: 'chasseur-d-exoplanetes', ready: true, fr: ['Chasseur d’exoplanètes', 'Repère la baisse de lumière quand une planète passe devant son étoile.'], en: ['Exoplanet hunter', 'Spot the dip in light when a planet passes in front of its star.'] },
   ] },
   { id: 'ciel', icon: '🌌', fr: 'Ciel et observation', en: 'Sky and observing', games: [
-    { slug: 'relie-les-etoiles', fr: ['Relie les étoiles', 'Trace les constellations en reliant les points.'], en: ['Join the stars', 'Draw the constellations by joining the dots.'] },
-    { slug: 'ciel-de-ce-soir', fr: ['Le ciel de ce soir', 'Les prochains événements du ciel, avec une question pour chacun.'], en: ['Tonight’s sky', 'Upcoming sky events, with a question for each.'] },
+    { slug: 'relie-les-etoiles', ready: true, fr: ['Relie les étoiles', 'Trace les constellations en reliant les points.'], en: ['Join the stars', 'Draw the constellations by joining the dots.'] },
+    { slug: 'ciel-de-ce-soir', ready: true, fr: ['Le ciel de ce soir', 'Les prochains événements du ciel, avec une question pour chacun.'], en: ['Tonight’s sky', 'Upcoming sky events, with a question for each.'] },
   ] },
   { id: 'missions', icon: '🛰️', fr: 'Missions et exploration', en: 'Missions and exploration', games: [
     { slug: 'choisis-ta-destination', fr: ['Choisis ta destination', 'Temps de trajet, dangers et bagages pour aller vers un astre.'], en: ['Choose your destination', 'Travel time, hazards and luggage to reach a world.'] },
