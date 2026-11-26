@@ -55,6 +55,10 @@ Variables d'environnement :
 2. **Vercel** : « Add New Project », choisir ce dépôt. `vercel.json` règle tout (framework Astro, `npm run build`, fonctions `api/`, réécriture `/objet/:id`).
 3. Dans *Settings → Environment Variables* du projet Vercel : ajouter `NASA_API_KEY` (utilisée par les fonctions « En direct »). Facultatif : `SITE_URL` si vous utilisez un nom de domaine personnalisé (sinon l'adresse de production Vercel est utilisée pour le plan du site et les aperçus de partage).
 4. Dans GitHub *Settings → Secrets and variables → Actions* : ajouter `SSOD_TOKEN` (nécessaire aux imports hebdomadaires).
+5. **Avis des visiteurs** (facultatif, la page `/avis/` indique « bientôt ouverts » tant que ce n'est pas fait) :
+   - Vercel → onglet *Storage* (ou *Marketplace*) → **Upstash for Redis** → créer une base gratuite et la relier au projet : les variables `KV_REST_API_URL` et `KV_REST_API_TOKEN` sont ajoutées automatiquement.
+   - *Settings → Environment Variables* : ajouter `ADMIN_TOKEN`, un mot de passe de votre choix (12 caractères au moins), puis redéployer.
+   - Modérer sur `/avis/moderation/` avec ce mot de passe : rien n'est publié sans validation ; « Supprimer » efface définitivement.
 
 **Comment se font les mises à jour** : l'action `.github/workflows/weekly-update.yml` s'exécute chaque lundi (et à la demande depuis l'onglet *Actions*). Elle relance tous les imports, construit le site et lance les tests ; si tout passe, elle **enregistre les nouvelles données (`data/`) dans le dépôt**. Ce commit déclenche automatiquement un déploiement Vercel, qui se contente de construire le site à partir de `data/` (≈ 1 min, aucun téléchargement) : une source en panne ne peut donc pas casser le site en ligne, et l'historique des données est conservé dans Git.
 
@@ -96,6 +100,7 @@ Variables d'environnement :
 - *Parcours pédagogiques* (`/parcours/`) : 4 parcours (Système solaire, détection des exoplanètes, vie des étoiles, ciel à l'œil nu), fiches dans l'ordre et questions dont les réponses chiffrées sont **calculées à partir des fiches** à chaque build (aucun chiffre écrit à la main).
 - *Glossaire* (`/glossaire/`, FR/EN) : une cinquantaine de termes ; un « ? » à côté des valeurs des fiches renvoie à la bonne définition.
 - *Pages par objet* : chaque fiche a une adresse `/objet/<id>` qui renvoie une vraie page (titre, description, valeurs avec sources lisibles sans JavaScript, aperçu de partage), listée dans `/sitemap.xml`. Les anciens liens `?o=<id>` fonctionnent toujours.
+- *Avis* (`/avis/`) : note de 1 à 5 étoiles, type (avis, idée, problème, erreur dans une donnée), message, pseudo facultatif ; bouton « Signaler une erreur » sur chaque fiche. **Publication seulement après modération** (`/avis/moderation/`, mot de passe `ADMIN_TOKEN`), aucun e-mail demandé, anti-spam (champ piège + une minute entre deux envois, par empreinte d'IP brouillée effacée après une minute). En local, `npm run preview` stocke les avis dans `.cache/feedback.json` (mot de passe `moderation-locale` si `ADMIN_TOKEN` n'est pas défini).
 - *Mentions légales* (`/mentions-legales/`), page 404, `robots.txt`, image d'aperçu des partages (`public/og.png`).
 
 **Non couvert ou partiel (à dire clairement)**
@@ -136,7 +141,7 @@ Un test automatique **axe-core** (WCAG 2.1 A/AA, hors contraste) passe sur le HT
 - **Citation** : bouton « Citer » sur chaque fiche (texte + BibTeX, lien permanent `/objet/<id>`, **version des données** `AAAA.MM.JJ`, date de consultation) ; `CITATION.cff` pour le projet.
 - **Provenance** : chaque donnée est rattachée à sa source ; les valeurs calculées sont signalées ; les textes de vulgarisation sont distingués des données.
 - **Relecture scientifique** : *aucun relecteur à ce jour*. Les **données** viennent de sources officielles (NASA, JPL, CDS…), mais les **textes de vulgarisation** et les **méthodes de calcul** sont de la rédaction de ce projet et n'ont pas été validés par un expert ; la fiche l'affiche. Pour nommer un relecteur : `scripts/review.json` (son nom et la date apparaissent alors sur les fiches).
-- **Tests automatiques** (`npm test`, 21 tests) : unicité des identifiants, valeurs finies et sourcées, plausibilité physique (excentricité < 1, masses et rayons réalistes…), crédits et licences des images, cohérence des descriptions, couverture minimale, exports CSV, position et jour/nuit de l'ISS, positions des planètes comparées à JPL Horizons, pages `/objet/<id>` (titre, adresse canonique, 404, valeurs estimées signalées), glossaire, parcours sans valeur manquante, plan du site, accessibilité statique de 6 pages. Ils tournent dans l'action hebdomadaire **avant** tout redéploiement.
+- **Tests automatiques** (`npm test`, 24 tests) : unicité des identifiants, valeurs finies et sourcées, plausibilité physique (excentricité < 1, masses et rayons réalistes…), crédits et licences des images, cohérence des descriptions, couverture minimale, exports CSV, position et jour/nuit de l'ISS, positions des planètes comparées à JPL Horizons, avis (validation, anti-spam, modération obligatoire), pages `/objet/<id>` (titre, adresse canonique, 404, valeurs estimées signalées), glossaire, parcours sans valeur manquante, plan du site, accessibilité statique de 7 pages. Ils tournent dans l'action hebdomadaire **avant** tout redéploiement.
 - **Licences** : code sous MIT (`LICENSE`) ; données et images sous la licence de leur source (`DATA-LICENSES.md`).
 
 ## Mises à jour automatiques

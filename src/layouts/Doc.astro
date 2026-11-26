@@ -25,7 +25,7 @@ const { titleFr, titleEn, description, path, noindex = false, frOnly = false } =
       {!frOnly && <section lang="en" data-l="en" hidden><slot name="en" /></section>}
     </main>
     <footer class="docfoot">
-      <a href="/">Encyclopédie</a> · <a href="/parcours/">Parcours</a> · <a href="/glossaire/">Glossaire</a> · <a href="/methodologie/">Méthodologie</a> · <a href="/mentions-legales/">Mentions légales</a>
+      <a href="/">Encyclopédie</a> · <a href="/parcours/">Parcours</a> · <a href="/glossaire/">Glossaire</a> · <a href="/methodologie/">Méthodologie</a> · <a href="/avis/">Donner mon avis</a> · <a href="/mentions-legales/">Mentions légales</a>
     </footer>
     <script>
       let lang = 'fr'; try { lang = localStorage.getItem('lang') || 'fr'; } catch {}

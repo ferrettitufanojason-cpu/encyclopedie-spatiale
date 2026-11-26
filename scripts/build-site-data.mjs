@@ -163,7 +163,7 @@ const review = existsSync(join(ROOT, 'scripts', 'review.json')) ? JSON.parse(awa
 const counts = {}; for (const c of index) counts[c.k] = (counts[c.k] ?? 0) + 1;
 await writeFile(join(OUT, 'meta.json'), JSON.stringify({ built: today, version: today.replace(/-/g, '.'), commit, total: index.length, counts, newExoplanets: index.filter(c => c.nw).length, sources, importReport: report, review, exports: Object.keys(byCat) }));
 // ---- plan du site et robots.txt (adresses absolues : SITE_URL, ou l'adresse de production fournie par Vercel) ----
-const PAGES = ['/', '/methodologie/', '/glossaire/', '/parcours/', '/mentions-legales/'];
+const PAGES = ['/', '/methodologie/', '/glossaire/', '/parcours/', '/avis/', '/mentions-legales/'];
 const xmlEsc = x => x.replace(/&/g, '&amp;');
 const urls = [...PAGES.map(u => SITE + u), ...index.map(c => `${SITE}/objet/${encodeURIComponent(c.i)}`)];
 await writeFile(join(ROOT, 'public', 'sitemap.xml'), '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'

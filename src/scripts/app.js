@@ -334,7 +334,7 @@ async function openObj(id, push) {
   body.replaceChildren(
     el('button', { class: 'btn close', type: 'button', onclick: () => dlg.close(), 'aria-label': T_.close, text: '✕' }),
     el('div', { class: 'cmp-fiche' }, (() => { const b = cmpToggle(o.id, title); b.classList.add('btn'); b.append(' ' + T_.cmpAdd); return b; })(),
-      (() => { const box = citeBox(o, title); const b = el('button', { class: 'btn', type: 'button', 'aria-expanded': 'false', onclick: () => { box.hidden = !box.hidden; b.setAttribute('aria-expanded', String(!box.hidden)); }, text: `❝ ${T_.citeBtn}` }); b._box = box; return [b, ' ', el('a', { class: 'btn', href: `/data/o/${encodeURIComponent(o.id)}.json`, target: '_blank', rel: 'noopener', text: `{ } ${T_.jsonLink}` }), box]; })()),
+      (() => { const box = citeBox(o, title); const b = el('button', { class: 'btn', type: 'button', 'aria-expanded': 'false', onclick: () => { box.hidden = !box.hidden; b.setAttribute('aria-expanded', String(!box.hidden)); }, text: `❝ ${T_.citeBtn}` }); b._box = box; return [b, ' ', el('a', { class: 'btn', href: `/data/o/${encodeURIComponent(o.id)}.json`, target: '_blank', rel: 'noopener', text: `{ } ${T_.jsonLink}` }), ' ', el('a', { class: 'btn', href: `/avis/?cat=erreur&page=${encodeURIComponent(o.id)}`, text: `⚑ ${T_.reportErr}` }), box]; })()),
     el('div', { class: 'dlg-head' }, el('div', {}, pic, credit),
       el('div', { class: 'dlg-title' }, el('span', { class: 'kicker', text: o.code }), el('h2', { id: 'dlgTitle', text: title }),
         el('div', { class: 'tags' }, tags),

@@ -1,0 +1,61 @@
+---
+// Page de modération (non référencée) : publier ou supprimer les avis reçus. Protégée par ADMIN_TOKEN côté serveur.
+import Doc from '../../layouts/Doc.astro';
+---
+<Doc titleFr="Modération des avis" titleEn="Feedback moderation" description="Modération des avis." path="/avis/moderation/" noindex frOnly>
+  <Fragment slot="fr">
+    <form id="login" class="fb-form">
+      <label class="lbl" for="tok">Mot de passe de modération (variable ADMIN_TOKEN)</label>
+      <input id="tok" type="password" autocomplete="current-password" required />
+      <button class="btn" type="submit">Afficher les avis</button>
+      <p id="msg" role="status" aria-live="polite"></p>
+    </form>
+    <div id="panel" hidden>
+      <p><button class="btn" id="refresh" type="button">Actualiser</button> <button class="btn" id="logout" type="button">Se déconnecter</button></p>
+      <h2>En attente <span id="nP"></span></h2>
+      <p class="credit">Rien n'est publié sans votre accord. « Supprimer » efface définitivement le message.</p>
+      <ul id="pending" class="fb-list"></ul>
+      <h2>Publiés <span id="nA"></span></h2>
+      <ul id="approved" class="fb-list"></ul>
+    </div>
+  </Fragment>
+</Doc>
+<script>
+  const $ = (s: string) => document.querySelector(s) as HTMLElement;
+  const mk = (tag: string, cls?: string, text?: string) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  const CAT: Record<string, string> = { avis: 'Avis', idee: 'Idée', probleme: 'Problème', erreur: 'Erreur signalée' };
+  let token = ''; try { token = sessionStorage.getItem('fbTok') ?? ''; } catch {}
+  const api = async (method: string, body?: object) => {
+    const r = await fetch('/api/feedback-admin', { method, headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.error ?? `Erreur ${r.status}`);
+    return d;
+  };
+  const item = (it: any, from: 'pending' | 'approved') => {
+    const li = mk('li', 'fb-item'), top = mk('div', 'fb-top');
+    top.append(mk('span', 'fb-st', '★'.repeat(it.rating) + '☆'.repeat(5 - it.rating)), mk('span', 'tag', CAT[it.category] ?? it.category), mk('b', '', it.name || 'Anonyme'),
+      mk('small', 'credit', `${new Date(it.date).toLocaleString('fr')} · ${it.lang}`));
+    li.append(top, mk('p', '', it.text));
+    if (it.page) li.append(mk('p', 'credit', `À propos de : ${it.page}`));
+    const act = mk('p', 'fb-actions');
+    const b = (label: string, action: string) => { const x = mk('button', 'btn', label) as HTMLButtonElement; x.type = 'button';
+      x.onclick = async () => { if (action === 'delete' && !confirm('Supprimer définitivement ce message ?')) return; x.disabled = true; try { await api('POST', { id: it.id, action, from }); await show(); } catch (e: any) { $('#msg').textContent = e.message; x.disabled = false; } }; return x; };
+    if (from === 'pending') act.append(b('✔ Publier', 'approve'), ' ', b('✖ Supprimer', 'reject'));
+    else act.append(b('Dépublier', 'unpublish'), ' ', b('Supprimer', 'delete'));
+    li.append(act); return li;
+  };
+  async function show() {
+    try {
+      const d = await api('GET');
+      try { sessionStorage.setItem('fbTok', token); } catch {}
+      $('#login').hidden = true; $('#panel').hidden = false;
+      $('#nP').textContent = `(${d.pending.length})`; $('#nA').textContent = `(${d.approved.length})`;
+      $('#pending').replaceChildren(...(d.pending.length ? d.pending.map((it: any) => item(it, 'pending')) : [mk('li', 'na', 'Aucun avis en attente.')]));
+      $('#approved').replaceChildren(...d.approved.map((it: any) => item(it, 'approved')));
+    } catch (e: any) { $('#login').hidden = false; $('#panel').hidden = true; $('#msg').textContent = e.message; }
+  }
+  $('#login').addEventListener('submit', e => { e.preventDefault(); token = ($('#tok') as HTMLInputElement).value; show(); });
+  $('#refresh').addEventListener('click', show);
+  $('#logout').addEventListener('click', () => { token = ''; try { sessionStorage.removeItem('fbTok'); } catch {} $('#panel').hidden = true; $('#login').hidden = false; });
+  if (token) show();
+</script>

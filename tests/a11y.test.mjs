@@ -7,7 +7,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { JSDOM } from 'jsdom';
 import axe from 'axe-core';
 
-const pages = [['dist/index.html', 'accueil'], ['dist/methodologie/index.html', 'méthodologie'], ['dist/glossaire/index.html', 'glossaire'], ['dist/parcours/index.html', 'parcours'], ['dist/mentions-legales/index.html', 'mentions légales'], ['dist/404.html', 'page 404']];
+const pages = [['dist/index.html', 'accueil'], ['dist/methodologie/index.html', 'méthodologie'], ['dist/glossaire/index.html', 'glossaire'], ['dist/parcours/index.html', 'parcours'], ['dist/mentions-legales/index.html', 'mentions légales'], ['dist/404.html', 'page 404'], ['dist/avis/index.html', 'avis']];
 for (const [file, label] of pages) {
   const path = new URL(`../${file}`, import.meta.url);
   test(`axe-core : ${label}`, { skip: existsSync(path) ? false : `${file} absent (npm run build)` }, async () => {

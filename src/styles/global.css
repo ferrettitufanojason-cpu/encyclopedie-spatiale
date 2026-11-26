@@ -201,3 +201,21 @@ a.gl:hover, a.gl:focus-visible { color: var(--text); border-color: var(--acc); }
 .pl-dot:focus-visible circle { stroke: #fff; stroke-width: 3px; } .pl-dot { cursor: pointer; }
 .pl-table { overflow-x: auto; } .pl-sw { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
 .pl-table table { width: 100%; } .pl-table th, .pl-table td { white-space: nowrap; }
+/* avis */
+.fb-form { display: grid; gap: 6px; max-width: 640px; margin: 10px 0 26px; }
+.fb-form textarea, .fb-form input[type=text], .fb-form input[type=password], .fb-form select { font: inherit; color: var(--text); background: var(--bg2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.fb-form textarea { resize: vertical; min-height: 110px; }
+.fb-stars { border: 0; padding: 0; margin: 0; } .fb-stars legend { font-weight: 600; padding: 0; }
+.fb-stars-row { display: inline-flex; flex-direction: row-reverse; gap: 2px; }
+.fb-stars-row label { font-size: 34px; line-height: 1; cursor: pointer; color: #3a4b72; padding: 0 2px; transition: color .1s; }
+.fb-stars-row input:checked ~ label, .fb-stars-row label:hover, .fb-stars-row label:hover ~ label { color: #ffcf4a; }
+.fb-stars-row input:focus-visible + label { outline: 2px solid var(--acc); border-radius: 6px; }
+.fb-hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.fb-privacy { font-size: 14px; color: #cfd9f0; background: #6ea8ff14; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.fb-send { justify-self: start; } .fb-status { min-height: 1.4em; font-weight: 600; }
+.fb-avg { font-size: 18px; } .fb-st { color: #ffcf4a; letter-spacing: 1px; }
+.fb-dist { display: grid; gap: 3px; max-width: 360px; margin-bottom: 14px; } .fb-drow { display: grid; grid-template-columns: 34px 1fr 30px; gap: 8px; align-items: center; font-size: 13px; color: var(--mute); }
+.fb-track { height: 8px; background: var(--bg2); border-radius: 4px; overflow: hidden; } .fb-bar { display: block; height: 100%; background: #ffcf4a; }
+.fb-list { list-style: none; padding: 0; display: grid; gap: 10px; } .fb-item { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--bg2); }
+.fb-item p { margin: 6px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; } .fb-top { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.fb-actions { display: flex; gap: 8px; }

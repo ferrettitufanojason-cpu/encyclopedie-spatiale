@@ -1,0 +1,99 @@
+---
+// Formulaire d'avis + avis publiés (une instance par langue ; le script est commun).
+interface Props { l: 'fr' | 'en' }
+const { l } = Astro.props;
+const fr = l === 'fr';
+const cats = fr
+  ? [['avis', 'Avis général'], ['idee', 'Idée d’amélioration'], ['probleme', 'Problème sur le site (bug, affichage…)'], ['erreur', 'Erreur dans une donnée ou un texte']]
+  : [['avis', 'General feedback'], ['idee', 'Improvement idea'], ['probleme', 'Problem with the site (bug, display…)'], ['erreur', 'Error in a value or a text']];
+const id = (s: string) => `${s}-${l}`;
+---
+<div class="fb-box" data-l={l}>
+  <form class="fb-form" novalidate>
+    <fieldset class="fb-stars">
+      <legend>{fr ? 'Votre note' : 'Your rating'} <span aria-hidden="true">*</span></legend>
+      <div class="fb-stars-row">
+        {[5, 4, 3, 2, 1].map(n => (
+          <>
+            <input type="radio" name="rating" id={id(`r${n}`)} value={n} class="sr" required />
+            <label for={id(`r${n}`)} title={`${n} / 5`}><span class="sr">{n} {fr ? (n > 1 ? 'étoiles' : 'étoile') : (n > 1 ? 'stars' : 'star')} {fr ? 'sur 5' : 'out of 5'}</span><span aria-hidden="true">★</span></label>
+          </>
+        ))}
+      </div>
+    </fieldset>
+    <label class="lbl" for={id('cat')}>{fr ? 'Type de message' : 'Message type'}</label>
+    <select id={id('cat')} name="category">{cats.map(([v, t]) => <option value={v}>{t}</option>)}</select>
+    <p class="fb-about" hidden>{fr ? 'À propos de :' : 'About:'} <a href="#"></a></p>
+    <label class="lbl" for={id('text')}>{fr ? 'Votre message' : 'Your message'} <span aria-hidden="true">*</span></label>
+    <textarea id={id('text')} name="text" rows="5" maxlength="1500" required aria-describedby={id('count')}></textarea>
+    <small class="credit fb-count" id={id('count')}>0 / 1500</small>
+    <label class="lbl" for={id('name')}>{fr ? 'Pseudo (facultatif)' : 'Nickname (optional)'}</label>
+    <input id={id('name')} name="name" type="text" maxlength="40" autocomplete="off" />
+    <div class="fb-hp" aria-hidden="true"><label for={id('web')}>Site web</label><input id={id('web')} name="website" type="text" tabindex="-1" autocomplete="off" /></div>
+    <p class="fb-privacy">{fr
+      ? '🔒 N’écrivez ni votre nom complet, ni votre adresse, ni votre e-mail, ni le nom de votre école. Les messages sont lus avant d’être publiés.'
+      : '🔒 Do not write your full name, address, e-mail or school name. Messages are read before being published.'}</p>
+    <button class="btn fb-send" type="submit">{fr ? 'Envoyer mon avis' : 'Send my feedback'}</button>
+    <p class="fb-status" role="status" aria-live="polite"></p>
+  </form>
+  <section class="fb-public" aria-labelledby={id('pubh')}>
+    <h2 id={id('pubh')}>{fr ? 'Ce que les visiteurs en pensent' : 'What visitors think'}</h2>
+    <div class="fb-summary"><p class="na">{fr ? 'Chargement…' : 'Loading…'}</p></div>
+    <ul class="fb-list"></ul>
+  </section>
+</div>
+
+<script>
+  const TXT = {
+    fr: { cats: { avis: 'Avis', idee: 'Idée', probleme: 'Problème', erreur: 'Erreur signalée' }, anon: 'Anonyme', none: 'Aucun avis publié pour l’instant : soyez le premier !', off: 'Les avis seront bientôt ouverts sur ce site.', avg: (a, n) => `${a.toLocaleString('fr')} / 5 sur ${n} avis`, sending: 'Envoi…', ok: 'Merci ! Votre avis a bien été reçu ; il sera publié après relecture.', needStar: 'Choisissez une note de 1 à 5 étoiles.', needText: 'Écrivez au moins quelques mots.', err: 'L’envoi a échoué, réessayez plus tard.', about: 'À propos de' },
+    en: { cats: { avis: 'Feedback', idee: 'Idea', probleme: 'Problem', erreur: 'Reported error' }, anon: 'Anonymous', none: 'No feedback published yet: be the first!', off: 'Feedback will open soon on this site.', avg: (a, n) => `${a.toLocaleString('en')} / 5 from ${n} review${n > 1 ? 's' : ''}`, sending: 'Sending…', ok: 'Thank you! Your feedback was received; it will be published after review.', needStar: 'Choose a rating from 1 to 5 stars.', needText: 'Please write a few words.', err: 'Sending failed, please try again later.', about: 'About' },
+  };
+  const qs = new URLSearchParams(location.search);
+  const aboutPage = (qs.get('page') ?? '').replace(/[^\w\-+./]/g, '').slice(0, 120);
+  const mk = (tag: string, cls?: string, text?: string) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  const stars = (r: number) => { const s = mk('span', 'fb-st'); s.setAttribute('aria-label', `${r} / 5`); s.textContent = '★'.repeat(r) + '☆'.repeat(5 - r); return s; };
+  let cache: Promise<any> | null = null;
+  const load = () => (cache ??= fetch('/api/feedback').then(async r => ({ status: r.status, data: await r.json().catch(() => ({})) })).catch(() => ({ status: 0, data: {} })));
+
+  for (const box of document.querySelectorAll<HTMLElement>('.fb-box')) {
+    const L = TXT[box.dataset.l as 'fr' | 'en'];
+    const form = box.querySelector('form')!, status = box.querySelector('.fb-status')!, text = form.querySelector('textarea')!, count = box.querySelector('.fb-count')!;
+    // pré-remplissage depuis une fiche (« Signaler une erreur »)
+    const cat = qs.get('cat'); if (cat && ['avis', 'idee', 'probleme', 'erreur'].includes(cat)) (form.querySelector('select') as HTMLSelectElement).value = cat;
+    if (aboutPage) { const p = box.querySelector<HTMLElement>('.fb-about')!, a = p.querySelector('a')!; p.hidden = false; a.textContent = aboutPage; a.href = aboutPage.startsWith('/') ? aboutPage : `/objet/${aboutPage}`; }
+    text.addEventListener('input', () => { count.textContent = `${text.value.length} / 1500`; });
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const fd = new FormData(form), rating = Number(fd.get('rating'));
+      if (!rating) { status.textContent = L.needStar; (form.querySelector('input[name=rating]') as HTMLElement).focus(); return; }
+      if (String(fd.get('text') ?? '').trim().length < 3) { status.textContent = L.needText; text.focus(); return; }
+      const btn = form.querySelector('button')!; btn.disabled = true; status.textContent = L.sending;
+      try {
+        const r = await fetch('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rating, category: fd.get('category'), text: fd.get('text'), name: fd.get('name'), website: fd.get('website'), page: aboutPage, lang: box.dataset.l }) });
+        const d = await r.json().catch(() => ({}));
+        if (r.ok) { form.reset(); count.textContent = '0 / 1500'; status.textContent = L.ok; } else status.textContent = d.error ?? L.err;
+      } catch { status.textContent = L.err; }
+      btn.disabled = false;
+    });
+    // avis publiés
+    load().then(({ status: st, data }) => {
+      const sum = box.querySelector('.fb-summary')!, list = box.querySelector('.fb-list')!;
+      if (st === 503 || data.disabled) { sum.replaceChildren(mk('p', 'na', L.off)); form.querySelector('button')!.disabled = true; return; }
+      if (st !== 200) { sum.replaceChildren(mk('p', 'na', L.err)); return; }
+      const s = data.stats;
+      if (!s.count) { sum.replaceChildren(mk('p', 'na', L.none)); return; }
+      const head = mk('p', 'fb-avg'); head.append(stars(Math.round(s.average)), ' ', mk('b', '', L.avg(s.average, s.count)));
+      const dist = mk('div', 'fb-dist');
+      for (let n = 5; n >= 1; n--) { const row = mk('div', 'fb-drow'), bar = mk('span', 'fb-bar'); bar.style.width = `${(s.distribution[n - 1] / s.count) * 100}%`; row.append(mk('span', '', `${n} ★`), mk('span', 'fb-track'), mk('span', '', String(s.distribution[n - 1]))); row.children[1].append(bar); dist.append(row); }
+      sum.replaceChildren(head, dist);
+      list.replaceChildren(...data.items.map((it: any) => {
+        const li = mk('li', 'fb-item'), top = mk('div', 'fb-top');
+        top.append(stars(it.rating), mk('span', 'tag', L.cats[it.category as keyof typeof L.cats] ?? it.category), mk('b', '', it.name || L.anon), mk('small', 'credit', new Date(it.date + 'T12:00:00Z').toLocaleDateString(box.dataset.l, { dateStyle: 'long', timeZone: 'UTC' })));
+        li.append(top, mk('p', '', it.text));
+        if (it.page) { const p = mk('p', 'credit', `${L.about} : `), a = mk('a', '', it.page) as HTMLAnchorElement; a.href = it.page.startsWith('/') ? it.page : `/objet/${it.page}`; p.append(a); li.append(p); }
+        return li;
+      }));
+    });
+  }
+</script>
