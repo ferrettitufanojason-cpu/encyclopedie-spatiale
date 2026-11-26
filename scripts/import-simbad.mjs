@@ -1,9 +1,9 @@
-// Import SIMBAD (CDS) : étoiles hôtes d'exoplanètes, étoiles brillantes (V<3), étoiles proches (parallaxe ≥ 200 mas),
+// Import SIMBAD (CDS) : étoiles hôtes d'exoplanètes, étoiles visibles à l'œil nu (V<4), étoiles proches (parallaxe ≥ 200 mas),
 // objets compacts emblématiques, catalogue Messier et objets NGC/IC célèbres.
 // -> data/simbad.json (schéma commun). Nécessite data/exoplanets.json (liste des étoiles hôtes).
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { DATA_DIR, writeJson, slug } from './lib/common.mjs';
+import { DATA_DIR, writeJson, slug, getText } from './lib/common.mjs';
 import { tap, sq } from './lib/simbad.mjs';
 import { CURATED, NGC_FAMOUS, MESSIER_NAMES, FR_NAMES } from './simbad-curated.mjs';
 
@@ -38,7 +38,7 @@ for (const ids of chunk([...lookup.keys()], 150)) {
 console.log(`\n  étoiles hôtes trouvées dans SIMBAD : ${hostFound.size}/${hosts.size}`);
 
 // ---- 2. brillantes, proches ----
-for (const r of await tap(`${BASE} ${FROM} where f.filter = 'V' and f.flux < 3`)) add(r, 'bright');
+for (const r of await tap(`${BASE} ${FROM} where f.filter = 'V' and f.flux < 4`)) add(r, 'bright'); // V < 4 : toutes les étoiles des figures de constellations courantes
 for (const r of await tap(`${BASE} ${FROM} where b.plx_value >= 200`)) add(r, 'near');
 console.log(`  après brillantes/proches : ${objs.size} objets`);
 
@@ -116,6 +116,24 @@ function lumTag(sp) {
 
 // ---- 6. construction des objets ----
 const SIM = { id: 'simbad', name: 'SIMBAD (CDS)', url: 'https://simbad.cds.unistra.fr/' };
+
+// ---- noms officiels des étoiles : catalogue de l'UAI (IAU-CSN, groupe de travail WGSN ; CC BY) ----
+// SIMBAD donne souvent plusieurs noms pour une même étoile (« Polaris », « North Star », « Lodestar »…) sans dire lequel est officiel :
+// le nom de l'UAI est prioritaire. Correspondance par numéro HIP ou HD. En cas d'échec du téléchargement, on garde le choix SIMBAD.
+const IAU_URL = 'https://www.pas.rochester.edu/~emamajek/WGSN/IAU-CSN.txt';
+const iauByCat = new Map();
+try {
+  const txt = await getText(IAU_URL, { headers: { 'User-Agent': 'EncyclopedieSpatiale/1.0 (https://github.com/ferrettitufanojason-cpu/encyclopedie-spatiale)' }, cacheKey: 'iau-csn.txt', ttlHours: 24 });
+  for (const line of txt.split('\n')) {
+    if (!line.trim() || /^[#$]/.test(line)) continue;
+    const t = line.trim().split(/\s+/); if (t.at(-1) === '*') t.pop();
+    const hd = t.at(-4), hip = t.at(-5), name = line.slice(18, 36).trim(); // colonnes : nom ASCII (0-17), nom avec diacritiques (18-35)
+    if (!name) continue;
+    if (/^\d+$/.test(hip)) iauByCat.set(`HIP ${hip}`, name);
+    if (/^\d+$/.test(hd)) iauByCat.set(`HD ${hd}`, name);
+  }
+  console.log(`  noms officiels UAI : ${new Set(iauByCat.values()).size}`);
+} catch (e) { console.warn('  ⚠ catalogue des noms de l’UAI indisponible :', e.message, '(noms SIMBAD conservés)'); }
 const out = [];
 const clean = s => s.replace(/^(\*{1,2}|V\*|NAME|\*\*)\s+/, '').replace(/\s+/g, ' ').trim();
 // Abréviations SIMBAD des lettres de Bayer -> lettres grecques (affichage uniquement ; le code SIMBAD reste affiché tel quel)
@@ -123,6 +141,16 @@ const GREEK = { alf: 'α', bet: 'β', gam: 'γ', del: 'δ', eps: 'ε', zet: 'ζ'
 const SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
 const greek = s => s.replace(/^([a-z.]{3})(\d{2})? /, (m, g, n) => GREEK[g] ? GREEK[g] + (n && n !== '00' ? [...String(Number(n))].map(d => SUP[d]).join('') : '') + ' ' : m);
 const num = v => (v === '' || v == null || Number.isNaN(Number(v)) ? null : Number(v));
+// Un nom de l'UAI ne va qu'à UN objet : si plusieurs entrées SIMBAD partagent le même numéro HIP/HD (étoile double, source X…),
+// le nom va à la plus brillante ; les autres gardent leur désignation (pas de doublons de noms dans l'encyclopédie).
+const iauOwner = new Map(), iauBest = new Map();
+for (const [oid, o] of objs) {
+  if (classify(o).cat !== 'star') continue;
+  const name = (aliases.get(oid) ?? []).map(a => iauByCat.get(a)).find(Boolean); if (!name) continue;
+  const v = num(o.row.vmag) ?? 99, cur = iauBest.get(name);
+  if (!cur || v < cur.v) iauBest.set(name, { oid, v });
+}
+for (const [name, { oid }] of iauBest) iauOwner.set(oid, name);
 for (const [oid, o] of objs) {
   const r = o.row, { cat, sub } = classify(o);
   const nm = names.get(oid) ?? [];
@@ -130,8 +158,12 @@ for (const [oid, o] of objs) {
   const hostName = [...o.hostNames][0];
   const pickName = () => nm.find(n => /(Galaxy|Nebula|Cluster|Cloud|Pulsar|Group)/.test(n) && n !== n.toUpperCase()) ?? nm.find(n => n !== n.toUpperCase()) ?? nm[0];
   const best = pickName();
-  const baseName = o.cur?.name ?? hostName ?? best ?? main;
-  const display = baseName === main ? greek(main) : baseName;
+  const baseName = o.cur?.name ?? hostName ?? best ?? main; // sert à l'identifiant (stable : les adresses /objet/… ne changent pas)
+  // Nom affiché : le nom propre officiel de SIMBAD (« Aldebaran ») passe avant le nom de catalogue de l'étoile hôte
+  // d'exoplanète (« alf Tau ») ; seulement un vrai nom propre (sans chiffres), pas une désignation comme « Kepler-452 ».
+  const iau = iauOwner.get(oid) ?? null;
+  const shown = o.cur?.name ?? iau ?? (hostName && best && !/\d/.test(best) ? best : baseName);
+  const display = shown === main ? greek(main) : shown;
   const ref = bib => ({ t: bib, url: `https://ui.adsabs.harvard.edu/abs/${encodeURIComponent(bib)}/abstract` });
   const props = {};
   const P = (k, v, u, g, extra = {}) => { if (v != null) props[k] = { v, u, g, s: 'simbad', ...extra }; };
@@ -155,12 +187,22 @@ for (const [oid, o] of objs) {
   if (o.hostNames.size) tags.push('exoplanet-host');
   if (o.cur?.tags) tags.push(...o.cur.tags);
   out.push({
-    id: slug(baseName) || `simbad-${oid}`, cat, sub, name: display, code: main, aliases: [...new Set([main, ...nm, ...(aliases.get(oid) ?? [])].filter(a => a && a !== display))].slice(0, 12),
+    id: slug(baseName) || `simbad-${oid}`, cat, sub, name: display, code: main, aliases: [...new Set([main, hostName, ...nm, ...(aliases.get(oid) ?? [])].filter(a => a && a !== display))].slice(0, 12),
     tags: [...new Set(tags.filter(Boolean))], otype: r.otype,
     hostNames: [...o.hostNames], ra: num(r.ra), dec: num(r.dec), messier: o.cur?.messier ?? undefined,
     props, src: 'simbad', updated: r.update_date || today, simbadId: r.main_id, ...((o.cur?.fr ?? FR_NAMES[display]) ? { nameFr: o.cur?.fr ?? FR_NAMES[display] } : {}),
+    _iau: !!iau,
   });
 }
+// Pas deux fiches avec le même nom affiché : le nom officiel de l'UAI (ou, à défaut, le premier objet) le garde ;
+// les autres reprennent leur désignation de catalogue (ex. le système « β Sco » face à l'étoile Acrab).
+const byName = new Map(); for (const o of out) (byName.get(o.name) ?? byName.set(o.name, []).get(o.name)).push(o);
+for (const list of byName.values()) {
+  if (list.length < 2) continue;
+  const keep = list.find(o => o._iau) ?? list[0];
+  for (const o of list) if (o !== keep) { const alt = greek(o.code); if (alt !== o.name) { o.aliases = [...new Set([o.name, ...o.aliases])].filter(a => a !== alt).slice(0, 12); o.name = alt; delete o.nameFr; } }
+}
+for (const o of out) delete o._iau;
 // compacts et régions d'abord pour garder l'id le plus « propre » en cas de collision
 await writeJson('simbad.json', { source: { ...SIM, license: 'Données CDS (usage libre avec citation, voir cds.unistra.fr/cds-aknowledgement)', fetched: today, query: 'SIMBAD TAP (ADQL)' }, objects: out });
 const c = {}; for (const o of out) c[`${o.cat}/${o.sub}`] = (c[`${o.cat}/${o.sub}`] ?? 0) + 1;

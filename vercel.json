@@ -49,6 +49,11 @@
       "source": "/objet/s-2005-u-1",
       "destination": "/objet/s-2025-u-1",
       "permanent": true
+    },
+    {
+      "source": "/objet/g-29-38-2",
+      "destination": "/objet/g-29-38",
+      "permanent": true
     }
   ]
 }

@@ -104,3 +104,17 @@ test('désignations provisoires : name = name_fr et code catalogue cohérent (ex
   }
   assert.deepEqual(bad, []);
 });
+
+// Les étoiles célèbres doivent apparaître sous leur nom propre (et pas seulement sous leur désignation de catalogue),
+// y compris quand elles ont une exoplanète : régression corrigée pour Aldebaran (« α Tau ») et Pollux (« HD 62509 »).
+test('étoiles célèbres : nom propre affiché et trouvable', opt, () => {
+  const names = new Set(index.filter(c => c.k === 'star').map(c => c.n));
+  for (const n of ['Aldebaran', 'Pollux', 'Betelgeuse', 'Rigel', 'Sirius', 'Vega', 'Arcturus', 'Capella', 'Kochab', 'Hamal', 'Polaris', 'Albireo', 'Segin', 'Acrux', 'Proxima Centauri']) assert.ok(names.has(n), `${n} absent (nom de catalogue affiché à la place ?)`);
+  for (const bad of ['Lodestar', 'Albereo']) assert.ok(!names.has(bad), `${bad} : nom non officiel affiché`);
+  const ald = index.find(c => c.n === 'Aldebaran');
+  assert.equal(ald.i, 'alf-tau', 'l’adresse de la fiche ne doit pas changer');
+  assert.equal(ald.nf, 'Aldébaran');
+  // pas deux étoiles avec le même nom affiché
+  const seen = new Map(); for (const c of index.filter(c => c.k === 'star')) seen.set(c.n, (seen.get(c.n) ?? 0) + 1);
+  assert.deepEqual([...seen].filter(([, n]) => n > 1).map(([k]) => k), []);
+});

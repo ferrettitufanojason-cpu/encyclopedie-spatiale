@@ -1,7 +1,14 @@
 ﻿id,name,name_fr,category,subcategory,catalog_code,mass_earth_masses,radius_earth_radii,distance_light_years,temperature_K,discovery_year,discovery_method,ra_deg,dec_deg,source,last_update,url
 small-magellanic-cloud,Small Magellanic Cloud,Petit Nuage de Magellan,region,galaxy,SMC,,,195700,,,,13.158333333333333,-72.80027777777778,simbad,2026-10-14,https://encyclopedie-spatiale.example/objet/small-magellanic-cloud
 large-magellanic-cloud,Large Magellanic Cloud,Grand Nuage de Magellan,region,galaxy,LMC,,,163100,,,,80.89416666666666,-69.75611111111111,simbad,2026-10-14,https://encyclopedie-spatiale.example/objet/large-magellanic-cloud
+andromeda-galaxy,Andromeda Galaxy,Galaxie d'Andromède,region,galaxy,M 31,,,2541000,,,,10.684708333333333,41.268750000000004,simbad,2026-10-14,https://encyclopedie-spatiale.example/objet/andromeda-galaxy
 canis-major-galaxy,Canis Major Galaxy,,region,galaxy,CMa Dwarf Galaxy,,,,,,,108.15,-27.666666666666668,simbad,2026-08-31,https://encyclopedie-spatiale.example/objet/canis-major-galaxy
+sagittarius-dwarf-galaxy,Sagittarius Dwarf Galaxy,,region,galaxy,SDG,,,65230,,,,283.8292,-30.545299999999997,simbad,2026-10-09,https://encyclopedie-spatiale.example/objet/sagittarius-dwarf-galaxy
+cl-collinder-240,Cl Collinder 240,,region,open-cluster,Cl Collinder 240,,,5143,,,,167.91667,-60.30972,simbad,2026-01-16,https://encyclopedie-spatiale.example/objet/cl-collinder-240
+del-lyr-cluster,δ Lyr Cluster,,region,open-cluster,del Lyr Cluster,,,1207,,,,283.56791666666663,36.89888888888889,simbad,2026-09-17,https://encyclopedie-spatiale.example/objet/del-lyr-cluster
+brocchi-s-cluster,Brocchi's Cluster,,region,open-cluster,Cl Collinder 399,,,,,,,291.35,20.183333333333334,simbad,2023-06-06,https://encyclopedie-spatiale.example/objet/brocchi-s-cluster
+c-1652-407,C 1652-407,,region,open-cluster,C 1652-407,,,,,,,253.87498,-40.83333,simbad,2023-10-18,https://encyclopedie-spatiale.example/objet/c-1652-407
+cl-collinder-132,Cl Collinder 132,,region,open-cluster,Cl Collinder 132,,,2035,,,,108.485,-30.758055555555547,simbad,2026-10-05,https://encyclopedie-spatiale.example/objet/cl-collinder-132
 cl-collinder-121,Cl Collinder 121,,region,open-cluster,Cl Collinder 121,,,3575,,,,104.08333333333336,-24.729999999999997,simbad,2026-07-31,https://encyclopedie-spatiale.example/objet/cl-collinder-121
 lam-ori-cluster,lam Ori Cluster,,region,open-cluster,Cl Collinder 69,,,1341,,,,83.79208333333334,9.813055555555556,simbad,2026-09-30,https://encyclopedie-spatiale.example/objet/lam-ori-cluster
 lower-sword,Lower Sword,,region,open-cluster,NGC 1980,,,1262,,,,83.80999999999999,-5.92388888888889,simbad,2026-09-17,https://encyclopedie-spatiale.example/objet/lower-sword
@@ -17,6 +24,7 @@ m-10,M 10,,region,globular-cluster,M 10,,,13050,,,,254.28770833333337,-4.1003055
 wild-duck-cluster,Wild Duck Cluster,Amas du Canard sauvage,region,open-cluster,NGC 6705,,,6817,,,,282.7658333333334,-6.271944444444443,simbad,2026-09-15,https://encyclopedie-spatiale.example/objet/wild-duck-cluster
 m-12,M 12,,region,globular-cluster,M 12,,,16310,,,,251.80908333333338,-1.9485277777777774,simbad,2026-09-16,https://encyclopedie-spatiale.example/objet/m-12
 hercules-globular-cluster,Hercules Globular Cluster,Amas globulaire d'Hercule,region,globular-cluster,M 13,,,26090,,,,250.42347499999994,36.46131944444445,simbad,2026-09-24,https://encyclopedie-spatiale.example/objet/hercules-globular-cluster
+m-14,M 14,,region,globular-cluster,M 14,,,,,,,264.40062500000005,-3.245916666666667,simbad,2026-09-08,https://encyclopedie-spatiale.example/objet/m-14
 m-2,M 2,,region,globular-cluster,M 2,,,39140,,,,323.36258333333336,-0.8232499999999998,simbad,2026-09-21,https://encyclopedie-spatiale.example/objet/m-2
 m-3,M 3,,region,globular-cluster,M 3,,,32620,,,,205.5484166666666,28.37727777777778,simbad,2026-10-07,https://encyclopedie-spatiale.example/objet/m-3
 m-4,M 4,,region,globular-cluster,M 4,,,6523,,,,245.89675000000003,-26.525750000000002,simbad,2026-10-05,https://encyclopedie-spatiale.example/objet/m-4
@@ -74,7 +82,6 @@ m-107,M 107,,region,globular-cluster,M 107,,,19570,,,,248.13275,-13.053777777777
 m-108,M 108,,region,galaxy,M 108,,,32620000,,,,167.87902916666664,55.67412222222222,simbad,2026-10-12,https://encyclopedie-spatiale.example/objet/m-108
 m-109,M 109,,region,galaxy,M 109,,,77300000,,,,179.39984644985,53.37472391176001,simbad,2026-09-01,https://encyclopedie-spatiale.example/objet/m-109
 m-110,M 110,,region,galaxy,M 110,,,2642000,,,,10.09190514583,41.68541867226,simbad,2026-10-05,https://encyclopedie-spatiale.example/objet/m-110
-m-14,M 14,,region,globular-cluster,M 14,,,,,,,264.40062500000005,-3.245916666666667,simbad,2026-09-08,https://encyclopedie-spatiale.example/objet/m-14
 m-15,M 15,,region,globular-cluster,M 15,,,33790,,,,322.49304166666667,12.166999999999998,simbad,2026-10-05,https://encyclopedie-spatiale.example/objet/m-15
 eagle-nebula,Eagle Nebula,Nébuleuse de l'Aigle,region,open-cluster,M 16,,,5594,,,,274.688,-13.792,simbad,2026-10-13,https://encyclopedie-spatiale.example/objet/eagle-nebula
 omega-nebula,Omega Nebula,Nébuleuse Oméga,region,open-cluster,NGC 6618,,,5916,,,,275.1958333333333,-16.171666666666663,simbad,2026-10-13,https://encyclopedie-spatiale.example/objet/omega-nebula
@@ -91,7 +98,6 @@ dumbbell-nebula,Dumbbell Nebula,Nébuleuse de l’Haltère,region,nebula,M 27,,,
 m-28,M 28,,region,globular-cluster,M 28,,,19570,,,,276.1370416666666,-24.869833333333332,simbad,2026-08-27,https://encyclopedie-spatiale.example/objet/m-28
 m-29,M 29,,region,open-cluster,M 29,,,3826,,,,305.94166666666666,38.486666666666665,simbad,2026-06-10,https://encyclopedie-spatiale.example/objet/m-29
 m-30,M 30,,region,globular-cluster,M 30,,,22830,,,,325.0921666666667,-23.17986111111111,simbad,2026-09-29,https://encyclopedie-spatiale.example/objet/m-30
-andromeda-galaxy,Andromeda Galaxy,Galaxie d'Andromède,region,galaxy,M 31,,,2541000,,,,10.684708333333333,41.268750000000004,simbad,2026-10-14,https://encyclopedie-spatiale.example/objet/andromeda-galaxy
 m-32,M 32,,region,galaxy,M 32,,,2544000,,,,10.67427,40.86517,simbad,2026-09-30,https://encyclopedie-spatiale.example/objet/m-32
 triangulum-galaxy,Triangulum Galaxy,Galaxie du Triangle,region,galaxy,M 33,,,2776000,,,,23.46206906218,30.660175111980003,simbad,2026-10-12,https://encyclopedie-spatiale.example/objet/triangulum-galaxy
 ngc-1039,NGC 1039,,region,open-cluster,NGC 1039,,,1654,,,,40.53083333333333,42.721944444444446,simbad,2026-10-08,https://encyclopedie-spatiale.example/objet/ngc-1039

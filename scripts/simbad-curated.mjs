@@ -49,7 +49,7 @@ export const CURATED = [
   { q: ['* alf CMi B'], name: 'Procyon B', fr: 'Procyon B', cat: 'star', sub: 'white-dwarf' },
   { q: ['* omi02 Eri B'], name: '40 Eridani B', cat: 'star', sub: 'white-dwarf' },
   { q: ['V* V777 Her', 'GD 358'], name: 'GD 358', cat: 'star', sub: 'white-dwarf' },
-  { q: ['EGGR 103', 'G 29-38', 'V* ZZ Psc'], name: 'G 29-38', cat: 'star', sub: 'white-dwarf' },
+  { q: ['G 29-38', 'V* ZZ Psc'], name: 'G 29-38', cat: 'star', sub: 'white-dwarf' },
   { q: ['WD 1145+017'], name: 'WD 1145+017', cat: 'star', sub: 'white-dwarf' },
 ];
 
@@ -67,6 +67,8 @@ export const MESSIER_NAMES = {
 
 // Noms français d'usage (affichage en mode FR). Les noms propres identiques en français ne sont pas listés.
 export const FR_NAMES = {
+  // étoiles dont l'orthographe française diffère du nom officiel (UAI / SIMBAD)
+  Aldebaran: 'Aldébaran', Betelgeuse: 'Bételgeuse', Altair: 'Altaïr', Antares: 'Antarès', Vega: 'Véga', Regulus: 'Régulus',
   'Sculptor Galaxy': 'Galaxie du Sculpteur', 'Tarantula Nebula': 'Nébuleuse de la Tarentule', 'Rosette Nebula': 'Nébuleuse de la Rosette',
   'Carina Nebula': 'Nébuleuse de la Carène', 'Antennae Galaxies (NGC 4038)': 'Galaxies des Antennes (NGC 4038)', 'Omega Centauri': 'Oméga du Centaure',
   '47 Tucanae': '47 du Toucan', "Cat's Eye Nebula": "Nébuleuse de l'Œil de chat", 'Helix Nebula': "Nébuleuse de l'Hélice",

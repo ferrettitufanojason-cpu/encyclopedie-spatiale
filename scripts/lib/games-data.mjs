@@ -86,12 +86,18 @@ export function buildGamesData(objects, images, built) {
   // « Relie les étoiles » : les étoiles les plus brillantes de constellations connues (positions SIMBAD) + carte officielle UAI
   const CONST = ['orion', 'ursa-major', 'cassiopeia', 'cygnus', 'scorpius', 'leo', 'crux', 'lyra', 'gemini', 'taurus', 'ursa-minor', 'andromeda'];
   const constellations = CONST.map(k => byId.get(`constellation-${k}`)).filter(Boolean).map(c => {
-    const stars = objects.filter(o => o.constId === c.id && o.cat === 'star' && typeof o.ra === 'number' && typeof o.dec === 'number' && num(o.props.vmag) != null)
-      .sort((a, b) => a.props.vmag.v - b.props.vmag.v)
-      .filter((o, k, arr) => !arr.slice(0, k).some(p => Math.abs(p.ra - o.ra) < 0.02 && Math.abs(p.dec - o.dec) < 0.02)) // même étoile sous deux noms (ex. Alnitak / ζ Ori A)
-      .slice(0, 7).map(o => [o.id, o.name, o.ra, o.dec, o.props.vmag.v]);
-    return { i: c.id, n: c.name, nf: c.nameFr ?? c.name, stars, chart: imgOf(c.id) };
-  }).filter(c => c.stars.length >= 5);
+    // étoiles visibles à l'œil nu seulement (magnitude ≤ 5) : une étoile hôte d'exoplanète très faible n'a rien à faire dans la figure
+    const stars = objects.filter(o => o.constId === c.id && o.cat === 'star' && typeof o.ra === 'number' && typeof o.dec === 'number' && num(o.props.vmag) != null && o.props.vmag.v <= 5)
+      .sort((a, b) => a.props.vmag.v - b.props.vmag.v);
+    // même étoile sous deux entrées au même endroit (système double / composante, ex. β Sco / Acrab) : on garde celle qui a un nom propre
+    const proper = o => /^[A-Z][a-zà-ÿ]/.test(o.name) && !/^(HD|HIP|GJ|HR|BD|TYC|Gaia)\b/.test(o.name);
+    const kept = [];
+    for (const o of stars) {
+      const j = kept.findIndex(p => Math.abs(p.ra - o.ra) < 0.02 && Math.abs(p.dec - o.dec) < 0.02);
+      if (j < 0) kept.push(o); else if (!proper(kept[j]) && proper(o)) kept[j] = o;
+    }
+    return { i: c.id, n: c.name, nf: c.nameFr ?? c.name, stars: kept.slice(0, 7).map(o => [o.id, o.name, o.ra, o.dec, o.props.vmag.v, o.nameFr ?? o.name]), chart: imgOf(c.id) };
+  }).filter(c => c.stars.length >= 4);
 
   // « Le ciel de ce soir » : événements des 18 prochains mois
   const until = new Date(Date.parse(built) + 548 * 86400000).toISOString().slice(0, 10);

@@ -26,7 +26,7 @@ export async function mount(root) {
     let h = '';
     for (const k of lines) { const [a, b] = k.split('|').map(id => P(pts.find(p => p.id === id))); h += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="#6ea8ff" stroke-width="2"/>`; }
     for (const p of pts) { const [x, y] = P(p), r = Math.max(3, 9 - p.mag * 1.4);
-      h += `<g data-id="${p.id}" class="st${sel === p.id ? ' sel' : ''}"><circle cx="${x}" cy="${y}" r="22" fill="transparent"/><circle cx="${x}" cy="${y}" r="${r}" fill="#fff6d8"/>${sel === p.id ? `<circle cx="${x}" cy="${y}" r="${r + 6}" fill="none" stroke="#f2c261" stroke-width="2"/>` : ''}<text x="${x + r + 4}" y="${y + 4}" fill="#9aa8c7" font-size="12">${p.n.replace(/[<&]/g, '')}</text></g>`; }
+      h += `<g data-id="${p.id}" class="st${sel === p.id ? ' sel' : ''}"><circle cx="${x}" cy="${y}" r="22" fill="transparent"/><circle cx="${x}" cy="${y}" r="${r}" fill="#fff6d8"/>${sel === p.id ? `<circle cx="${x}" cy="${y}" r="${r + 6}" fill="none" stroke="#f2c261" stroke-width="2"/>` : ''}<text x="${p.x > 0.7 ? x - r - 4 : x + r + 4}" y="${y + 4}" fill="#9aa8c7" font-size="12" text-anchor="${p.x > 0.7 ? 'end' : 'start'}">${(lang() === 'fr' ? p.nf : p.n).replace(/[<&]/g, '')}</text></g>`; }
     svg.innerHTML = h;
     svg.addEventListener('click', e => { const g = e.target.closest('g[data-id]'); if (g) tap(g.dataset.id); });
     return svg;
@@ -39,7 +39,7 @@ export async function mount(root) {
       el('p', { class: 'gm-q', text: tx('Relie les étoiles pour dessiner ta figure : touche une étoile, puis une autre. Toucher à nouveau une ligne existante l’efface.', 'Connect the stars to draw your figure: tap one star, then another. Tapping an existing line again erases it.') }),
       el('div', { class: 'gm-sky-wrap' }, sky()),
       el('details', { class: 'gm-segs' }, el('summary', { text: tx('Relier au clavier', 'Connect with the keyboard') }),
-        el('div', { class: 'gm-seg-btns' }, pts.map(p => el('button', { type: 'button', class: 'btn', 'aria-pressed': String(sel === p.id), onclick: () => tap(p.id), text: `${p.n} (${tx('magnitude', 'magnitude')} ${p.mag.toLocaleString(L)})` })))),
+        el('div', { class: 'gm-seg-btns' }, pts.map(p => el('button', { type: 'button', class: 'btn', 'aria-pressed': String(sel === p.id), onclick: () => tap(p.id), text: `${L === 'fr' ? p.nf : p.n} (${tx('magnitude', 'magnitude')} ${p.mag.toLocaleString(L)})` })))),
       el('p', { class: 'credit', text: tx(`${lines.length} ligne${lines.length > 1 ? 's' : ''} tracée${lines.length > 1 ? 's' : ''}. Positions des ${pts.length} étoiles les plus brillantes : SIMBAD (CDS). Les lignes traditionnelles ne sont pas fixées par l’UAI : chaque carte du ciel les dessine un peu différemment.`, `${lines.length} line${lines.length > 1 ? 's' : ''} drawn. Positions of the ${pts.length} brightest stars: SIMBAD (CDS). Traditional lines are not set by the IAU: every star chart draws them a little differently.`) }),
       el('div', { class: 'gm-actions' }, el('button', { type: 'button', class: 'btn primary', disabled: compared || lines.length < 2, onclick: () => { compared = true; reward('relie-les-etoiles', 5, []); draw(); }, text: tx('Comparer avec la carte officielle', 'Compare with the official chart') }),
         el('button', { type: 'button', class: 'btn', onclick: () => choose(), text: tx('Autre constellation', 'Another constellation') })),
