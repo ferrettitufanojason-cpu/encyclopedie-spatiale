@@ -4,8 +4,8 @@ export const GAME_SECTIONS = [
   { id: 'systeme-solaire', icon: '🪐', fr: 'Système solaire', en: 'Solar System', games: [
     { slug: 'ordre-des-planetes', ready: true, fr: ['L’ordre des planètes', 'Range les huit planètes depuis le Soleil.'], en: ['Order of the planets', 'Put the eight planets in order from the Sun.'] },
     { slug: 'devine-la-planete', ready: true, fr: ['Devine la planète', 'Trois indices tirés des vraies données : moins tu en utilises, plus tu gagnes.'], en: ['Guess the planet', 'Three clues from real data: the fewer you use, the more you score.'] },
-    { slug: 'le-plus-grand', fr: ['Qui est le plus grand ?', 'Deux astres : le plus grand, le plus chaud ou le plus lourd ?'], en: ['Which is bigger?', 'Two bodies: which is bigger, hotter or heavier?'] },
-    { slug: 'lunes-mysterieuses', fr: ['Les lunes mystérieuses', 'Associe chaque lune à sa particularité.'], en: ['Mysterious moons', 'Match each moon with what makes it special.'] },
+    { slug: 'le-plus-grand', ready: true, fr: ['Qui est le plus grand ?', 'Deux astres : le plus grand, le plus chaud ou le plus lourd ?'], en: ['Which is bigger?', 'Two bodies: which is bigger, hotter or heavier?'] },
+    { slug: 'lunes-mysterieuses', ready: true, fr: ['Les lunes mystérieuses', 'Associe chaque lune à sa particularité.'], en: ['Mysterious moons', 'Match each moon with what makes it special.'] },
   ] },
   { id: 'etoiles-univers', icon: '✨', fr: 'Étoiles et univers', en: 'Stars and universe', games: [
     { slug: 'vie-d-une-etoile', fr: ['Vie d’une étoile', 'Choisis une masse et découvre la naissance et la fin de l’étoile.'], en: ['Life of a star', 'Pick a mass and discover how the star is born and ends.'] },

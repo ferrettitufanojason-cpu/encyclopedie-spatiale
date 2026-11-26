@@ -1,0 +1,10 @@
+---
+import GameShell from '../../components/GameShell.astro';
+---
+<GameShell titleFr="Qui est le plus grand ?" titleEn="Which is bigger?" path="/jeux/le-plus-grand/" description="Jeu : deux astres du Système solaire, lequel est le plus grand, le plus chaud ou le plus lourd ? Réponses tirées des données officielles."
+  introFr="Deux astres du Système solaire : lequel est le plus grand, le plus chaud ou le plus lourd ? Le critère change à chaque question. Les valeurs viennent des fiches (Système solaire OpenData)."
+  introEn="Two Solar System bodies: which is bigger, hotter or heavier? The criterion changes every question. Values come from the object pages (Système solaire OpenData)." />
+<script>
+  import { mount } from '../../scripts/games/bigger.js';
+  mount(document.getElementById('game')!);
+</script>

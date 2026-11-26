@@ -1,0 +1,10 @@
+---
+import GameShell from '../../components/GameShell.astro';
+---
+<GameShell titleFr="Les lunes mystérieuses" titleEn="Mysterious moons" path="/jeux/lunes-mysterieuses/" description="Jeu : associe des lunes du Système solaire (Io, Europe, Titan, Encelade…) à leur particularité."
+  introFr="Volcans, océan caché, atmosphère épaisse… Associe chaque lune à ce qui la rend unique. Choisis une réponse dans la liste sous chaque lune, puis vérifie."
+  introEn="Volcanoes, hidden ocean, thick atmosphere… Match each moon with what makes it unique. Pick an answer from the list under each moon, then check." />
+<script>
+  import { mount } from '../../scripts/games/moons.js';
+  mount(document.getElementById('game')!);
+</script>

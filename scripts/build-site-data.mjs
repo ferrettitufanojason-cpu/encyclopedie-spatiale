@@ -171,7 +171,8 @@ const groups = {}; for (const c of index) groups[groupOf(c)] = (groups[groupOf(c
 const dataDate = report?.date?.slice(0, 10) ?? null;
 await writeFile(join(OUT, 'meta.json'), JSON.stringify({ built: today, version: today.replace(/-/g, '.'), commit, total: index.length, counts, groups, dataDate, newExoplanets: index.filter(c => c.nw).length, sources, importReport: report, review, exports: Object.keys(byCat) }));
 // ---- plan du site et robots.txt (adresses absolues : SITE_URL, ou l'adresse de production fournie par Vercel) ----
-const PAGES = ['/', '/jeux/', '/jeux/ordre-des-planetes/', '/jeux/devine-la-planete/', '/jeux/habitable-ou-pas/', '/jeux/collection/', '/methodologie/', '/glossaire/', '/parcours/', '/avis/', '/mentions-legales/'];
+const { GAME_SECTIONS } = await import('../src/data/games.mjs');
+const PAGES = ['/', '/jeux/', ...GAME_SECTIONS.flatMap(s => s.games.filter(g => g.ready).map(g => `/jeux/${g.slug}/`)), '/methodologie/', '/glossaire/', '/parcours/', '/avis/', '/mentions-legales/'];
 const xmlEsc = x => x.replace(/&/g, '&amp;');
 const urls = [...PAGES.map(u => SITE + u), ...index.map(c => `${SITE}/objet/${encodeURIComponent(c.i)}`)];
 await writeFile(join(ROOT, 'public', 'sitemap.xml'), '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
