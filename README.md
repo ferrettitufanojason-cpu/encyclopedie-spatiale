@@ -154,6 +154,8 @@ Une nouvelle exoplanète apparaît donc sans intervention (sans image ni descrip
 
 ## Limites connues
 
+- **ISS TV en ligne** : depuis les serveurs de Vercel, YouTube bloque souvent la lecture complète des pages vidéo ; les flux sont alors vérifiés par le service oEmbed officiel de YouTube (titre, chaîne @NASA / @Sen, vidéo intégrable), qui ne dit pas si le direct est en cours : le lecteur l'indique lui-même.
+- **Image du jour (APOD)** : le site affiche ce que publie la page officielle apod.nasa.gov, avec sa date ; si la NASA ne publie pas pendant plusieurs jours, la dernière image reste affichée.
 - Les flux vidéo de l'ISS sont noirs quand la station est dans l'ombre de la Terre (≈ 35 min par orbite) ; seul le flux Sen permet de revenir en arrière.
 - Les appels `/api/*` et les pages `/objet/<id>` ont été testés en local (`npm run preview`, qui reproduit la réécriture de Vercel) ; le comportement sur Vercel est à confirmer au premier déploiement. Les pages `/objet/<id>` lisent les fichiers statiques du déploiement : si la « Deployment Protection » de Vercel est activée sur les prévisualisations, elles n'y fonctionneront pas (la production n'est pas concernée).
 - `public/sky/` (66 Mo) est versionné ; les images du ciel ne sont pas régénérées par l'action hebdomadaire.
