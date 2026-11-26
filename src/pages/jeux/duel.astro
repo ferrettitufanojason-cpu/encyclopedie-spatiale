@@ -1,0 +1,10 @@
+---
+import GameShell from '../../components/GameShell.astro';
+---
+<GameShell titleFr="Duel" titleEn="Duel" path="/jeux/duel/" description="Jeu : deux joueurs sur le même écran répondent aux mêmes questions sur l'espace ; le meilleur score gagne."
+  introFr="Deux joueurs, un seul écran, les mêmes questions. Le joueur 1 répond, passe l’écran au joueur 2, et les scores sont comparés à la fin."
+  introEn="Two players, one screen, the same questions. Player 1 answers, hands the screen to player 2, and the scores are compared at the end." />
+<script>
+  import { mount } from '../../scripts/games/duel.js';
+  mount(document.getElementById('game')!);
+</script>

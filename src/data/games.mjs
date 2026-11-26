@@ -25,8 +25,8 @@ export const GAME_SECTIONS = [
     { slug: 'mission-objectif', ready: true, fr: ['Quelle mission pour quel objectif ?', 'Associe une sonde ou un télescope à ses découvertes.'], en: ['Which mission for which goal?', 'Match a probe or telescope with its discoveries.'] },
   ] },
   { id: 'defis', icon: '🏆', fr: 'Défis et collection', en: 'Challenges and collection', games: [
-    { slug: 'defi-du-jour', fr: ['Défi du jour', 'Une question par jour et ta série de jours.'], en: ['Daily challenge', 'One question a day and your streak.'] },
+    { slug: 'defi-du-jour', ready: true, fr: ['Défi du jour', 'Une question par jour et ta série de jours.'], en: ['Daily challenge', 'One question a day and your streak.'] },
     { slug: 'collection', ready: true, fr: ['Ma collection', 'Les objets débloqués par tes bonnes réponses, et tes badges.'], en: ['My collection', 'Objects unlocked by your right answers, and your badges.'] },
-    { slug: 'duel', fr: ['Duel', 'Deux joueurs sur le même écran, mêmes questions.'], en: ['Duel', 'Two players on the same screen, same questions.'] },
+    { slug: 'duel', ready: true, fr: ['Duel', 'Deux joueurs sur le même écran, mêmes questions.'], en: ['Duel', 'Two players on the same screen, same questions.'] },
   ] },
 ];

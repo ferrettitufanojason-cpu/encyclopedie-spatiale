@@ -47,6 +47,8 @@ export function reward(game, pts, unlock = []) {
   return badgesFor(state.points).slice(before);
 }
 export function played(game) { (state.games[game] ??= { played: 0, won: 0, best: 0 }).played++; changed(); }
+export const daily = () => state.daily ?? null;
+export function setDaily(v) { state.daily = v; changed(); }
 export function resetAll() { state = fresh(); try { localStorage.removeItem(KEY); } catch {} changed(); }
 
 /* ---------- barre d'outils : style de texte, points, badge ---------- */

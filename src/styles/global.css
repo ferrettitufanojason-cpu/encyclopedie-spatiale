@@ -318,3 +318,7 @@ a.gm-card:hover, a.gm-card:focus-visible { border-color: var(--acc); transform: 
 .gm-choice.sel { border-color: var(--acc); background: #6ea8ff22; }
 .gm-trip { margin-top: 14px; } .gm-tripcard { padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r); background: var(--card); }
 .gm-tripcard h3 { margin: 0 0 6px; } .gm-tripcard h4 { margin: 12px 0 4px; } .gm-tripcard ul { margin: 0; padding-left: 20px; }
+.gm-daily { font-size: 16px; margin: 6px 0; }
+.gm-duel-setup { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; max-width: 560px; }
+.gm-duel-res { display: grid; gap: 10px; padding-left: 22px; } .gm-duel-res li { padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); } .gm-duel-res p { margin: 4px 0; }
+.gm-colh { font-size: 15px; margin: 12px 0 6px; color: #cfd9f0; }

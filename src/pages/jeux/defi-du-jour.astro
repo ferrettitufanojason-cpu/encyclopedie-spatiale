@@ -1,0 +1,10 @@
+---
+import GameShell from '../../components/GameShell.astro';
+---
+<GameShell titleFr="Défi du jour" titleEn="Daily challenge" path="/jeux/defi-du-jour/" description="Jeu : une question sur l'espace par jour, tirée de tous les jeux de l'Encyclopédie spatiale, et ta série de jours consécutifs."
+  introFr="Une question par jour, la même pour tout le monde, tirée de tous les jeux. Reviens chaque jour pour allonger ta série !"
+  introEn="One question a day, the same for everyone, drawn from all the games. Come back every day to grow your streak!" />
+<script>
+  import { mount } from '../../scripts/games/daily.js';
+  mount(document.getElementById('game')!);
+</script>
