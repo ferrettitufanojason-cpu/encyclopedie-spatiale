@@ -14,7 +14,7 @@ export const GAME_SECTIONS = [
   ] },
   { id: 'exoplanetes', icon: '🌍', fr: 'Exoplanètes', en: 'Exoplanets', games: [
     { slug: 'habitable-ou-pas', ready: true, fr: ['Habitable ou pas ?', 'Une vraie exoplanète : est-elle dans la zone habitable de son étoile ?'], en: ['Habitable or not?', 'A real exoplanet: is it in its star’s habitable zone?'] },
-    { slug: 'chasseur-d-exoplanetes', fr: ['Chasseur d’exoplanètes', 'Repère la baisse de lumière quand une planète passe devant son étoile.'], en: ['Exoplanet hunter', 'Spot the dip in light when a planet passes in front of its star.'] },
+    { slug: 'chasseur-d-exoplanetes', ready: true, fr: ['Chasseur d’exoplanètes', 'Repère la baisse de lumière quand une planète passe devant son étoile.'], en: ['Exoplanet hunter', 'Spot the dip in light when a planet passes in front of its star.'] },
   ] },
   { id: 'ciel', icon: '🌌', fr: 'Ciel et observation', en: 'Sky and observing', games: [
     { slug: 'relie-les-etoiles', fr: ['Relie les étoiles', 'Trace les constellations en reliant les points.'], en: ['Join the stars', 'Draw the constellations by joining the dots.'] },

@@ -1,0 +1,10 @@
+---
+import GameShell from '../../components/GameShell.astro';
+---
+<GameShell titleFr="Chasseur d’exoplanètes" titleEn="Exoplanet hunter" path="/jeux/chasseur-d-exoplanetes/" description="Jeu : repère sur une courbe de lumière la baisse causée par une vraie exoplanète qui passe devant son étoile (méthode des transits)."
+  introFr="C’est ainsi que Kepler et TESS ont trouvé des milliers de planètes : en guettant les petites baisses de lumière d’une étoile. Chaque courbe vient d’une vraie planète de l’encyclopédie."
+  introEn="This is how Kepler and TESS found thousands of planets: by watching for small dips in a star’s light. Each curve comes from a real planet in the encyclopedia." />
+<script>
+  import { mount } from '../../scripts/games/transit.js';
+  mount(document.getElementById('game')!);
+</script>

@@ -302,3 +302,9 @@ a.gm-card:hover, a.gm-card:focus-visible { border-color: var(--acc); transform: 
 .gm-dots { list-style: none; display: flex; gap: 6px; justify-content: center; padding: 0; }
 .gm-dots li { width: 10px; height: 10px; border-radius: 50%; background: var(--line); } .gm-dots li.seen { background: #6ea8ff66; } .gm-dots li.on { background: var(--acc); }
 .gm-zinfo { max-width: 720px; margin: 0 auto; } .gm-zinfo p { margin: 6px 0; }
+.gm-curve-wrap { background: var(--bg2); border: 1px solid var(--line); border-radius: var(--r); padding: 6px; }
+.gm-curve { width: 100%; height: auto; display: block; cursor: crosshair; touch-action: manipulation; }
+.gm-curve .seg.hit { fill: #5ed6a433; } .gm-curve .seg.miss { fill: #ff7b7b26; }
+.gm-segs summary { cursor: pointer; color: var(--acc); margin: 8px 0; }
+.gm-seg-btns { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; }
+.gm-seg-btns .btn { font-size: 13px; padding: 6px; } .gm-seg-btns .btn.ok { border-color: var(--ok); } .gm-seg-btns .btn.ko { border-color: #ff7b7b; }
