@@ -2,6 +2,7 @@ import { T } from './i18n.js';
 import { scatter, bars, PALETTE } from './charts.js';
 import { srcOf, objPath } from '../../lib/sources.mjs';
 import { PROP_GLOSS } from '../data/glossary.mjs';
+import { helio, orbitPoints, PLANET_IDS, VALID, dist as dist3, AU_KM, C_KMS } from '../../lib/planets.mjs';
 
 const $ = s => document.querySelector(s);
 const el = (tag, attrs = {}, ...kids) => {
@@ -471,6 +472,90 @@ async function mountIss(host, { inFiche = true } = {}) {
 /* ---------- onglet « En direct » : ISS, APOD, EPIC, rovers (flux officiels NASA, via nos fonctions serveur) ---------- */
 const getJson = async url => { const r = await fetch(url); if (!r.ok) throw new Error(r.status); return r.json(); };
 const fmtDate = s => { const d = new Date(String(s).replace(' ', 'T') + (/Z|[+-]\d\d:?\d\d$/.test(s) ? '' : 'Z')); return isNaN(d) ? s : d.toLocaleString(lang, { dateStyle: 'medium', timeStyle: 'short' }); };
+/* ---------- Système solaire en direct : vue de dessus (pôle nord de l'écliptique), positions calculées ---------- */
+const PL_COL = { mercury: '#b9b4ad', venus: '#e8cda2', earth: '#6ea8ff', mars: '#e27b58', jupiter: '#d8b48a', saturn: '#e6d08a', uranus: '#9fe3e8', neptune: '#5b7fff', pluto: '#c9a98a' };
+const PL_R = { mercury: 4, venus: 5.5, earth: 6, mars: 5, jupiter: 9, saturn: 8, uranus: 7, neptune: 7, pluto: 3.5 };
+let plTimer = null, plRedraw = null;
+addEventListener('resize', () => { clearTimeout(plRedraw?.t); if (plRedraw) plRedraw.t = setTimeout(plRedraw.fn, 150); });
+function mountPlanets(host) {
+  const T_ = t(), NS = 'http://www.w3.org/2000/svg', S = 600, C = S / 2, R = S / 2 - 22;
+  const svgN = (tag, a = {}) => { const n = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(a)) n.setAttribute(k, v); return n; };
+  const byId = new Map(ALL.map(c => [c.i, c]));
+  const name = id => { const c = byId.get(id); return c ? (lang === 'fr' && c.nf ? c.nf : c.n) : id; };
+  let date = new Date(), live = true, view = 'all', anim = null;
+  // échelles : « tout le système » logarithmique (sinon les planètes intérieures seraient collées au Soleil), « intérieur » linéaire
+  const proj = p => {
+    const r = Math.hypot(p.x, p.y), k = view === 'all' ? (r ? R * Math.log1p(r / 0.3) / Math.log1p(50 / 0.3) / r : 0) : R / 1.75;
+    return [C + p.x * k, C - p.y * k];
+  };
+  const shown = () => (view === 'all' ? PLANET_IDS : ['mercury', 'venus', 'earth', 'mars']);
+  const svg = svgN('svg', { viewBox: `0 0 ${S} ${S}`, class: 'pl-map', role: 'img' });
+  const when = el('p', { class: 'pl-date', 'aria-live': 'polite' });
+  const tbody = el('tbody');
+  const viewBtn = (v, label) => el('button', { class: 'btn tv-btn', type: 'button', 'aria-pressed': String(view === v), onclick: e => { view = v; e.target.parentNode.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b === e.target))); draw(); } }, label);
+  const step = days => () => { stopAnim(); live = false; setDate(new Date(+date + days * 86400000)); };
+  const setDate = d => { date = new Date(Math.min(VALID[1], Math.max(VALID[0], +d))); draw(); };
+  const playBtn = el('button', { class: 'btn tv-btn', type: 'button', 'aria-pressed': 'false', onclick: () => (anim ? stopAnim() : startAnim()) }, T_.plPlay);
+  function startAnim() { live = false; playBtn.textContent = T_.plPause; playBtn.setAttribute('aria-pressed', 'true'); anim = setInterval(() => { if (!host.isConnected) return stopAnim(); setDate(new Date(+date + 2 * 86400000)); if (+date >= VALID[1]) stopAnim(); }, 50); }
+  function stopAnim() { clearInterval(anim); anim = null; playBtn.textContent = T_.plPlay; playBtn.setAttribute('aria-pressed', 'false'); }
+  host.append(el('p', { class: 'credit', text: T_.plIntro }),
+    el('div', { class: 'pl-tools' },
+      el('div', { class: 'tv-tabs', role: 'group', 'aria-label': T_.plView }, viewBtn('all', T_.plAll), viewBtn('inner', T_.plInner)),
+      el('div', { class: 'tv-tabs', role: 'group', 'aria-label': T_.plTime },
+        el('button', { class: 'btn tv-btn', type: 'button', onclick: step(-30) }, T_.plMinus30), el('button', { class: 'btn tv-btn', type: 'button', onclick: step(-1) }, T_.plMinus1),
+        el('button', { class: 'btn tv-btn', type: 'button', onclick: () => { stopAnim(); live = true; setDate(new Date()); } }, T_.plNow),
+        el('button', { class: 'btn tv-btn', type: 'button', onclick: step(1) }, T_.plPlus1), el('button', { class: 'btn tv-btn', type: 'button', onclick: step(30) }, T_.plPlus30), playBtn)),
+    when, el('div', { class: 'pl-wrap' }, svg),
+    el('div', { class: 'pl-table' }, el('table', { class: 'props' }, el('caption', { class: 'sr', text: T_.plTitle }),
+      el('thead', {}, el('tr', {}, ...[T_.plName, T_.plSun, T_.plEarth, T_.plLight].map(h => el('th', { scope: 'col', text: h })))), tbody)),
+    el('p', { class: 'credit' }, T_.plCredit, ' ', el('a', { href: 'https://ssd.jpl.nasa.gov/planets/approx_pos.html', target: '_blank', rel: 'noopener', text: 'JPL — Approximate Positions of the Planets' })));
+  function draw() {
+    const pos = Object.fromEntries(PLANET_IDS.map(id => [id, helio(id, date)])), earth = pos.earth;
+    svg.setAttribute('aria-label', T_.plAria(date.toLocaleDateString(lang, { dateStyle: 'long' })));
+    when.replaceChildren(el('b', { text: date.toLocaleString(lang, { dateStyle: 'full', timeStyle: 'short' }) }), live ? el('span', { class: 'pl-live', text: ` · ${T_.plLive}` }) : '');
+    const kids = [];
+    for (const id of shown()) {
+      const pts = orbitPoints(id, date, 200).map(p => proj(p).map(v => v.toFixed(1)).join(',')).join(' ');
+      kids.push(svgN('polyline', { points: pts, fill: 'none', stroke: id === 'earth' ? '#6ea8ff88' : '#3a4b72', 'stroke-width': id === 'earth' ? 1.4 : 1 }));
+    }
+    // direction du point vernal (axe x de l'écliptique)
+    kids.push(svgN('line', { x1: C + 12, y1: C, x2: S - 6, y2: C, stroke: '#ffffff22', 'stroke-dasharray': '3 5' }));
+    const g = svgN('text', { x: S - 8, y: C + 16, 'text-anchor': 'end', class: 'pl-axis', style: `font-size:${(Math.max(11, 9 * S / (svg.clientWidth || S))).toFixed(1)}px` }); g.textContent = T_.plVernal; kids.push(g);
+    kids.push(svgN('circle', { cx: C, cy: C, r: view === 'all' ? 7 : 10, fill: '#ffcf4a' }));
+    // étiquettes : à droite du point (à gauche près du bord), décalées verticalement si elles en chevauchent une autre
+    const fs = Math.max(13, 10.5 * S / (svg.clientWidth || S)); // au moins ~10,5 px à l'écran, même sur mobile
+    const placed = [{ x0: C - 12, x1: C + 12, y0: C - 12, y1: C + 12 }];
+    const dots = shown().map(id => ({ id, xy: proj(pos[id]) }));
+    for (const { xy: [x, y] } of dots) placed.push({ x0: x - 7, x1: x + 7, y0: y - 7, y1: y + 7 });
+    for (const { id, xy: [x, y] } of dots) {
+      const a = svgN('a', { href: objPath(id), class: 'pl-dot' });
+      a.addEventListener('click', e => { e.preventDefault(); openObj(id, true); });
+      const w = name(id).length * fs * 0.56 + 4, left = x + PL_R[id] + 4 + w > S - 4, gap = PL_R[id] + 4;
+      const box = dy => (left ? { x0: x - gap - w, x1: x - gap, y0: y + dy - fs * 0.8, y1: y + dy + fs * 0.3 } : { x0: x + gap, x1: x + gap + w, y0: y + dy - fs * 0.8, y1: y + dy + fs * 0.3 });
+      const hit = b => placed.some(q => b.x0 < q.x1 && b.x1 > q.x0 && b.y0 < q.y1 && b.y1 > q.y0 && !(q.x0 === x - 7 && q.y0 === y - 7));
+      const dy = [0.3, -0.8, 1.4, -1.9, 2.5].map(k => k * fs).find(d => !hit(box(d))) ?? 0.3 * fs;
+      placed.push(box(dy));
+      const lab = svgN('text', { x: left ? x - gap : x + gap, y: y + dy, 'text-anchor': left ? 'end' : 'start', class: 'pl-lab', style: `font-size:${fs.toFixed(1)}px` }); lab.textContent = name(id);
+      const ttl = svgN('title'); ttl.textContent = name(id);
+      a.append(ttl, svgN('circle', { cx: x, cy: y, r: PL_R[id] * (view === 'all' ? 1 : 1.3), fill: PL_COL[id], stroke: id === 'earth' ? '#fff' : 'none', 'stroke-width': 1.5 }), lab);
+      kids.push(a);
+    }
+    svg.replaceChildren(...kids);
+    const n = (v, d = 3) => v.toLocaleString(lang, { maximumSignificantDigits: d });
+    tbody.replaceChildren(...PLANET_IDS.map(id => {
+      const rs = dist3(pos[id]), re = id === 'earth' ? null : dist3(pos[id], earth), lt = re == null ? null : re * AU_KM / C_KMS;
+      return el('tr', {}, el('th', { scope: 'row' }, el('span', { class: 'pl-sw', style: `background:${PL_COL[id]}`, 'aria-hidden': 'true' }), el('a', { href: objPath(id), onclick: e => { e.preventDefault(); openObj(id, true); }, text: name(id) })),
+        el('td', { text: `${n(rs, 4)} ${T_.au}` }),
+        el('td', { text: re == null ? '—' : `${n(re * AU_KM / 1e6)} ${T_.mkm}` }),
+        el('td', { text: lt == null ? '—' : lt < 3600 ? `${n(lt / 60)} min` : `${n(lt / 3600)} h` }));
+    }));
+  }
+  draw();
+  plRedraw = { fn: () => host.isConnected && draw() }; // taille des étiquettes recalculée si la largeur change
+  clearInterval(plTimer);
+  plTimer = setInterval(() => { if (!host.isConnected) { clearInterval(plTimer); stopAnim(); return; } if (live) { date = new Date(); draw(); } }, 60000);
+}
+
 async function mountLive() {
   const T_ = t(), host = $('#live');
   host.replaceChildren(el('h2', { text: T_.cat.live }), el('p', { class: 'credit', text: T_.liveIntro }));
@@ -480,6 +565,8 @@ async function mountLive() {
   const issHost = section(T_.issLive); issHost.querySelector('h3').remove();
   mountIss(issHost, { inFiche: false });
   issHost.append(el('p', {}, el('a', { href: objPath('mission-international-space-station'), onclick: e => { e.preventDefault(); openObj('mission-international-space-station', true); }, text: T_.issFiche })));
+  // Position des planètes (calculée dans le navigateur, éléments orbitaux du JPL)
+  mountPlanets(section(T_.plTitle));
   // APOD
   const ap = section(T_.apodTitle, el('p', { class: 'na', text: T_.loading }));
   getJson('/api/apod').then(a => {

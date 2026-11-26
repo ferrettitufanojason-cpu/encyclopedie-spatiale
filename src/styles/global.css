@@ -194,3 +194,10 @@ a.gl:hover, a.gl:focus-visible { color: var(--text); border-color: var(--acc); }
 .pc-steps img, .pc-noimg { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; flex: none; background: #0f1830; }
 .pc-steps span { display: grid; } .pc-steps small { color: var(--mute); font-size: 12px; }
 .pc-q { border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; margin: 8px 0; } .pc-q summary { cursor: pointer; font-weight: 600; } .pc-q p { margin: 8px 0 2px; }
+.pl-tools { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 8px 0; }
+.pl-date { margin: 6px 0; } .pl-live { color: #7ee2a8; }
+.pl-wrap { max-width: 620px; margin: 0 auto; } .pl-map { width: 100%; height: auto; display: block; background: radial-gradient(circle at 50% 50%, #131d3a, #070b17 70%); border-radius: 12px; border: 1px solid var(--line); }
+.pl-lab { fill: #cfd9f0; font-size: 13px; paint-order: stroke; stroke: #070b17; stroke-width: 3px; } .pl-axis { fill: #8a97b8; font-size: 11px; }
+.pl-dot:focus-visible circle { stroke: #fff; stroke-width: 3px; } .pl-dot { cursor: pointer; }
+.pl-table { overflow-x: auto; } .pl-sw { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+.pl-table table { width: 100%; } .pl-table th, .pl-table td { white-space: nowrap; }

@@ -89,7 +89,7 @@ Variables d'environnement :
 - *Petits corps* : 4 994 (astéroïdes, comètes, objets de Kuiper, interstellaires).
 - *Événements* (onglet dédié, filtre « À venir / Passés ») : **agenda du ciel des 12 prochains mois** en tête, puis 268 ondes gravitationnelles, 224 éclipses solaires, 228 éclipses lunaires, et les événements à venir ci-dessous.
 - *Missions* : 39 missions et sondes, dont l'ISS.
-- *En direct* : ISS (position + vidéo), APOD, EPIC, rovers, recherche SIMBAD.
+- *En direct* : ISS (position + vidéo), **Système solaire en ce moment** (position des planètes et de Pluton, vue de dessus, avec avance/retour dans le temps et animation, distances au Soleil et à la Terre, temps-lumière), APOD, EPIC, rovers, recherche SIMBAD.
 - *Événements à venir* : maxima des pluies de météores (calendrier officiel IMO, année en cours et suivante), oppositions des planètes, plus grandes élongations de Mercure et Vénus, rapprochements de planètes (calculés au pas d'un jour avec les éphémérides **JPL Horizons**), éclipses.
 - *Graphiques interactifs* : masse–rayon des exoplanètes (les valeurs **estimées** par la NASA via une relation masse-rayon sont séparées des valeurs mesurées et masquées par défaut), diagramme de Hertzsprung-Russell (magnitude absolue calculée, sans correction d'extinction), découvertes d'exoplanètes par année et par méthode, **échelle des distances** (de la Lune à 3C 273, avec le temps de trajet de la lumière, et répartition du catalogue par distance) ; survol, clic vers la fiche, zoom par sélection, légende filtrante, export PNG/CSV.
 
@@ -113,6 +113,7 @@ Variables d'environnement :
 - **Zone habitable** des exoplanètes : modèle conservateur de Kopparapu et al. (2013), à partir de la température et de la luminosité de l'étoile ; ce n'est pas une mesure.
 - **Distance des étoiles** sans valeur NASA : 1000 / parallaxe (SIMBAD), avec incertitude seulement si la parallaxe est fiable.
 - **Classification des exoplanètes** (tellurique, super-Terre, type Neptune, géante gazeuse) : par rayon (convention de la NASA), repli sur la masse.
+- **Position des planètes** (« En direct ») : calculée dans le navigateur avec les éléments orbitaux approchés du JPL (E. M. Standish, table valable 1800-2050). Comparée à JPL Horizons (test automatique sur 3 dates) : écart < 1′ pour la plupart des planètes, ≤ 9′ (0,15°) pour Saturne. Vue « tout le système » en échelle logarithmique des distances, tailles non à l'échelle.
 - **Position de l'ISS** : interpolation d'Hermite de l'éphéméride officielle, précession + rotation terrestre (nutation négligée) ; précision de l'ordre de quelques km. L'ombre de la Terre est modélisée par un cylindre.
 - **Schémas d'orbite** des petits corps sans photo : calculés à partir des éléments orbitaux du JPL (vue du dessus, échelle racine carrée).
 
@@ -135,7 +136,7 @@ Un test automatique **axe-core** (WCAG 2.1 A/AA, hors contraste) passe sur le HT
 - **Citation** : bouton « Citer » sur chaque fiche (texte + BibTeX, lien permanent `/objet/<id>`, **version des données** `AAAA.MM.JJ`, date de consultation) ; `CITATION.cff` pour le projet.
 - **Provenance** : chaque donnée est rattachée à sa source ; les valeurs calculées sont signalées ; les textes de vulgarisation sont distingués des données.
 - **Relecture scientifique** : *aucun relecteur à ce jour*. Les **données** viennent de sources officielles (NASA, JPL, CDS…), mais les **textes de vulgarisation** et les **méthodes de calcul** sont de la rédaction de ce projet et n'ont pas été validés par un expert ; la fiche l'affiche. Pour nommer un relecteur : `scripts/review.json` (son nom et la date apparaissent alors sur les fiches).
-- **Tests automatiques** (`npm test`, 20 tests) : unicité des identifiants, valeurs finies et sourcées, plausibilité physique (excentricité < 1, masses et rayons réalistes…), crédits et licences des images, cohérence des descriptions, couverture minimale, exports CSV, position et jour/nuit de l'ISS, pages `/objet/<id>` (titre, adresse canonique, 404, valeurs estimées signalées), glossaire, parcours sans valeur manquante, plan du site, accessibilité statique de 6 pages. Ils tournent dans l'action hebdomadaire **avant** tout redéploiement.
+- **Tests automatiques** (`npm test`, 21 tests) : unicité des identifiants, valeurs finies et sourcées, plausibilité physique (excentricité < 1, masses et rayons réalistes…), crédits et licences des images, cohérence des descriptions, couverture minimale, exports CSV, position et jour/nuit de l'ISS, positions des planètes comparées à JPL Horizons, pages `/objet/<id>` (titre, adresse canonique, 404, valeurs estimées signalées), glossaire, parcours sans valeur manquante, plan du site, accessibilité statique de 6 pages. Ils tournent dans l'action hebdomadaire **avant** tout redéploiement.
 - **Licences** : code sous MIT (`LICENSE`) ; données et images sous la licence de leur source (`DATA-LICENSES.md`).
 
 ## Mises à jour automatiques
