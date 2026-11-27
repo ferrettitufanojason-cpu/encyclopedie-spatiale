@@ -1,7 +1,7 @@
 // « Choisis ta destination » : on choisit un astre, on estime la durée du voyage, puis on découvre le calcul, les dangers et les bagages.
 import { rngFrom } from '../../../lib/games.mjs';
 import { trip, tripQuestion } from '../../../lib/games-more.mjs';
-import { el, tx, lang, onLang, gameData, reward, verdict, mountBar } from './core.js';
+import { el, tx, lang, onLang, level, onLevel, gameData, reward, verdict, mountBar } from './core.js';
 
 export async function mount(root) {
   mountBar(document.getElementById('gm-bar'));
@@ -17,7 +17,7 @@ export async function mount(root) {
         t.img ? el('img', { src: t.img.src, alt: '', loading: 'lazy', width: 36, height: 36 }) : '', el('span', { text: nm(t) }))));
     const parts = [el('p', { class: 'gm-q', text: tx('Où veux-tu aller ? Choisis ta destination.', 'Where do you want to go? Choose your destination.') }), grid];
     if (target) {
-      const Q = tripQuestion(target, earth, rngFrom(seed), L), T = trip(target, earth, L);
+      const Q = tripQuestion(target, earth, rngFrom(seed), L, level()), T = trip(target, earth, L);
       parts.push(el('section', { class: 'gm-trip' },
         el('p', { class: 'gm-q', text: Q.q }),
         el('div', { class: 'gm-choices' }, Q.choices.map(c => el('button', { type: 'button', class: `btn gm-choice${picked != null && c.id === Q.answer ? ' ok' : ''}${picked === c.id && c.id !== Q.answer ? ' ko' : ''}`, disabled: picked != null,
@@ -35,5 +35,5 @@ export async function mount(root) {
     }
     root.replaceChildren(...parts);
   }
-  draw(); onLang(draw);
+  draw(); onLang(draw); onLevel(() => { picked = null; badges = []; draw(); });
 }

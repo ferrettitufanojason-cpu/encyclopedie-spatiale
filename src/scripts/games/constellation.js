@@ -47,7 +47,7 @@ export async function mount(root) {
         c.chart ? el('figcaption', { class: 'credit' }, `${c.chart.credit} · ${c.chart.license} · `, el('a', { href: c.chart.source, rel: 'noopener', text: tx('source', 'source') }), ' · ', el('a', { href: `/objet/${encodeURIComponent(c.i)}`, text: tx('fiche de la constellation', 'constellation page') })) : '') : '',
       compared ? quizBox : '');
     // un nouveau conteneur par constellation : l'ancien quiz (et ses écouteurs) reste attaché à l'ancien conteneur, détaché de la page
-    if (compared && quizFor !== c.i) { quizFor = c.i; const box = el('div', { class: 'gm-quizbox' }); quizBox.replaceWith(box); quizBox = box; mountQuiz(quizBox, { game: 'relie-les-etoiles', points: 10, make: (rng, L2) => brightestQuestion(c, L2), newLabel: () => tx('Reposer la question', 'Ask again') }); }
+    if (compared && quizFor !== c.i) { quizFor = c.i; const box = el('div', { class: 'gm-quizbox' }); quizBox.replaceWith(box); quizBox = box; mountQuiz(quizBox, { game: 'relie-les-etoiles', points: 10, make: (rng, L2, m, lv) => brightestQuestion(c, L2, lv), newLabel: () => tx('Reposer la question', 'Ask again') }); }
   }
   let quizBox = el('div', { class: 'gm-quizbox' }), quizFor = null;
   onLang(draw); choose('constellation-orion');

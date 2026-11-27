@@ -1,6 +1,6 @@
 // Jeu « L'ordre des planètes » : glisser-déposer (souris ou doigt) ou boutons ▲ ▼ (clavier), indice après une erreur.
 import { orderPuzzle, checkOrder, nameOf, rngFrom } from '../../../lib/games.mjs';
-import { el, tx, lang, onLang, mode, gameData, reward, verdict, mountBar } from './core.js';
+import { el, tx, lang, onLang, mode, level, onLevel, gameData, reward, verdict, mountBar } from './core.js';
 
 const POINTS = [40, 30, 20, 10]; // 1er, 2e, 3e, 4e essai ou plus
 
@@ -12,7 +12,7 @@ export async function mount(root) {
   let puzzle, order, tries, done, hintPair;
 
   const newGame = () => {
-    puzzle = orderPuzzle(planets, rngFrom());
+    puzzle = orderPuzzle(planets, rngFrom(), level());
     if (!puzzle) { root.replaceChildren(el('p', { class: 'na', text: tx('Jeu indisponible : une distance au Soleil manque dans les données.', 'Game unavailable: a distance to the Sun is missing from the data.') })); return; }
     order = [...puzzle.start]; tries = 0; done = false; hintPair = null; draw();
   };
@@ -53,10 +53,12 @@ export async function mount(root) {
     if (r.ok) {
       done = true;
       const pts = POINTS[Math.min(tries, POINTS.length) - 1];
-      const badges = reward('ordre-des-planetes', pts, planets.map(p => ({ id: p.i, n: nameOf(p, lang()), k: 'planet' })));
+      const badges = reward('ordre-des-planetes', pts, puzzle.answer.map(id => ({ id, n: nameOf(by[id], lang()), k: 'planet' })));
       const out = draw();
       verdict(out, { ok: true, title: tx(`Bravo ! Trouvé en ${tries} essai${tries > 1 ? 's' : ''} : +${pts} points.`, `Well done! Solved in ${tries} ${tries > 1 ? 'tries' : 'try'}: +${pts} points.`),
-        text: mode() === 'simple'
+        text: puzzle.answer.length < 8
+          ? tx(`De la plus proche à la plus lointaine du Soleil : ${puzzle.answer.map(id => nameOf(by[id], 'fr')).join(', ')}.`, `From closest to farthest from the Sun: ${puzzle.answer.map(id => by[id].n).join(', ')}.`)
+          : mode() === 'simple'
           ? tx('Les quatre premières sont des planètes rocheuses, proches du Soleil ; les quatre suivantes sont des géantes de gaz et de glace, bien plus loin.', 'The first four are rocky planets close to the Sun; the next four are giants made of gas and ice, much farther away.')
           : tx(`Ordre des demi-grands axes : de ${(by[puzzle.answer[0]].sma / 149597870.7).toFixed(2).replace('.', ',')} UA (${nameOf(by[puzzle.answer[0]], 'fr')}) à ${(by[puzzle.answer.at(-1)].sma / 149597870.7).toFixed(1).replace('.', ',')} UA (${nameOf(by[puzzle.answer.at(-1)], 'fr')}). Les huit planètes sont débloquées dans ta collection.`,
             `Order of semi-major axes: from ${(by[puzzle.answer[0]].sma / 149597870.7).toFixed(2)} AU (${by[puzzle.answer[0]].n}) to ${(by[puzzle.answer.at(-1)].sma / 149597870.7).toFixed(1)} AU (${by[puzzle.answer.at(-1)].n}). All eight planets are unlocked in your collection.`),
@@ -90,5 +92,6 @@ export async function mount(root) {
     });
   }
   onLang(() => draw()); document.addEventListener('jeux:update', () => {});
+  onLevel(newGame);
   newGame();
 }

@@ -2,16 +2,17 @@
 // Les bonnes réponses ne s'affichent qu'à la fin, pour ne rien dévoiler au joueur 2. Aucun surnom n'est enregistré.
 import { rngFrom } from '../../../lib/games.mjs';
 import { mixedQuestion } from '../../../lib/games-more.mjs';
-import { el, tx, lang, onLang, mode, gameData, played, mountBar } from './core.js';
+import { el, tx, lang, onLang, level, gameData, played, mountBar } from './core.js';
+import { LEVEL_NAMES } from '../../../lib/games.mjs';
 
 const N = 5;
 export async function mount(root) {
   mountBar(document.getElementById('gm-bar'));
   let d; try { d = await gameData(); } catch { root.replaceChildren(el('p', { class: 'na', text: tx('Les données du jeu n’ont pas pu être chargées.', 'The game data could not be loaded.') })); return; }
-  let seed, phase = 'setup', names = ['', ''], ans = [[], []], k = 0;
+  let seed, phase = 'setup', names = ['', ''], ans = [[], []], k = 0, duelLv = level();
   // même graine → mêmes questions pour les deux joueurs (dans la langue affichée)
   const questions = () => { const rng = rngFrom(seed), qs = [], seen = new Set(); let guard = 0;
-    while (qs.length < N && guard++ < 60) { const q = mixedQuestion(d, rng, lang(), mode()); if (q && !seen.has(q.q)) { seen.add(q.q); qs.push(q); } } return qs; };
+    while (qs.length < N && guard++ < 60) { const q = mixedQuestion(d, rng, lang(), duelLv === 'universite' ? 'detail' : 'simple', undefined, duelLv); if (q && !seen.has(q.q)) { seen.add(q.q); qs.push(q); } } return qs; };
   const who = p => names[p].trim() || tx(`Joueur ${p + 1}`, `Player ${p + 1}`);
   function draw() {
     if (phase === 'setup') {
@@ -20,7 +21,7 @@ export async function mount(root) {
         el('p', { class: 'gm-q', text: tx(`${N} questions tirées de tous les jeux. Le joueur 1 répond d’abord, puis passe l’écran au joueur 2. Les réponses sont révélées à la fin.`, `${N} questions from all the games. Player 1 answers first, then hands the screen to player 2. Answers are revealed at the end.`) }),
         el('div', { class: 'gm-duel-setup' }, [0, 1].map(p => el('div', {}, el('label', { for: `gm-p${p}`, class: 'lbl', text: tx(`Surnom du joueur ${p + 1} (facultatif)`, `Player ${p + 1} nickname (optional)`) }), inp(p)))),
         el('p', { class: 'credit', text: tx('Les surnoms ne servent qu’à l’affichage et ne sont enregistrés nulle part.', 'Nicknames are only displayed and are not stored anywhere.') }),
-        el('div', { class: 'gm-actions' }, el('button', { type: 'button', class: 'btn primary', onclick: () => { seed = Math.floor(Math.random() * 2 ** 31); ans = [[], []]; k = 0; phase = 'p0'; draw(); }, text: tx('Commencer le duel', 'Start the duel') })));
+        el('div', { class: 'gm-actions' }, el('button', { type: 'button', class: 'btn primary', onclick: () => { seed = Math.floor(Math.random() * 2 ** 31); ans = [[], []]; k = 0; duelLv = level(); phase = 'p0'; draw(); }, text: tx(`Commencer le duel (niveau ${LEVEL_NAMES[level()][0]})`, `Start the duel (${LEVEL_NAMES[level()][1]} level)`) })));
       return;
     }
     const qs = questions();

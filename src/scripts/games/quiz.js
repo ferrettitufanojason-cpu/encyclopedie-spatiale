@@ -1,6 +1,6 @@
 // Composants communs : quiz à choix (une question à la fois) et plateau d'association (listes déroulantes : clavier et tactile).
 import { rngFrom, shuffle } from '../../../lib/games.mjs';
-import { el, tx, lang, onLang, mode, reward, verdict } from './core.js';
+import { el, tx, lang, onLang, mode, level, onLevel, reward, verdict } from './core.js';
 
 /**
  * Quiz : make(rng, lang, mode) renvoie une question { q, choices, answer, explain, objects, unlock } ou null.
@@ -8,7 +8,7 @@ import { el, tx, lang, onLang, mode, reward, verdict } from './core.js';
  */
 export function mountQuiz(root, { game, make, points = 10, header, newLabel }) {
   let seed, picked, streak = 0, badges = [];
-  const q = () => make(rngFrom(seed), lang(), mode());
+  const q = () => make(rngFrom(seed), lang(), mode(), level());
   const next = () => { seed = Math.floor(Math.random() * 2 ** 31); picked = null; badges = []; draw(); };
   function draw() {
     const Q = q();
@@ -33,7 +33,7 @@ export function mountQuiz(root, { game, make, points = 10, header, newLabel }) {
     badges = reward(game, ok ? points + Math.min(streak - 1, 5) * 2 : 0, ok ? Q.unlock : []);
     draw();
   }
-  onLang(draw); document.addEventListener('jeux:update', () => { if (seed != null) draw(); });
+  onLang(draw); onLevel(() => { streak = 0; next(); }); document.addEventListener('jeux:update', () => { if (seed != null) draw(); });
   next();
 }
 
@@ -45,7 +45,7 @@ export function mountMatch(root, { game, make, ptsPerPair = 5, prompt, linkKind 
   let seed, choice, done, badges = [];
   const next = () => { seed = Math.floor(Math.random() * 2 ** 31); choice = {}; done = false; badges = []; draw(); };
   function draw() {
-    const M = make(rngFrom(seed), lang());
+    const M = make(rngFrom(seed), lang(), level());
     if (!M) { root.replaceChildren(el('p', { class: 'na', text: tx('Pas assez de données pour ce jeu.', 'Not enough data for this game.') })); return; }
     const out = el('div', { class: 'gm-out' });
     root.replaceChildren(
@@ -76,7 +76,7 @@ export function mountMatch(root, { game, make, ptsPerPair = 5, prompt, linkKind 
     badges = reward(game, okIds.length * ptsPerPair, M.unlock.filter(u => okIds.includes(u.id)));
     draw();
   }
-  onLang(draw); document.addEventListener('jeux:update', () => { if (seed != null && done) draw(); });
+  onLang(draw); onLevel(() => next()); document.addEventListener('jeux:update', () => { if (seed != null && done) draw(); });
   next();
 }
 export { shuffle };

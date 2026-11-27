@@ -1,6 +1,6 @@
 // Jeu « Devine la planète » : 3 indices issus des données de la fiche, révélés un à un ; 30 / 20 / 10 points.
 import { guessPuzzle, planetHints, nameOf, rngFrom, GUESS_POINTS } from '../../../lib/games.mjs';
-import { el, tx, lang, onLang, mode, gameData, reward, verdict, mountBar } from './core.js';
+import { el, tx, lang, onLang, mode, level, onLevel, gameData, reward, verdict, mountBar } from './core.js';
 
 export async function mount(root) {
   mountBar(document.getElementById('gm-bar'));
@@ -9,7 +9,7 @@ export async function mount(root) {
   const planets = data.planets, by = Object.fromEntries(planets.map(p => [p.i, p]));
   let pz, shown, wrong, done, result;
 
-  const newGame = () => { pz = guessPuzzle(planets, rngFrom(), lang(), mode()); shown = 1; wrong = new Set(); done = false; result = null; draw(); };
+  const newGame = () => { pz = guessPuzzle(planets, rngFrom(), lang(), mode(), level()); shown = 1; wrong = new Set(); done = false; result = null; draw(); };
   // les textes sont recalculés à chaque affichage : changer de langue ou de style garde les mêmes indices
   const hintTexts = () => { const all = planetHints(by[pz.target], lang(), mode()); return pz.hints.map(k => all.find(h => h.key === k).text); };
 
@@ -24,7 +24,7 @@ export async function mount(root) {
         el('button', { type: 'button', class: 'btn', disabled: shown >= 3, onclick: () => { shown++; draw(); }, text: tx(`Un autre indice (${shown}/3)`, `Another clue (${shown}/3)`) }),
         el('small', { class: 'credit', text: tx(`Bonne réponse maintenant : ${GUESS_POINTS[shown - 1]} points.`, `Right answer now: ${GUESS_POINTS[shown - 1]} points.`) })),
       el('div', { class: 'gm-choices', role: 'group', 'aria-label': tx('Choisis une planète', 'Choose a planet') },
-        planets.map(p => el('button', { type: 'button', class: `btn gm-choice${wrong.has(p.i) ? ' ko' : ''}${done && p.i === pz.target ? ' ok' : ''}`, disabled: done || wrong.has(p.i), onclick: () => answer(p.i) },
+        (pz.choices ?? planets.map(p => p.i)).map(id => by[id]).map(p => el('button', { type: 'button', class: `btn gm-choice${wrong.has(p.i) ? ' ko' : ''}${done && p.i === pz.target ? ' ok' : ''}`, disabled: done || wrong.has(p.i), onclick: () => answer(p.i) },
           p.img ? el('img', { src: p.img.src, alt: '', loading: 'lazy', width: 48, height: 48 }) : '', el('span', { text: nameOf(p, L) })))),
       done ? el('div', { class: 'gm-actions' }, el('button', { type: 'button', class: 'btn primary', onclick: newGame, text: tx('Nouvelle planète', 'New planet') })) : '',
       out);
@@ -50,6 +50,6 @@ export async function mount(root) {
     }
     draw();
   }
-  onLang(draw); document.addEventListener('jeux:update', () => { if (pz) draw(); });
+  onLang(draw); onLevel(newGame); document.addEventListener('jeux:update', () => { if (pz) draw(); });
   newGame();
 }

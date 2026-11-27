@@ -325,3 +325,11 @@ a.gm-card:hover, a.gm-card:focus-visible { border-color: var(--acc); transform: 
 .gm-card em.gm-level { margin-top: auto; padding-top: 6px; font-size: 12px; font-style: normal; } p.gm-level { margin: 4px 0 0; font-size: 14px; }
 .gm-level { color: var(--mute); } .gm-level.lv1 { color: var(--ok); } .gm-level.lv2 { color: var(--warn); } .gm-level.lv3 { color: #ff9b9b; }
 .sp-btn { display: inline-block; text-decoration: none; padding: 10px 18px; font-size: 16px; }
+.gm-levelinfo { margin: 10px 0 0; padding: 10px 12px; border-left: 3px solid var(--acc); background: #6ea8ff12; border-radius: 6px; }
+/* choix du niveau : les 4 boutons passent à la ligne sur petit écran */
+.gm-mode { flex-wrap: wrap; }
+@media (max-width: 560px) {
+  .gm-mode { width: 100%; }
+  .gm-mode .gm-lbl { width: 100%; }
+  .gm-mode .btn { flex: 1 1 calc(50% - 6px); padding: 8px 6px; }
+}

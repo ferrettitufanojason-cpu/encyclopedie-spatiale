@@ -1,5 +1,5 @@
 // Socle commun des jeux : langue, données, progression (UNIQUEMENT dans ce navigateur, rien n'est envoyé), barre d'outils, correction.
-import { BADGES, badgesFor, nextBadge } from '../../../lib/games.mjs';
+import { BADGES, badgesFor, nextBadge, SCHOOL_LEVELS, LEVEL_NAMES } from '../../../lib/games.mjs';
 
 /* ---------- langue (même mécanisme que le reste du site : localStorage « lang » + évènement « langchange ») ---------- */
 export const lang = () => (document.documentElement.lang === 'en' ? 'en' : 'fr');
@@ -24,17 +24,35 @@ export const gameData = () => (dataP ??= fetch('/data/jeux.json').then(r => { if
 
 /* ---------- progression locale ---------- */
 const KEY = 'jeux-v1';
-const fresh = () => ({ v: 1, points: 0, unlocked: {}, games: {}, mode: 'simple' });
+const fresh = () => ({ v: 1, points: 0, unlocked: {}, games: {}, level: 'college' });
 export function load() {
-  try { const s = JSON.parse(localStorage.getItem(KEY) ?? 'null'); if (s && s.v === 1) return { ...fresh(), ...s }; } catch { /* stockage indisponible */ }
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) ?? 'null');
+    if (s && s.v === 1) {
+      // ancien réglage « Simple / Détaillé » → niveau (détaillé = université, sinon collège)
+      if (!SCHOOL_LEVELS.includes(s.level)) s.level = s.mode === 'detail' ? 'universite' : 'college';
+      delete s.mode;
+      return { ...fresh(), ...s };
+    }
+  } catch { /* stockage indisponible */ }
   return fresh();
 }
 let state = load();
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* navigation privée, stockage plein… : on continue sans sauvegarde */ } };
 const changed = () => { save(); document.dispatchEvent(new CustomEvent('jeux:update')); };
 export const progress = () => state;
-export const mode = () => (state.mode === 'detail' ? 'detail' : 'simple');
-export function setMode(m) { state.mode = m === 'detail' ? 'detail' : 'simple'; changed(); }
+/* ---------- niveau scolaire choisi (primaire, collège, lycée, université) ---------- */
+export const level = () => (SCHOOL_LEVELS.includes(state.level) ? state.level : 'college');
+// style des textes : chiffres précis et vocabulaire technique seulement au niveau université
+export const mode = () => (level() === 'universite' ? 'detail' : 'simple');
+export function setLevel(l) {
+  if (!SCHOOL_LEVELS.includes(l) || l === state.level) return;
+  state.level = l; save();
+  document.dispatchEvent(new CustomEvent('jeux:level', { detail: l }));
+  document.dispatchEvent(new CustomEvent('jeux:update'));
+}
+/** Appelé quand le joueur change de niveau : le jeu repart avec une nouvelle question adaptée. */
+export const onLevel = cb => document.addEventListener('jeux:level', () => cb(level()));
 /** Ajoute des points et débloque des objets ; renvoie les badges nouvellement obtenus. */
 export function reward(game, pts, unlock = []) {
   const before = badgesFor(state.points).length;
@@ -51,14 +69,14 @@ export const daily = () => state.daily ?? null;
 export function setDaily(v) { state.daily = v; changed(); }
 export function resetAll() { state = fresh(); try { localStorage.removeItem(KEY); } catch {} changed(); }
 
-/* ---------- barre d'outils : style de texte, points, badge ---------- */
+/* ---------- barre d'outils : niveau, points, badge ---------- */
 export function mountBar(host) {
   const draw = () => {
-    const p = state.points, nb = nextBadge(p), got = badgesFor(p).at(-1), m = mode();
-    const seg = (val, fr, en) => el('button', { type: 'button', class: 'btn', 'aria-pressed': String(m === val), onclick: () => setMode(val), text: tx(fr, en) });
+    const p = state.points, nb = nextBadge(p), got = badgesFor(p).at(-1), lv = level();
+    const seg = id => el('button', { type: 'button', class: 'btn', 'aria-pressed': String(lv === id), onclick: () => setLevel(id), text: LEVEL_NAMES[id][lang() === 'en' ? 1 : 0] });
     host.replaceChildren(
-      el('div', { class: 'gm-mode', role: 'group', 'aria-label': tx('Style des textes', 'Text style') },
-        el('span', { class: 'gm-lbl', text: tx('Textes :', 'Texts:') }), seg('simple', 'Simple', 'Simple'), seg('detail', 'Détaillé', 'Detailed')),
+      el('div', { class: 'gm-mode', role: 'group', 'aria-label': tx('Mon niveau', 'My level') },
+        el('span', { class: 'gm-lbl', text: tx('Mon niveau :', 'My level:') }), ...SCHOOL_LEVELS.map(seg)),
       el('p', { class: 'gm-score' }, el('b', { text: `${p.toLocaleString(lang())} ${tx('points', 'points')}` }),
         got ? ` · ${got.icon} ${got[lang()]}` : '',
         nb ? el('small', { text: ` · ${tx('prochain badge : ', 'next badge: ')}${nb[lang()]} (${nb.pts})` }) : ''),

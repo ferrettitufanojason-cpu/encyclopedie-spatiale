@@ -1,8 +1,8 @@
 // « Chasseur d'exoplanètes » : courbe de lumière simplifiée (profondeur et période réelles ; forme, durée et bruit simulés).
 // On repère les baisses en touchant la courbe ou en choisissant les tranches de temps (boutons : clavier et lecteur d'écran).
-import { rngFrom, pick, fmt } from '../../../lib/games.mjs';
+import { rngFrom, pick, fmt, byLevel, lvIdx } from '../../../lib/games.mjs';
 import { transitCurve, transitRadius } from '../../../lib/games-more.mjs';
-import { el, tx, lang, onLang, mode, gameData, reward, verdict, mountBar } from './core.js';
+import { el, tx, lang, onLang, mode, level, onLevel, gameData, reward, verdict, mountBar } from './core.js';
 
 const SEG = 16, W = 640, H = 220, PAD = 34;
 export async function mount(root) {
@@ -11,14 +11,17 @@ export async function mount(root) {
   let seed, cv, found, wrong, done, badges;
   const newGame = () => {
     seed = Math.floor(Math.random() * 2 ** 31); const rng = rngFrom(seed);
-    cv = transitCurve(pick(d.transits, rng), rng, { noise: mode() === 'detail' ? 0.35 : 0.2 });
+    const deep = d.transits.filter(t => t[5] >= 0.008), pool = lvIdx(level()) < 2 && deep.length ? deep : d.transits; // primaire, collège : baisses d'au moins 0,8 %
+    cv = transitCurve(pick(pool, rng), rng, { noise: byLevel(level(), [0.08, 0.15, 0.25, 0.4]) });
     found = new Set(); wrong = new Set(); done = false; badges = []; draw();
   };
   // tranches qui contiennent le milieu d'une baisse
   const target = () => new Set(cv.dips.map(([a, b]) => Math.min(SEG - 1, Math.floor(((a + b) / 2 / cv.span) * SEG))));
   function pickSeg(k) {
     if (done || found.has(k) || wrong.has(k)) return;
-    (target().has(k) ? found : wrong).add(k);
+    const tg = target(); let hit = tg.has(k) ? k : null;
+    if (hit == null && lvIdx(level()) < 2) hit = [k - 1, k + 1].find(x => tg.has(x) && !found.has(x)) ?? null; // une tranche d'écart est acceptée
+    if (hit != null) found.add(hit); else wrong.add(k);
     if ([...target()].every(t => found.has(t))) {
       done = true;
       const pts = Math.max(5, 25 - wrong.size * 5);
@@ -67,6 +70,6 @@ export async function mount(root) {
         objects: [{ id: p.i, n: p.n }], badges });
     }
   }
-  onLang(draw); document.addEventListener('jeux:update', () => { if (cv) draw(); });
+  onLang(draw); onLevel(newGame); document.addEventListener('jeux:update', () => { if (cv) draw(); });
   newGame();
 }

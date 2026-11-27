@@ -1,13 +1,13 @@
 // Jeu « Habitable ou pas ? » : une exoplanète réelle ; est-elle dans la zone habitable (calculée) de son étoile ?
 import { habitablePuzzle, habitableFacts, habitableExplain, rngFrom } from '../../../lib/games.mjs';
-import { el, tx, lang, onLang, mode, gameData, reward, verdict, mountBar } from './core.js';
+import { el, tx, lang, onLang, mode, level, onLevel, gameData, reward, verdict, mountBar } from './core.js';
 
 export async function mount(root) {
   mountBar(document.getElementById('gm-bar'));
   let data;
   try { data = await gameData(); } catch { root.replaceChildren(el('p', { class: 'na', text: tx('Les données du jeu n’ont pas pu être chargées.', 'The game data could not be loaded.') })); return; }
   let pz, picked, streak = 0;
-  const newGame = () => { pz = habitablePuzzle(data.exoplanets, rngFrom()); picked = null; draw(); };
+  const newGame = () => { pz = habitablePuzzle(data.exoplanets, rngFrom(), level()); picked = null; draw(); };
 
   // schéma : l'étoile à gauche, la zone habitable en vert, la planète à sa distance (échelle logarithmique pour tout faire tenir)
   function diagram(e) {
@@ -24,11 +24,14 @@ export async function mount(root) {
     root.replaceChildren(
       el('h2', { class: 'gm-title' }, e.n, e.dist ? el('small', { text: ` · ${e.dist.toLocaleString(L)} ${tx('années-lumière', 'light-years')}` }) : ''),
       el('ul', { class: 'gm-facts' }, habitableFacts(e, L, m).map(t => el('li', { text: t }))),
-      el('p', { class: 'gm-q', text: tx('Cette planète est-elle dans la zone habitable de son étoile ?', 'Is this planet in its star’s habitable zone?') }),
+      level() === 'primaire' ? diagram(e) : '',
+      el('p', { class: 'gm-q', text: level() === 'primaire'
+        ? tx('La planète (le point bleu) est-elle dans la zone verte, la zone habitable de son étoile ?', 'Is the planet (the blue dot) in the green zone, its star’s habitable zone?')
+        : tx('Cette planète est-elle dans la zone habitable de son étoile ?', 'Is this planet in its star’s habitable zone?') }),
       el('div', { class: 'gm-choices two' },
         [[true, tx('Oui, dans la zone habitable', 'Yes, in the habitable zone')], [false, tx('Non, en dehors', 'No, outside it')]].map(([v, t]) =>
           el('button', { type: 'button', class: `btn gm-choice${picked != null && v === pz.answer ? ' ok' : ''}${picked === v && v !== pz.answer ? ' ko' : ''}`, disabled: picked != null, onclick: () => answer(v), text: t }))),
-      picked != null ? diagram(e) : '',
+      picked != null && level() !== 'primaire' ? diagram(e) : '',
       picked != null ? el('div', { class: 'gm-actions' }, el('button', { type: 'button', class: 'btn primary', onclick: newGame, text: tx('Autre exoplanète', 'Another exoplanet') }), el('small', { class: 'credit', text: tx(`Série : ${streak}`, `Streak: ${streak}`) })) : '',
       out);
     if (picked != null) {
@@ -44,6 +47,6 @@ export async function mount(root) {
     lastBadges = reward('habitable-ou-pas', ok ? 10 + Math.min(streak - 1, 5) * 2 : 0, ok ? [{ id: pz.exo.i, n: pz.exo.n, k: 'exoplanet' }] : []);
     draw();
   }
-  onLang(draw); document.addEventListener('jeux:update', () => { if (pz) draw(); });
+  onLang(draw); onLevel(() => { streak = 0; newGame(); }); document.addEventListener('jeux:update', () => { if (pz) draw(); });
   newGame();
 }

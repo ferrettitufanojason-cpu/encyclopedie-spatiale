@@ -38,5 +38,5 @@ export async function mount(root) {
       ex.length ? el('p', {}, tx('Exemples réels dans l’encyclopédie : ', 'Real examples in the encyclopedia: '), ...ex.flatMap((r, k) => [k ? ', ' : '', el('a', { href: `/objet/${encodeURIComponent(r[0])}`, text: r[1] })])) : '');
   }
   draw(); onLang(draw); document.addEventListener('jeux:update', draw);
-  mountQuiz(quiz, { game: 'vie-d-une-etoile', points: 10, make: (rng, L) => starFateQuestion(rng, L) });
+  mountQuiz(quiz, { game: 'vie-d-une-etoile', points: 10, make: (rng, L, m, lv) => starFateQuestion(rng, L, lv) });
 }

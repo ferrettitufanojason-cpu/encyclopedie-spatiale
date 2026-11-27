@@ -2,7 +2,7 @@
 // Tous les jeux sont libres d'accès : ni âge, ni niveau à débloquer, ni compte.
 export const GAME_SECTIONS = [
   { id: 'systeme-solaire', icon: '🪐', fr: 'Système solaire', en: 'Solar System', games: [
-    { slug: 'ordre-des-planetes', ready: true, fr: ['L’ordre des planètes', 'Range les huit planètes depuis le Soleil.'], en: ['Order of the planets', 'Put the eight planets in order from the Sun.'] },
+    { slug: 'ordre-des-planetes', ready: true, fr: ['L’ordre des planètes', 'Range les planètes depuis le Soleil.'], en: ['Order of the planets', 'Put the planets in order from the Sun.'] },
     { slug: 'devine-la-planete', ready: true, fr: ['Devine la planète', 'Trois indices tirés des vraies données : moins tu en utilises, plus tu gagnes.'], en: ['Guess the planet', 'Three clues from real data: the fewer you use, the more you score.'] },
     { slug: 'le-plus-grand', ready: true, fr: ['Qui est le plus grand ?', 'Deux astres : le plus grand, le plus chaud ou le plus lourd ?'], en: ['Which is bigger?', 'Two bodies: which is bigger, hotter or heavier?'] },
     { slug: 'lunes-mysterieuses', ready: true, fr: ['Les lunes mystérieuses', 'Associe chaque lune à sa particularité.'], en: ['Mysterious moons', 'Match each moon with what makes it special.'] },
@@ -31,8 +31,8 @@ export const GAME_SECTIONS = [
   ] },
 ];
 
-// Niveau de difficulté indicatif (1 facile, 2 moyen, 3 expert ; 0 = mélange de tous les niveaux). Simple repère :
-// tous les jeux restent ouverts à tous, rien n'est à débloquer. Dans chaque rubrique, les jeux sont rangés du plus facile au plus difficile.
+// Ordre d'affichage dans chaque rubrique : du jeu le plus simple au plus exigeant (0 = jeux qui mélangent tout, placés à la fin).
+// Ce n'est plus affiché : chaque jeu s'adapte au niveau scolaire choisi par le joueur (primaire, collège, lycée, université).
 export const GAME_LEVEL = {
   'ordre-des-planetes': 1, 'le-plus-grand': 1, 'devine-la-planete': 2, 'lunes-mysterieuses': 2,
   'zoom-univers': 1, 'trous-noirs-vrai-faux': 2, 'vie-d-une-etoile': 2,
@@ -40,10 +40,4 @@ export const GAME_LEVEL = {
   'relie-les-etoiles': 1, 'ciel-de-ce-soir': 3,
   'choisis-ta-destination': 2, 'mission-objectif': 3,
   'defi-du-jour': 0, 'duel': 0,
-};
-export const LEVELS = {
-  0: { fr: 'Tous niveaux', en: 'All levels', stars: '' },
-  1: { fr: 'Facile', en: 'Easy', stars: '★☆☆' },
-  2: { fr: 'Moyen', en: 'Medium', stars: '★★☆' },
-  3: { fr: 'Expert', en: 'Expert', stars: '★★★' },
 };

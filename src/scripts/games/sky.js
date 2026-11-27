@@ -2,7 +2,7 @@
 // avec une question par événement, calculée à partir de ses données.
 import { rngFrom, shuffle } from '../../../lib/games.mjs';
 import { eventQuestion, maskedName } from '../../../lib/games-more.mjs';
-import { el, tx, lang, onLang, gameData, reward, verdict, mountBar } from './core.js';
+import { el, tx, lang, onLang, level, onLevel, gameData, reward, verdict, mountBar } from './core.js';
 
 const ICON = { 'meteor-shower': '☄️', 'solar-eclipse': '🌑', 'lunar-eclipse': '🌕', opposition: '🪐', elongation: '🌅', conjunction: '✨' };
 const TYPE = { 'meteor-shower': ['Étoiles filantes', 'Meteor shower'], 'solar-eclipse': ['Éclipse de Soleil', 'Solar eclipse'], 'lunar-eclipse': ['Éclipse de Lune', 'Lunar eclipse'],
@@ -15,15 +15,17 @@ export async function mount(root) {
   const today = new Date().toISOString().slice(0, 10);
   const upcoming = d.events.filter(e => e.date >= today);
   // au plus 3 événements par type, pour varier, puis tri par date (12 au total)
-  const per = {}, list = upcoming.filter(e => (per[e.s] = (per[e.s] ?? 0) + 1) <= 3).filter(e => eventQuestion(e, d.events, rngFrom(hash(e.i)), 'fr')).slice(0, 12);
-  const answers = {}; // id → réponse choisie (pour cette visite)
+  // seulement les événements qui ont une question au niveau choisi
+  const build = () => { const per = {}; return upcoming.filter(e => eventQuestion(e, d.events, rngFrom(hash(e.i)), 'fr', level())).filter(e => (per[e.s] = (per[e.s] ?? 0) + 1) <= 3).slice(0, 12); };
+  let list = build();
+  let answers = {}; // id → réponse choisie (pour cette visite)
   function draw() {
     const L = lang();
     if (!list.length) { root.replaceChildren(el('p', { class: 'na', text: tx('Aucun événement à venir dans les données pour le moment.', 'No upcoming event in the data for now.') })); return; }
     root.replaceChildren(
       el('p', { class: 'gm-q', text: tx('Les prochains rendez-vous du ciel. Ouvre un événement pour répondre à sa question.', 'Upcoming sky events. Open one to answer its question.') }),
       el('ol', { class: 'gm-cal' }, list.map(e => {
-        const Q = eventQuestion(e, d.events, rngFrom(hash(e.i)), L), a = answers[e.i], out = el('div', { class: 'gm-out' });
+        const Q = eventQuestion(e, d.events, rngFrom(hash(e.i)), L, level()), a = answers[e.i], out = el('div', { class: 'gm-out' });
         const date = new Date(`${e.date}T12:00:00Z`).toLocaleDateString(L === 'en' ? 'en-GB' : 'fr-FR', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
         const item = el('li', {}, el('details', { open: a != null },
           el('summary', {}, el('span', { class: 'gm-cal-date', text: date }), el('span', { 'aria-hidden': 'true', text: ` ${ICON[e.s]} ` }), el('b', { text: a != null ? (L === 'fr' ? e.nf : e.n) : maskedName(e, L) }), el('small', { class: 'tag', text: TYPE[e.s][L === 'en' ? 1 : 0] }), a != null ? el('span', { text: a === Q.answer ? ' ✔' : ' ✖' }) : ''),
@@ -37,5 +39,5 @@ export async function mount(root) {
       el('p', { class: 'credit', text: tx('Dates et données : IMO (étoiles filantes), catalogue des éclipses de la NASA, éphémérides JPL Horizons (planètes ; date à ±1 jour, voir la méthodologie). Les heures et la visibilité dépendent du lieu d’observation.', 'Dates and data: IMO (meteor showers), NASA eclipse catalogue, JPL Horizons ephemerides (planets; date ±1 day, see the methodology). Times and visibility depend on where you observe from.') }));
   }
   const lastBadges = {};
-  draw(); onLang(draw);
+  draw(); onLang(draw); onLevel(() => { list = build(); answers = {}; draw(); });
 }
